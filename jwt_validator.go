@@ -6,6 +6,7 @@ import (
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"
 	"net/http"
+	"strings"
 )
 
 type Response struct {
@@ -51,6 +52,7 @@ func GetJWTMiddleware() *jwtmiddleware.JWTMiddleware{
 			return result, nil
 		},
 		SigningMethod: jwt.SigningMethodRS256,
+		Extractor: jwtmiddleware.FromAuthHeader,
 	})
 }
 
@@ -82,4 +84,26 @@ func getPemCert(token *jwt.Token) (string, error) {
 	}
 
 	return cert, nil
+}
+
+func profileFromToken(r *http.Request) map[string]interface{} {
+	token, err := jwtmiddleware.FromAuthHeader(r)
+	if err != nil {
+		panic(err)
+	}
+	splitToken := strings.Split(token, ".")
+
+	decodedToken, err := jwt.DecodeSegment(splitToken[1])
+	if err != nil {
+		panic(err)
+	}
+
+	tokenMap := make(map[string]interface{})
+
+	err = json.Unmarshal(decodedToken, &tokenMap)
+	if err != nil {
+		panic(err)
+	}
+
+	return tokenMap
 }
