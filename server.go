@@ -10,6 +10,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/chris-sg/bst_server_models/bst_api_models"
 )
 
 var (
@@ -66,10 +68,8 @@ func main() {
 }
 
 func Status(rw http.ResponseWriter, r *http.Request) {
-	status := struct {
-		Status string `json:"status"`
-	} {
-		"ok",
+	status := bst_api_models.Status{
+		Status: "ok",
 	}
 
 	statusBytes, _ := json.Marshal(status)
