@@ -7,6 +7,7 @@ require (
 	github.com/chris-sg/bst_server_models v0.0.0-20200228075122-635b259117ff
 	github.com/chris-sg/eagate v0.0.0
 	github.com/chris-sg/eagate_db v0.0.0
+	github.com/chris-sg/eagate_models v0.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.7.4
 	github.com/smartystreets/goconvey v1.6.4 // indirect

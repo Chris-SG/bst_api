@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_db/db_builder"
 )
 
 var (
@@ -39,8 +38,8 @@ func LoadConfig() {
 
 	flag.Parse()
 
-	db, err := eagate_db.OpenDb(user, password, dbname, host, maxIdleConnections)
-	db_builder.Create(db)
+	_, err := eagate_db.OpenDb(user, password, dbname, host, maxIdleConnections)
+	//db_builder.Create(db)
 	if err != nil {
 		panic(err)
 	}
