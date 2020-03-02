@@ -17,6 +17,7 @@ import (
 )
 
 var (
+	commonMiddleware *negroni.Negroni
 	protectionMiddleware *negroni.Negroni
 )
 
@@ -28,18 +29,20 @@ func main() {
 
 	logger := negroni.NewLogger()
 
-	commonMiddleware := negroni.New(
-		negroni.HandlerFunc(logger.ServeHTTP))
+	commonMiddleware = negroni.New(
+		negroni.HandlerFunc(logger.ServeHTTP),
+		negroni.HandlerFunc(SetContentType))
 
 	protectionMiddleware = negroni.New(
 		negroni.HandlerFunc(SetForbidden),
 		negroni.HandlerFunc(GetJWTMiddleware().HandlerWithNext))
 
-	apiRouter.HandleFunc("/status", Status).Methods(http.MethodGet)
-	apiRouter.PathPrefix("/user").Handler(negroni.New(
+	apiRouter.Path("/status").Handler(commonMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(Status)))).Methods(http.MethodGet)
+	apiRouter.PathPrefix("/user").Handler(commonMiddleware.With(
 		negroni.Wrap(CreateUserRouter())))
 
-	apiRouter.PathPrefix("/ddr").Handler(negroni.New(
+	apiRouter.PathPrefix("/ddr").Handler(commonMiddleware.With(
 		negroni.Wrap(CreateDdrRouter())))
 
 	r.PathPrefix(apiBase).Handler(commonMiddleware.With(
@@ -114,5 +117,10 @@ func updateCachedGate() {
 
 func SetForbidden(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	rw.WriteHeader(http.StatusForbidden)
+	next(rw, r)
+}
+
+func SetContentType(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	next(rw, r)
 }

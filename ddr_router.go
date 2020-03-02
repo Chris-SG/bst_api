@@ -32,6 +32,9 @@ func CreateDdrRouter() *mux.Router {
 
 	ddrRouter.HandleFunc("/songs/{id}", SongsIdGet).Methods(http.MethodGet)
 
+	ddrRouter.Path("/songs/scores").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(SongsScoresGet)))).Methods(http.MethodGet)
+
 	return ddrRouter
 }
 
@@ -70,6 +73,11 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	status := WriteStatus("ok", "profile refreshed")
+	bytes, _ := json.Marshal(status)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
 }
 
 // ProfileUpdatePatch will check the past 50 plays for the user.
@@ -105,6 +113,11 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	status := WriteStatus("ok", "profile updated")
+	bytes, _ := json.Marshal(status)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
 }
 
 // SongsGet will retrieve a list of all songs from the database.
@@ -265,6 +278,34 @@ func SongsIdGet(rw http.ResponseWriter, r *http.Request) {
 	songs[0].Difficulties = difficulties
 
 	bytes, _ := json.Marshal(difficulties)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+}
+
+func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
+	users, err := tryGetEagateUsers(r)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	db, _ := eagate_db.GetDb()
+
+	ddrProfile, err := ddr_db.RetrieveDdrPlayerDetailsByEaGateUser(db, users[0].Name)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	scores := ddr_db.RetrieveSongStatistics(db, ddrProfile.Code)
+
+	bytes, _ := json.Marshal(scores)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
 }

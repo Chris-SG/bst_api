@@ -2,7 +2,7 @@
 
 ## root endpoints: `/`
 
-### `/status` http.GET ✅
+### GET `/status` ✅
 Current API status.
 
 *headers*
@@ -26,7 +26,7 @@ Current API status.
 
 ## DDR endpoints: `/ddr`
 
-### `/profile/update` http.PATCH ✅
+### PATCH `/ddr/profile/update` ✅
 Update user profile with latest statistics and scores.
 
 *headers*
@@ -45,7 +45,7 @@ Update user profile with latest statistics and scores.
 }
 ```
 
-### `/profile/refresh` http.PATCH ✅
+### PATCH `/ddr/profile/refresh` ✅
 Re-process statistics for all difficulties.
 
 *headers*
@@ -64,7 +64,7 @@ Re-process statistics for all difficulties.
 }
 ```
 
-### `/songs` http.GET ✅
+### GET `/ddr/songs` ✅
 List of songs currently in the database.
 
 *headers*
@@ -93,7 +93,7 @@ List of songs currently in the database.
 ]
 ```
 
-### `/songs` http.PATCH ✅
+### PATCH `/ddr/songs` ✅
 Update songs in database.
 
 *headers*
@@ -113,7 +113,7 @@ Update songs in database.
 }
 ```
 
-### `/songs/jackets` http.GET ✅
+### GET `/ddr/songs/jackets` ✅
 List of jackets for provided songs.
 
 *headers*
@@ -145,7 +145,7 @@ List of jackets for provided songs.
 ]
 ```
 
-### `/songs/{id: song_id}` http.GET ✅
+### GET `/ddr/songs/{id: song_id}` ✅
 Get details for provided song id.
 
 *headers*
@@ -180,7 +180,7 @@ Get details for provided song id.
 }
 ```
 
-### `/songs/scores` http.GET
+### GET `/ddr/songs/scores` ❌
 List of users top scores.
 
 *headers*
@@ -229,7 +229,7 @@ List of users top scores.
 ]
 ```
 
-### `/songs/scores/{id: song_id}` http.GET
+### GET `/ddr/songs/scores/{id: song_id}` ❌
 List of users scores for given song.
 
 *headers*
@@ -298,7 +298,7 @@ List of users scores for given song.
 }
 ```
 
-### `/songs/scores/{id: song_id}/{mode: mode_name}/{difficulty: difficulty_name}` http.GET
+### GET `/ddr/songs/scores/{id: song_id}/{mode: mode_name}/{difficulty: difficulty_name}` ❌
 List of users scores for a given song difficulty.
 
 *headers*
@@ -344,7 +344,7 @@ List of users scores for a given song difficulty.
 
 ## User endpoints: `/user`
 
-### `/login` http.GET
+### GET `/user/login` ✅
 Eagate login status for current authenticated user.
 
 *headers*
@@ -371,7 +371,7 @@ Eagate login status for current authenticated user.
 }
 ```
 
-### `/login` http.POST
+### POST `/user/login` ✅
 Link bst web user to eagate user.
 
 *headers*

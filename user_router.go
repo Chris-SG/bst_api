@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/chris-sg/bst_server_models/bst_api_models"
 	"github.com/chris-sg/bst_server_models/bst_web_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
@@ -28,7 +26,7 @@ func CreateUserRouter() *mux.Router {
 }
 
 func LoginGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := tryGetEagateUser(r)
+	users, err := tryGetEagateUsers(r)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
