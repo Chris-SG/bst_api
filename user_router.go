@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/chris-sg/bst_server_models/bst_api_models"
 	"github.com/chris-sg/bst_server_models/bst_web_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
@@ -27,23 +28,26 @@ func CreateUserRouter() *mux.Router {
 }
 
 func LoginGet(rw http.ResponseWriter, r *http.Request) {
-	tokenMap := profileFromToken(r)
-
-	val, ok := tokenMap["name"].(string)
-	if !ok {
+	users, err := tryGetEagateUser(r)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
 		return
 	}
 
-	db, err := eagate_db.GetDb()
-	if err != nil {
-		panic(err)
+	for i, _ := range users {
+		users[i].Cookie = "***"
 	}
-
-	users := user_db.RetrieveUserByWebId(db, val)
 
 	bytes, err := json.Marshal(users)
 	if err != nil {
-		panic(err)
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
 	}
 
 	rw.WriteHeader(http.StatusOK)
@@ -55,35 +59,58 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	val, ok := tokenMap["name"].(string)
 	if !ok {
+		status := WriteStatus("bad", "failed to read auth name from token")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
 		return
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		panic(err)
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
 	}
 
 	loginRequest := bst_web_models.LoginRequest{}
 	err = json.Unmarshal(body, &loginRequest)
 	if err != nil {
-		panic(err)
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
 	}
 
 	client := util.GenerateClient()
 
 	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, client)
 	if err != nil {
-		rw.Write([]byte(fmt.Sprintf(`{"error":"%s"}`, err.Error())))
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
 	}
 
 	db, err := eagate_db.GetDb()
 	if err != nil {
-		panic(err)
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
 	}
 
 	user_db.SetCookieForUser(db, loginRequest.Username, cookie)
 	user_db.SetWebUserForUser(db, loginRequest.Username, val)
 
+	status := WriteStatus("ok", "loaded cookie for user")
+	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusOK)
-	rw.Write([]byte(`{"status":"ok"}`))
+	rw.Write(bytes)
+	return
 }

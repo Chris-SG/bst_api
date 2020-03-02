@@ -2,7 +2,7 @@
 
 ## root endpoints: `/`
 
-### `/status` http.GET
+### `/status` http.GET ✅
 Current API status.
 
 *headers*
@@ -17,18 +17,20 @@ Current API status.
 *response*
 ```json
 {
-  "status":"ok"
+  "api": "ok",
+  "gate": "ok",
+  "db": "ok"
 }
 ```
 
 
 ## DDR endpoints: `/ddr`
 
-### `/profile/update` http.PATCH
+### `/profile/update` http.PATCH ✅
 Update user profile with latest statistics and scores.
 
 *headers*
-```json
+```
     "Authorization": "Bearer {{bearer_token}}"
 ```
 *payload*
@@ -43,11 +45,30 @@ Update user profile with latest statistics and scores.
 }
 ```
 
-### `/songs` http.GET
+### `/profile/refresh` http.PATCH ✅
+Re-process statistics for all difficulties.
+
+*headers*
+```
+    "Authorization": "Bearer {{bearer_token}}"
+```
+*payload*
+```json
+{
+}
+```
+*response*
+```json
+{
+  "status": "ok"
+}
+```
+
+### `/songs` http.GET ✅
 List of songs currently in the database.
 
 *headers*
-```json
+```
 
 ```
 *payload*
@@ -59,28 +80,24 @@ List of songs currently in the database.
 ```json
 [
   {
-    "Id":"{{song_id}}",
-    "Name":"{{song_name}}",
-    "Artist":"{{song_artist}}",
-    "Image":"",
-    "Difficulties":null
+    "Id":"1a2b3c4d5e6f",
+    "Name":"My First Song",
+    "Artist":"Bemani Sound Team"
   },
   {
-    "Id":"{{song_id}}",
-    "Name":"{{song_name}}",
-    "Artist":"{{song_artist}}",
-    "Image":"",
-    "Difficulties":null
+    "Id":"a1b2c3d4e5f6",
+    "Name":"My Second Song",
+    "Artist":"Bemani Sound Team"
   },
   ...
 ]
 ```
 
-### `/songs` http.PATCH
+### `/songs` http.PATCH ✅
 Update songs in database.
 
 *headers*
-```json
+```
     "Authorization": "Bearer {{bearer_token}}"
 ```
 *payload*
@@ -91,48 +108,44 @@ Update songs in database.
 *response*
 ```json
 {
-  "status": "ok"
-}
-
-{
-  "error": {{error_message}}
+  "status": "ok",
+  "message": "added 100 new songs (800 new difficulties)"
 }
 ```
 
-### `/songs/images` http.GET
-List of images for provided songs.
+### `/songs/jackets` http.GET ✅
+List of jackets for provided songs.
 
 *headers*
 ```json
 ```
 *payload*
 ```json
-[
-  {
-    "id": "{{song_id}}"
-  },
-  {
-    "id": "{{song_id}}"
-  },
-  ...
-]
+{
+  "ids":
+  [
+    "1a2b3c4d5e6f",
+    "a1b2c3d4e5f6",
+    ...
+  ]
+}
 ```
 *response*
 ```json
 [
   {
-    "id": "{{song_id}}",
-    "image": "{{base64_encoded_image}}"
+    "id": "1a2b3c4d5e6f",
+    "jacket": "base64encoded="
   },
   {
-    "id": "{{song_id}}",
-    "image": "{{base64_encoded_image}}"
+    "id": "a1b2c3d4e5f6",
+    "jacket": "base64encoded="
   },
   ...
 ]
 ```
 
-### `/songs/{id: song_id}` http.GET
+### `/songs/{id: song_id}` http.GET ✅
 Get details for provided song id.
 
 *headers*
@@ -146,21 +159,21 @@ Get details for provided song id.
 *response*
 ```json
 {
-  "id":"{{song_id}}",
-  "name":"{{song_name}}",
-  "artist":"{{song_artist}}",
-  "image":"{{base64_encoded_image}}",
+  "id":"1a2b3c4d5e6f",
+  "name":"A song name",
+  "artist":"A song artist",
+  "image":"abase64encodedimage=",
   "difficulties":
   [
     {
-      "mode": "{{mode}}",
-      "difficulty": "{{difficulty}}",
-      "difficultyvalue": {{difficulty_value}}
+      "mode": "SINGLE",
+      "difficulty": "BEGINNER",
+      "difficultyvalue": 1
     },
     {
-      "mode": "{{mode}}",
-      "difficulty": "{{difficulty}}",
-      "difficultyvalue": {{difficulty_value}}
+      "mode": "SINGLE",
+      "difficulty": "BASIC",
+      "difficultyvalue": 3
     },
     ...
   ]

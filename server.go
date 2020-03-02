@@ -4,6 +4,8 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/chris-sg/eagate/util"
+	"github.com/chris-sg/eagate_db"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"
@@ -67,14 +69,47 @@ func main() {
 	log.Fatal(srv.ListenAndServeTLS("", ""))
 }
 
+var (
+	cachedGate bool
+	cachedDb bool
+)
+
 func Status(rw http.ResponseWriter, r *http.Request) {
-	status := bst_api_models.Status{
-		Status: "ok",
+	updateCachedDb()
+	updateCachedGate()
+
+	status := bst_api_models.ApiStatus{
+		Api: "ok",
+	}
+	if cachedGate {
+		status.EaGate = "ok"
+	} else {
+		status.EaGate = "bad"
+	}
+	if cachedDb {
+		status.Db = "ok"
+	} else {
+		status.Db = "bad"
 	}
 
 	statusBytes, _ := json.Marshal(status)
 
+	rw.WriteHeader(http.StatusOK)
 	rw.Write(statusBytes)
+}
+
+func updateCachedDb() {
+	db, err := eagate_db.GetDb()
+	if err != nil || db.DB().Ping() != nil {
+		cachedDb = false
+	} else {
+		cachedDb = true
+	}
+}
+
+func updateCachedGate() {
+	client := util.GenerateClient()
+	cachedGate = !util.IsMaintenanceMode(client)
 }
 
 func SetForbidden(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
