@@ -87,6 +87,9 @@ func getPemCert(token *jwt.Token) (string, error) {
 	return cert, nil
 }
 
+// profileFromToken will extract the user profile from the
+// request JWT token. This contains data used to validate
+// the user against an eagate account.
 func profileFromToken(r *http.Request) map[string]interface{} {
 	token, err := jwtmiddleware.FromAuthHeader(r)
 	if err != nil {

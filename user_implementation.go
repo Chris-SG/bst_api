@@ -10,6 +10,8 @@ import (
 	"net/http"
 )
 
+// tryGetEagateUsers will attempt to load any eagate users linked to
+// the auth0 account provided in the request.
 func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 	tokenMap := profileFromToken(r)
 
@@ -31,6 +33,9 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 	return
 }
 
+// createClientForUser will generate a http client for the provided user
+// model. This is intended to only be used for this specific user model,
+// as it will use cookies from the database for eagate integration.
 func createClientForUser(userModel user_models.User) (client util.EaClient, err error) {
 	client = util.GenerateClient()
 	db, err := eagate_db.GetDb()

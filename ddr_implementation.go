@@ -10,6 +10,9 @@ import (
 	"github.com/chris-sg/eagate_models/user_models"
 )
 
+// checkForNewSongs will load the song list from eagate and compare it
+// against the song list from the database. Any songs only located in
+// eagate will be returned.
 func checkForNewSongs(client util.EaClient) (newSongs []string, err error) {
 	siteIds, err := ddr.SongIds(client)
 	if err != nil {
@@ -33,6 +36,9 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err error) {
 	return
 }
 
+// updateNewSongs will load song data and song difficulties for the
+// provided songIds slice. This intends to be used after checkForNewSongs
+// to update the database.
 func updateNewSongs(client util.EaClient, songIds []string) error {
 	db, _ := eagate_db.GetDb()
 	songData, err := ddr.SongData(client, songIds)
@@ -48,6 +54,8 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 	return nil
 }
 
+// updateSongStatistics will load the client's statistics for the given
+// difficulties slice and update the statistics in the database.
 func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDifficulty) (err error) {
 	pi, _, err := ddr.PlayerInformation(client)
 	if err != nil {
@@ -64,6 +72,11 @@ func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDi
 	return
 }
 
+// updatePlayerProfile will do a full update of the user's profile. This
+// includes updating the player information, the playcount, adding the
+// recent scores and updating song statistics.
+// TODO: if the user has played more than 50 songs, this will not update
+// unknown song statistics. This can currently still be achieved manually.
 func updatePlayerProfile(user user_models.User, client util.EaClient) (err error) {
 	db, _ := eagate_db.GetDb()
 	newPi, playcount, _ := ddr.PlayerInformation(client)

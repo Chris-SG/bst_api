@@ -1,0 +1,23 @@
+[Unit]
+Description=BST API
+After=syslog.target network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+WorkingDirectory=/home/bst
+User=bst
+ExecStart=/home/bst/bst_api  \
+    -issuer="https://myissuer.com/" \
+    -audience="abcde12345" \
+    -host="bst-api.com" \
+    -port="8443" \
+    -apibase="/" \
+    -dbuser="db" \
+    -dbpass="pw" \
+    -dbname="db" \
+    -dbhost="1.2.3.4"
+
+[Install]
+WantedBy=multi-user.target

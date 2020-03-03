@@ -14,6 +14,9 @@ import (
 	"github.com/chris-sg/eagate/user"
 )
 
+// CreateUserRouter will generate a new subrouter prefixed with `/user`.
+// This intends to be used for anything relating to an external user eg.
+// eagate.
 func CreateUserRouter() *mux.Router {
 	userRouter := mux.NewRouter().PathPrefix("/user").Subrouter()
 
@@ -25,6 +28,9 @@ func CreateUserRouter() *mux.Router {
 	return userRouter
 }
 
+// LoginGet will retrieve any relations between the requester and the
+// database. This may produce multiple relations in the case a user
+// has linked multiple accounts. Any stored cookies will be nullified.
 func LoginGet(rw http.ResponseWriter, r *http.Request) {
 	users, err := tryGetEagateUsers(r)
 	if err != nil {
@@ -52,6 +58,9 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 	rw.Write(bytes)
 }
 
+// LoginPost will attempt to login to eagate using the supplied credentials.
+// This will not check the current user state, which if exists, will have
+// its cookie updated and web user replaced (if applicable).
 func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	tokenMap := profileFromToken(r)
 

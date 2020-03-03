@@ -77,6 +77,10 @@ var (
 	cachedDb bool
 )
 
+// Status will return any status details for the API. This
+// currently caches eagate and db connections, however these
+// are still regenerated every page load.
+// TODO: use proper caching with timed expiry.
 func Status(rw http.ResponseWriter, r *http.Request) {
 	updateCachedDb()
 	updateCachedGate()
@@ -101,6 +105,9 @@ func Status(rw http.ResponseWriter, r *http.Request) {
 	rw.Write(statusBytes)
 }
 
+// updateCachedDb will retrieve the current database status.
+// This allows us to confirm whether the connection has broken
+// or not.
 func updateCachedDb() {
 	db, err := eagate_db.GetDb()
 	if err != nil || db.DB().Ping() != nil {
@@ -110,16 +117,24 @@ func updateCachedDb() {
 	}
 }
 
+// updateCachedGate will get the current state of eagate. This
+// will return false if either a connection cannot be formed
+// with eagate or maintenance mode is active.
 func updateCachedGate() {
 	client := util.GenerateClient()
 	cachedGate = !util.IsMaintenanceMode(client)
 }
 
+// SetForbidden will set the status header. This is done prior
+// to validating a token, and will be changed if successfully
+// validated.
 func SetForbidden(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	rw.WriteHeader(http.StatusForbidden)
 	next(rw, r)
 }
 
+// SetContentType will set the content-type to json, as all api
+// endpoints will return json data.
 func SetContentType(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	next(rw, r)

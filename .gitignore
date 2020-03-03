@@ -109,5 +109,5 @@ fabric.properties
 
 
 # other
-*bst_api*
+bst_api
 .idea/

@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/chris-sg/bst_server_models/bst_api_models"
 	"github.com/chris-sg/bst_server_models/bst_web_models"
 	"github.com/chris-sg/eagate/ddr"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_db/ddr_db"
+	"github.com/chris-sg/eagate_models/ddr_models"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"io/ioutil"
@@ -126,8 +128,29 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 func SongsGet(rw http.ResponseWriter, r *http.Request) {
 	db, _ := eagate_db.GetDb()
 
+	ordering := ""
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err == nil {
+		orderStruct := bst_api_models.Ordering{}
+		err := json.Unmarshal(body, &orderStruct)
+		if err == nil {
+			ordering = ValidateOrdering(ddr_models.Song{}, orderStruct.OrderBy)
+			fmt.Println(ordering)
+		}
+	}
+
 	songIds := ddr_db.RetrieveSongIds(db)
-	songs := ddr_db.RetrieveSongsById(db, songIds)
+
+	var songs []ddr_models.Song
+
+	if ordering == "" {
+		songs = ddr_db.RetrieveSongsById(db, songIds)
+	} else {
+		fmt.Println(ordering)
+		songs = ddr_db.RetrieveOrderedSongsById(db, songIds, ordering)
+	}
+
 
 
 	bytes, err := json.Marshal(songs)
@@ -201,7 +224,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 }
 
 // SongJacketsGet will retrieve the jackets for song ids provided in the
-// request body
+// request body.
 func SongsJacketGet(rw http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -244,6 +267,8 @@ func SongsJacketGet(rw http.ResponseWriter, r *http.Request) {
 	rw.Write(bytes)
 }
 
+// SongsIdGet will retrieve details about the song id located within
+// the request URI.
 func SongsIdGet(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	val := vars["id"]
@@ -282,6 +307,8 @@ func SongsIdGet(rw http.ResponseWriter, r *http.Request) {
 	rw.Write(bytes)
 }
 
+// SongScoresGet will retrieve score details for the user defined
+// within the request JWT.
 func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 	users, err := tryGetEagateUsers(r)
 	if err != nil {

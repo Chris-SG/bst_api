@@ -74,6 +74,12 @@ List of songs currently in the database.
 *payload*
 ```json
 {
+  "order_by":
+  [
+    "Name",
+    "Artist DESC",
+    "Id ASC"
+  ] OPTIONAL ❌
 }
 ```
 *response*
@@ -239,7 +245,12 @@ List of users scores for given song.
 *payload*
 ```json
 {
-  "order_by": "{{field_name}}" OPTIONAL
+  "order_by":
+  [
+    "mode",
+    "difficulty DESC",
+    "lamp ASC"
+  ] OPTIONAL ❌
 }
 ```
 *response*
@@ -383,7 +394,7 @@ Link bst web user to eagate user.
 {
 	"username": "myusername@eagate.com",
 	"password": "MyPassword1!",
-	"otp": "012345" OPTIONAL
+	"otp": "012345" OPTIONAL ❌
 }
 ```
 *response*
