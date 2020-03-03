@@ -79,7 +79,7 @@ List of songs currently in the database.
     "Name",
     "Artist DESC",
     "Id ASC"
-  ] OPTIONAL ❌
+  ] OPTIONAL
 }
 ```
 *response*
@@ -186,7 +186,7 @@ Get details for provided song id.
 }
 ```
 
-### GET `/ddr/songs/scores` ❌
+### GET `/ddr/songs/scores` ✅
 List of users top scores.
 
 *headers*
@@ -200,37 +200,39 @@ List of users top scores.
     "{{song_id}}",
     "{{song_id}}",
     ...
-  ], OPTIONAL
-  "order_by": "{{field_name}}" OPTIONAL
+  ], OPTIONAL ✅
+  "order_by": "{{field_name}}" OPTIONAL ❌
 }
 ```
 *response*
 ```json
 [
-  {
-    "song_id": "{{song_id}}",
-    "mode": "{{mode}}",
-    "difficulty": "{{difficulty}}",
-    "best_score": {{highscore}},
-    "lamp": "{{lamp}}",
-    "rank": "{{rank}}",
-    "playcount": {{playcount}},
-    "clearcount": {{clearcount}},
-    "maxcombo": {{maxcombo}},
-    "last_played": {{last_played}}
-  },
-  {
-    "song_id": "{{song_id}}",
-    "mode": "{{mode}}",
-    "difficulty": "{{difficulty}}",
-    "best_score": {{highscore}},
-    "lamp": "{{lamp}}",
-    "rank": "{{rank}}",
-    "playcount": {{playcount}},
-    "clearcount": {{clearcount}},
-    "maxcombo": {{maxcombo}},
-    "last_played": {{last_played}}
-  },
+    {
+        "BestScore": 934510,
+        "Lamp": "---",
+        "Rank": "AA",
+        "PlayCount": 1,
+        "ClearCount": 1,
+        "MaxCombo": 200,
+        "LastPlayed": "2018-06-19T04:54:50Z",
+        "SongId": "88do8dl8O6Ql1Qlb981lOi8D86oiq91P",
+        "Mode": "SINGLE",
+        "Difficulty": "EXPERT",
+        "PlayerCode": 12312322
+    },
+    {
+        "BestScore": 979650,
+        "Lamp": "グレートフルコンボ",
+        "Rank": "AA+",
+        "PlayCount": 1,
+        "ClearCount": 1,
+        "MaxCombo": 436,
+        "LastPlayed": "2018-11-20T11:46:37Z",
+        "SongId": "QIDd80o0OqobODP00ldQ1D9dl81qQi0d",
+        "Mode": "SINGLE",
+        "Difficulty": "EXPERT",
+        "PlayerCode": 12312322
+    },
   ...
 ]
 ```

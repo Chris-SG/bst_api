@@ -32,10 +32,12 @@ func CreateDdrRouter() *mux.Router {
 
 	ddrRouter.HandleFunc("/songs/jackets", SongsJacketGet).Methods(http.MethodGet)
 
-	ddrRouter.HandleFunc("/songs/{id}", SongsIdGet).Methods(http.MethodGet)
+	ddrRouter.HandleFunc("/songs/{id: ^[A-Za-z0-9]{32}$}", SongsIdGet).Methods(http.MethodGet)
 
 	ddrRouter.Path("/songs/scores").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresGet)))).Methods(http.MethodGet)
+	ddrRouter.Path("/songs/scores/{id: ^[A-Za-z0-9]{32}$}").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(SongsScoresIdGet)))).Methods(http.MethodGet)
 
 	return ddrRouter
 }
@@ -330,9 +332,52 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scores := ddr_db.RetrieveSongStatistics(db, ddrProfile.Code)
+	body, err := ioutil.ReadAll(r.Body)
+	ids := make([]string, 0)
+	if err == nil {
+		var jsonMap map[string]interface{}
+		err = json.Unmarshal(body, &jsonMap)
+
+		if jsonMap["ids"] != nil {
+			interfaceIds := jsonMap["ids"].([]interface{})
+			for _, id := range interfaceIds {
+				ids = append(ids, fmt.Sprint(id))
+			}
+		}
+	}
+
+	var scores []ddr_models.SongStatistics
+
+	if len(ids) > 0 {
+		scores = ddr_db.RetrieveSongStatisticsForSongsIds(db, ddrProfile.Code, ids)
+	} else {
+		scores = ddr_db.RetrieveAllSongStatistics(db, ddrProfile.Code)
+	}
+
 
 	bytes, _ := json.Marshal(scores)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
+}
+
+func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
+	/*users, err := tryGetEagateUsers(r)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	db, _ := eagate_db.GetDb()
+
+	ddrProfile, err := ddr_db.RetrieveDdrPlayerDetailsByEaGateUser(db, users[0].Name)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}*/
 }
