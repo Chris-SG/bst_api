@@ -237,7 +237,7 @@ List of users top scores.
 ]
 ```
 
-### GET `/ddr/songs/scores/{id: song_id}` ❌
+### GET `/ddr/songs/scores/{id: song_id}` ✅
 List of users scores for given song.
 
 *headers*

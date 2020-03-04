@@ -14,6 +14,9 @@ func WriteStatus(status string, message string) bst_api_models.Status {
 	}
 }
 
+// ValidateOrdering will ensure columns in orderRequest are correct for the
+// provided interfae. Additionally, it will only allow ASC and DESC.
+// TODO: support fields such as LENGTH(id)
 func ValidateOrdering(i interface{}, orderRequest []string) (ordering string) {
 	t := reflect.TypeOf(i)
 
@@ -51,5 +54,39 @@ func ValidateOrdering(i interface{}, orderRequest []string) (ordering string) {
 	}
 
 	ordering = strings.Join(toJoin, ", ")
+	return
+}
+
+// ValidateFiltering will ensure filtered select statements will only
+// use valid rows from the interface.
+// TODO: Do validation on clauses.
+func ValidateFiltering(i interface{}, filterRequest []string) (filtering string) {
+	t := reflect.TypeOf(i)
+
+	validFields := make(map[string]interface{}, 0)
+
+	for i := 0; i < t.NumField(); i++ {
+		tag := t.Field(i).Tag
+		gormTag := tag.Get("gorm")
+		gormTagSections := strings.Split(gormTag, ";")
+		for _, section := range gormTagSections {
+			if strings.Contains(section, "column:") {
+				col := strings.Split(section, ":")
+				validFields[col[1]] = nil
+				break
+			}
+		}
+	}
+
+	toJoin := make([]string, 0)
+	for _, req := range filterRequest {
+		s := strings.Split(req, " ")
+		if _, exists := validFields[s[0]]; !exists {
+			continue
+		}
+		toJoin = append(toJoin, req)
+	}
+
+	filtering = strings.Join(toJoin, " AND ")
 	return
 }

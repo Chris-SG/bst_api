@@ -13,6 +13,7 @@ import (
 	"github.com/urfave/negroni"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // CreateDdrRouter will create a mux router to be attached to
@@ -32,11 +33,11 @@ func CreateDdrRouter() *mux.Router {
 
 	ddrRouter.HandleFunc("/songs/jackets", SongsJacketGet).Methods(http.MethodGet)
 
-	ddrRouter.HandleFunc("/songs/{id: ^[A-Za-z0-9]{32}$}", SongsIdGet).Methods(http.MethodGet)
+	ddrRouter.HandleFunc("/songs/{id:[A-Za-z0-9]{32}}", SongsIdGet).Methods(http.MethodGet)
 
 	ddrRouter.Path("/songs/scores").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresGet)))).Methods(http.MethodGet)
-	ddrRouter.Path("/songs/scores/{id: ^[A-Za-z0-9]{32}$}").Handler(protectionMiddleware.With(
+	ddrRouter.Path("/songs/scores/{id:[A-Za-z0-9]{32}}").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresIdGet)))).Methods(http.MethodGet)
 
 	return ddrRouter
@@ -138,7 +139,6 @@ func SongsGet(rw http.ResponseWriter, r *http.Request) {
 		err := json.Unmarshal(body, &orderStruct)
 		if err == nil {
 			ordering = ValidateOrdering(ddr_models.Song{}, orderStruct.OrderBy)
-			fmt.Println(ordering)
 		}
 	}
 
@@ -149,7 +149,6 @@ func SongsGet(rw http.ResponseWriter, r *http.Request) {
 	if ordering == "" {
 		songs = ddr_db.RetrieveSongsById(db, songIds)
 	} else {
-		fmt.Println(ordering)
 		songs = ddr_db.RetrieveOrderedSongsById(db, songIds, ordering)
 	}
 
@@ -361,7 +360,10 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 }
 
 func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
-	/*users, err := tryGetEagateUsers(r)
+	vars := mux.Vars(r)
+	val := vars["id"]
+
+	users, err := tryGetEagateUsers(r)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
@@ -379,5 +381,46 @@ func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
 		return
-	}*/
+	}
+
+	result := bst_web_models.DdrScoresDetailed{ Id: val }
+
+	statistics := ddr_db.RetrieveSongStatisticsForSongsIds(db, ddrProfile.Code, []string{val})
+
+	bytes, _ := json.Marshal(statistics)
+	json.Unmarshal(bytes, &result.TopScores)
+
+	mode := map[string][]bst_web_models.DdrScoresDetailedDifficulty{}
+	scoresMap := map[string][]bst_web_models.DdrScoresDetailedScore{}
+	for _, stat := range statistics {
+		scores := ddr_db.RetrieveScores(db, ddrProfile.Code, val, stat.Mode, stat.Difficulty)
+
+		for _, score := range scores {
+			scoresMap[stat.Mode + ":" + stat.Difficulty] = append(scoresMap[stat.Mode + ":" + stat.Difficulty], bst_web_models.DdrScoresDetailedScore{
+				Score:       score.Score,
+				ClearStatus: score.ClearStatus,
+				TimePlayed:  score.TimePlayed,
+			})
+		}
+	}
+
+	for k, v := range scoresMap {
+		s := strings.Split(k, ":")
+		d := bst_web_models.DdrScoresDetailedDifficulty{
+			Difficulty: s[1],
+			Scores:     v,
+		}
+		mode[s[0]] = append(mode[s[0]], d)
+	}
+
+	for k, v := range mode {
+		result.Modes = append(result.Modes, bst_web_models.DdrScoresDetailedMode{
+			Mode:         k,
+			Difficulties: v,
+		})
+	}
+
+	bytes, _ = json.Marshal(result)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
 }

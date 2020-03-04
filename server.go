@@ -73,6 +73,7 @@ func main() {
 }
 
 var (
+	nextUpdate time.Time
 	cachedGate bool
 	cachedDb bool
 )
@@ -82,8 +83,11 @@ var (
 // are still regenerated every page load.
 // TODO: use proper caching with timed expiry.
 func Status(rw http.ResponseWriter, r *http.Request) {
-	updateCachedDb()
-	updateCachedGate()
+	if nextUpdate.Unix() < time.Now().Unix() {
+		nextUpdate = time.Now().Add(time.Minute * 2)
+		updateCachedDb()
+		updateCachedGate()
+	}
 
 	status := bst_api_models.ApiStatus{
 		Api: "ok",
@@ -129,8 +133,8 @@ func updateCachedGate() {
 // to validating a token, and will be changed if successfully
 // validated.
 func SetForbidden(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	rw.WriteHeader(http.StatusForbidden)
 	next(rw, r)
+	rw.WriteHeader(http.StatusForbidden)
 }
 
 // SetContentType will set the content-type to json, as all api

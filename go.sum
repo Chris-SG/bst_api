@@ -6,6 +6,14 @@ github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b h1:CvoEHGm
 github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b/go.mod h1:LWMyo4iOLWXHGdBki7NIht1kHru/0wM179h+d3g8ATM=
 github.com/chris-sg/bst_server_models v0.0.0-20200228075122-635b259117ff h1:MB0/Tcy8NZjqPuRMSNZqfR97BaRBgreukGgGeGOP9uk=
 github.com/chris-sg/bst_server_models v0.0.0-20200228075122-635b259117ff/go.mod h1:QAm0zB8hwap1niFFJWwSf7AJz/0Bh1q5RCDvTXP/p4o=
+github.com/chris-sg/bst_server_models v0.0.0-20200304062432-f077381cbb55 h1:fFqLe9dvIogO6ftesPNMyecEK9iu7byIgWSoCt6aNSA=
+github.com/chris-sg/bst_server_models v0.0.0-20200304062432-f077381cbb55/go.mod h1:QAm0zB8hwap1niFFJWwSf7AJz/0Bh1q5RCDvTXP/p4o=
+github.com/chris-sg/eagate v0.0.0-20200304062720-6a527315f2ea h1:+zeN9RdkFoKh4nZs6KSqJPy3F5KOHVyCECkr6HpzlSU=
+github.com/chris-sg/eagate v0.0.0-20200304062720-6a527315f2ea/go.mod h1:7iAWBhEbk3OTd3Z2OLxbR0WUG5QEeQdsVpvTwrYK980=
+github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f h1:4YLaCGwzfKcKmujkzueAwZibYJrdxpiCnP4jmeab5ys=
+github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f/go.mod h1:vZGKXiMao/GpPg+6KCiA2DjnHh7Bw4XK5ZPkXfM41s4=
+github.com/chris-sg/eagate_models v0.0.0-20200229105948-310a8bb68ec6 h1:W86y97nu/QstwIvFMgEba/mlvMfze70sQPXVK/OC7Ho=
+github.com/chris-sg/eagate_models v0.0.0-20200229105948-310a8bb68ec6/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6ROGeiHFAP8WJdI2RoxALQYgdllERc3N5N2DM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
