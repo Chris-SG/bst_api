@@ -1,5 +1,8 @@
 name: Go
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - master
 jobs:
 
   build_and_deploy:
@@ -30,28 +33,28 @@ jobs:
     - name: Stop Service
       run: |
         cat > id_rsa <<- EOF
-        ${{ secrets.API_SERVER_PRIVATE_KEY }}
+        ${{ secrets.API_SERVER_PRIVATE_KEY_DEV }}
         EOF
         chmod 400 id_rsa
-        ssh -tt -o StrictHostKeyChecking=no -i "id_rsa" ${{ secrets.API_SERVER_USER }}@${{ secrets.API_SERVER_IP }} "sudo systemctl stop bst_api"
+        ssh -tt -o StrictHostKeyChecking=no -i "id_rsa" ${{ secrets.API_SERVER_USER_DEV }}@${{ secrets.API_SERVER_IP_DEV }} "sudo systemctl stop bst_api"
         rm id_rsa
         
     - name: Transfer API
       run: |
         cat > id_rsa <<- EOF
-        ${{ secrets.API_SERVER_PRIVATE_KEY }}
+        ${{ secrets.API_SERVER_PRIVATE_KEY_DEV }}
         EOF
         chmod 400 id_rsa
-        scp -o StrictHostKeyChecking=no -i "id_rsa" bst_api ${{ secrets.API_SERVER_USER }}@${{ secrets.API_SERVER_IP }}:${{ secrets.API_SERVER_DEST }}
+        scp -o StrictHostKeyChecking=no -i "id_rsa" bst_api ${{ secrets.API_SERVER_USER_DEV }}@${{ secrets.API_SERVER_IP_DEV }}:${{ secrets.API_SERVER_DEST_DEV }}
         rm id_rsa
 
     - name: Start Service
       run: |
         cat > id_rsa <<- EOF
-        ${{ secrets.API_SERVER_PRIVATE_KEY }}
+        ${{ secrets.API_SERVER_PRIVATE_KEY_DEV }}
         EOF
         chmod 400 id_rsa
-        ssh -tt -o StrictHostKeyChecking=no -i "id_rsa" ${{ secrets.API_SERVER_USER }}@${{ secrets.API_SERVER_IP }} "sudo systemctl start bst_api"
+        ssh -tt -o StrictHostKeyChecking=no -i "id_rsa" ${{ secrets.API_SERVER_USER_DEV }}@${{ secrets.API_SERVER_IP_DEV }} "sudo systemctl start bst_api"
         rm id_rsa
       
 
