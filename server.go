@@ -37,12 +37,12 @@ func main() {
 		negroni.HandlerFunc(SetForbidden),
 		negroni.HandlerFunc(GetJWTMiddleware().HandlerWithNext))
 
-	apiRouter.Path("/status").Handler(commonMiddleware.With(
+	apiRouter.Path("/status").Handler(negroni.New(
 		negroni.Wrap(http.HandlerFunc(Status)))).Methods(http.MethodGet)
-	apiRouter.PathPrefix("/user").Handler(commonMiddleware.With(
+	apiRouter.PathPrefix("/user").Handler(negroni.New(
 		negroni.Wrap(CreateUserRouter())))
 
-	apiRouter.PathPrefix("/ddr").Handler(commonMiddleware.With(
+	apiRouter.PathPrefix("/ddr").Handler(negroni.New(
 		negroni.Wrap(CreateDdrRouter())))
 
 	r.PathPrefix(apiBase).Handler(commonMiddleware.With(

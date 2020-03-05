@@ -1,0 +1,414 @@
+{
+  "info": {
+    "_postman_id": "ad5f61e1-abf4-45d2-8886-f5eedf98f494",
+    "name": "bst",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "/status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/status",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/profile/update",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/ddr/profile/update",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "profile",
+            "update"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/profile/refresh",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/ddr/profile/refresh",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "profile",
+            "refresh"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/ddr/songs",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs ordered",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "name": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"order_by\":\n\t[\n\t\t\"artist DESC\",\n\t\t\"id\"\n\t]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API}}/ddr/songs",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/ddr/songs",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs/jackets",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "name": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"ids\":\n\t[\n\t\t\"006ob1iI9b1I8dDl0dq1bqIOP8886li1\",\n\t\t\"00obPO6oPIPOoD9qb0dIl6q6D8P6o9bI\"\n\t]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API}}/ddr/songs/jackets",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs",
+            "jackets"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs/00obPO6oPIPOoD9qb0dIl6q6D8P6o9bI",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/ddr/songs/00obPO6oPIPOoD9qb0dIl6q6D8P6o9bI",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs",
+            "00obPO6oPIPOoD9qb0dIl6q6D8P6o9bI"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/user/login",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/user/login",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/user/login",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "name": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"username\": \"chris.shandgost@gmail.com\",\n\t\"password\": \"UM3A8HqhFILY2PzBr2u7OF5TktRf6y\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API}}/user/login",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs/scores",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/ddr/songs/scores",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs",
+            "scores"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs/scores/{id}",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API}}/ddr/songs/scores/8QbqP80q9PI8bbi0qOoiibOQD08OPdli",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs",
+            "scores",
+            "8QbqP80q9PI8bbi0qOoiibOQD08OPdli"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/ddr/songs/scores filtered",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "name": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"ids\":\n\t[\n\t\t\"D9lq0DioIl9D6ll0d61990DP9qPPb1dP\",\n\t\t\"Do6oPoo1QbOPo9DIii0Q0180l8b1Doqi\"\n\t]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API}}/ddr/songs/scores",
+          "host": [
+            "{{API}}"
+          ],
+          "path": [
+            "ddr",
+            "songs",
+            "scores"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "protocolProfileBehavior": {}
+}

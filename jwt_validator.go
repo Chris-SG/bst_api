@@ -53,7 +53,6 @@ func GetJWTMiddleware() *jwtmiddleware.JWTMiddleware{
 		},
 		SigningMethod: jwt.SigningMethodRS256,
 		Extractor: jwtmiddleware.FromAuthHeader,
-		Debug: true,
 	})
 }
 
