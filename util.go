@@ -2,6 +2,9 @@ package main
 
 import (
 	"github.com/chris-sg/bst_server_models/bst_api_models"
+	"github.com/chris-sg/eagate/util"
+	"github.com/chris-sg/eagate_db"
+	"github.com/chris-sg/eagate_db/user_db"
 	"reflect"
 	"strings"
 )
@@ -89,4 +92,13 @@ func ValidateFiltering(i interface{}, filterRequest []string) (filtering string)
 
 	filtering = strings.Join(toJoin, " AND ")
 	return
+}
+
+func UpdateCookie(client util.EaClient) {
+	db, _ := eagate_db.GetDb()
+	if util.CheckForUpdatedCookie(client) {
+		cookie := util.GetCurrentCookie(client)
+		client.ActiveCookie = cookie.String()
+		user_db.SetCookieForUser(db, client.Username, cookie)
+	}
 }

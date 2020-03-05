@@ -33,6 +33,7 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err error) {
 			}
 		}
 	}
+	UpdateCookie(client)
 	return
 }
 
@@ -51,6 +52,7 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 		return err
 	}
 	ddr_db.AddSongDifficulties(db, difficulties)
+	UpdateCookie(client)
 	return nil
 }
 
@@ -69,6 +71,7 @@ func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDi
 
 	db, _ := eagate_db.GetDb()
 	ddr_db.AddSongStatistics(db, stats, pi.Code)
+	UpdateCookie(client)
 	return
 }
 
@@ -156,6 +159,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 	}
 	ddr_db.AddPlayerDetails(db, *newPi)
 	ddr_db.AddPlaycountDetails(db, *playcount)
+	UpdateCookie(client)
 
 	return
 }
