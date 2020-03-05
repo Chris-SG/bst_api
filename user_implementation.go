@@ -38,6 +38,7 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 // as it will use cookies from the database for eagate integration.
 func createClientForUser(userModel user_models.User) (client util.EaClient, err error) {
 	client = util.GenerateClient()
+	client.Username = userModel.Name
 	db, err := eagate_db.GetDb()
 	if err != nil {
 		return
@@ -49,5 +50,6 @@ func createClientForUser(userModel user_models.User) (client util.EaClient, err 
 	}
 
 	user.AddCookiesToJar(client.Client.Jar, []*http.Cookie{cookie})
+	client.ActiveCookie = cookie.String()
 	return
 }

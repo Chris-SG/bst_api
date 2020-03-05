@@ -61,8 +61,8 @@ func main() {
 	srv := &http.Server{
 		Handler:           r,
 		Addr:		":" + servePort,
-		ReadTimeout: 15 * time.Second,
-		WriteTimeout: 15 * time.Second,
+		ReadTimeout: 30 * time.Second,
+		WriteTimeout: 30 * time.Second,
 		TLSConfig: &tls.Config{
 			GetCertificate: certManager.GetCertificate,
 		},
@@ -134,7 +134,11 @@ func updateCachedGate() {
 // validated.
 func SetForbidden(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	next(rw, r)
-	rw.WriteHeader(http.StatusForbidden)
+
+	res := rw.(negroni.ResponseWriter)
+	if res.Status() == 0 {
+		rw.WriteHeader(http.StatusForbidden)
+	}
 }
 
 // SetContentType will set the content-type to json, as all api

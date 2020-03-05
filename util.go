@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/chris-sg/bst_server_models/bst_api_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
@@ -98,6 +99,8 @@ func UpdateCookie(client util.EaClient) {
 	db, _ := eagate_db.GetDb()
 	if util.CheckForUpdatedCookie(client) {
 		cookie := util.GetCurrentCookie(client)
+		fmt.Println(cookie.String())
+		fmt.Println(client.ActiveCookie)
 		client.ActiveCookie = cookie.String()
 		user_db.SetCookieForUser(db, client.Username, cookie)
 	}
