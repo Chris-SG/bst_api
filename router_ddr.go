@@ -3,8 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chris-sg/bst_server_models/bst_api_models"
-	"github.com/chris-sg/bst_server_models/bst_web_models"
+	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/ddr"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_db/ddr_db"
@@ -135,7 +134,7 @@ func SongsGet(rw http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err == nil {
-		orderStruct := bst_api_models.Ordering{}
+		orderStruct := bst_models.Ordering{}
 		err := json.Unmarshal(body, &orderStruct)
 		if err == nil {
 			ordering = ValidateOrdering(ddr_models.Song{}, orderStruct.OrderBy)
@@ -236,7 +235,7 @@ func SongsJacketGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ids := bst_web_models.DdrSongIds{}
+	ids := bst_models.DdrSongIds{}
 	err = json.Unmarshal(body, &ids)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
@@ -257,7 +256,7 @@ func SongsJacketGet(rw http.ResponseWriter, r *http.Request) {
 
 	songs := ddr_db.RetrieveSongsWithCovers(db, ids.Ids)
 
-	jackets := make([]bst_web_models.DdrSongIdWithJacket, len(songs))
+	jackets := make([]bst_models.DdrSongIdWithJacket, len(songs))
 	for i, _ := range songs {
 		jackets[i].Id = songs[i].Id
 		jackets[i].Jacket = songs[i].Image
@@ -383,20 +382,20 @@ func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := bst_web_models.DdrScoresDetailed{ Id: val }
+	result := bst_models.DdrScoresDetailed{ Id: val }
 
 	statistics := ddr_db.RetrieveSongStatisticsForSongsIds(db, ddrProfile.Code, []string{val})
 
 	bytes, _ := json.Marshal(statistics)
 	json.Unmarshal(bytes, &result.TopScores)
 
-	mode := map[string][]bst_web_models.DdrScoresDetailedDifficulty{}
-	scoresMap := map[string][]bst_web_models.DdrScoresDetailedScore{}
+	mode := map[string][]bst_models.DdrScoresDetailedDifficulty{}
+	scoresMap := map[string][]bst_models.DdrScoresDetailedScore{}
 	for _, stat := range statistics {
 		scores := ddr_db.RetrieveScores(db, ddrProfile.Code, val, stat.Mode, stat.Difficulty)
 
 		for _, score := range scores {
-			scoresMap[stat.Mode + ":" + stat.Difficulty] = append(scoresMap[stat.Mode + ":" + stat.Difficulty], bst_web_models.DdrScoresDetailedScore{
+			scoresMap[stat.Mode + ":" + stat.Difficulty] = append(scoresMap[stat.Mode + ":" + stat.Difficulty], bst_models.DdrScoresDetailedScore{
 				Score:       score.Score,
 				ClearStatus: score.ClearStatus,
 				TimePlayed:  score.TimePlayed,
@@ -406,7 +405,7 @@ func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
 
 	for k, v := range scoresMap {
 		s := strings.Split(k, ":")
-		d := bst_web_models.DdrScoresDetailedDifficulty{
+		d := bst_models.DdrScoresDetailedDifficulty{
 			Difficulty: s[1],
 			Scores:     v,
 		}
@@ -414,7 +413,7 @@ func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	for k, v := range mode {
-		result.Modes = append(result.Modes, bst_web_models.DdrScoresDetailedMode{
+		result.Modes = append(result.Modes, bst_models.DdrScoresDetailedMode{
 			Mode:         k,
 			Difficulties: v,
 		})

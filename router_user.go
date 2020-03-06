@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/chris-sg/bst_server_models/bst_web_models"
+	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_db/user_db"
@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/negroni"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/chris-sg/eagate/user"
 )
@@ -41,11 +42,17 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eagateUsers := make([]bst_models.EagateUser, 0)
+
 	for i, _ := range users {
-		users[i].Cookie = "***"
+		eagateUser := bst_models.EagateUser{
+				Username: users[i].Name,
+				Expired:  users[i].Expiration > time.Now().UnixNano()/100,
+			}
+			eagateUsers = append(eagateUsers, eagateUser)
 	}
 
-	bytes, err := json.Marshal(users)
+	bytes, err := json.Marshal(eagateUsers)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
@@ -82,7 +89,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loginRequest := bst_web_models.LoginRequest{}
+	loginRequest := bst_models.LoginRequest{}
 	err = json.Unmarshal(body, &loginRequest)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/chris-sg/bst_server_models/bst_api_models"
+	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_db/user_db"
@@ -11,8 +11,8 @@ import (
 )
 
 // WriteStatus will create a status struct.
-func WriteStatus(status string, message string) bst_api_models.Status {
-	return bst_api_models.Status{
+func WriteStatus(status string, message string) bst_models.Status {
+	return bst_models.Status{
 		Status:  status,
 		Message: message,
 	}

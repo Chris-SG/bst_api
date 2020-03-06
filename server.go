@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/chris-sg/bst_server_models/bst_api_models"
+	"github.com/chris-sg/bst_server_models"
 )
 
 var (
@@ -23,32 +23,7 @@ var (
 
 func main() {
 	LoadConfig()
-
-	r := mux.NewRouter()
-	apiRouter := mux.NewRouter()
-
-	logger := negroni.NewLogger()
-
-	commonMiddleware = negroni.New(
-		negroni.HandlerFunc(logger.ServeHTTP),
-		negroni.HandlerFunc(SetContentType))
-
-	protectionMiddleware = negroni.New(
-		negroni.HandlerFunc(SetForbidden),
-		negroni.HandlerFunc(GetJWTMiddleware().HandlerWithNext))
-
-	apiRouter.Path("/status").Handler(negroni.New(
-		negroni.Wrap(http.HandlerFunc(Status)))).Methods(http.MethodGet)
-	apiRouter.PathPrefix("/user").Handler(negroni.New(
-		negroni.Wrap(CreateUserRouter())))
-
-	apiRouter.PathPrefix("/ddr").Handler(negroni.New(
-		negroni.Wrap(CreateDdrRouter())))
-
-	r.PathPrefix(apiBase).Handler(commonMiddleware.With(
-		negroni.Wrap(apiRouter),
-		))
-
+	r := CreateApiRouter()
 
 	var certManager *autocert.Manager
 
@@ -72,6 +47,35 @@ func main() {
 	log.Fatal(srv.ListenAndServeTLS("", ""))
 }
 
+func CreateApiRouter() (r *mux.Router) {
+	r = mux.NewRouter()
+	apiRouter := mux.NewRouter()
+
+	logger := negroni.NewLogger()
+
+	commonMiddleware = negroni.New(
+		negroni.HandlerFunc(logger.ServeHTTP),
+		negroni.HandlerFunc(SetContentType))
+
+	protectionMiddleware = negroni.New(
+		negroni.HandlerFunc(SetForbidden),
+		negroni.HandlerFunc(GetJWTMiddleware().HandlerWithNext))
+
+	apiRouter.PathPrefix("/user").Handler(negroni.New(
+		negroni.Wrap(CreateUserRouter())))
+
+	apiRouter.PathPrefix("/ddr").Handler(negroni.New(
+		negroni.Wrap(CreateDdrRouter())))
+
+	AttachGeneralRoutes(r)
+
+	r.PathPrefix(apiBase).Handler(commonMiddleware.With(
+		negroni.Wrap(apiRouter),
+	))
+
+	return
+}
+
 var (
 	nextUpdate time.Time
 	cachedGate bool
@@ -89,7 +93,7 @@ func Status(rw http.ResponseWriter, r *http.Request) {
 		updateCachedGate()
 	}
 
-	status := bst_api_models.ApiStatus{
+	status := bst_models.ApiStatus{
 		Api: "ok",
 	}
 	if cachedGate {
