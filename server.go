@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
+	"github.com/chris-sg/eagate_db/db_builder"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"
@@ -23,6 +24,13 @@ var (
 
 func main() {
 	LoadConfig()
+
+	if dbMigration {
+		db, _ := eagate_db.GetDb()
+		db_builder.Create(db)
+		return
+	}
+
 	r := CreateApiRouter()
 
 	var certManager *autocert.Manager

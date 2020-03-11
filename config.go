@@ -12,6 +12,8 @@ var (
 	serveHost string
 	servePort string
 	apiBase string
+
+	dbMigration bool
 )
 
 func LoadConfig() {
@@ -21,6 +23,8 @@ func LoadConfig() {
 	flag.StringVar(&serveHost, "host", "", "the host.")
 	flag.StringVar(&servePort, "port", "8443", "the port.")
 	flag.StringVar(&apiBase, "apibase", "/", "bst api base path.")
+
+	flag.BoolVar(&dbMigration, "dbmigrate", false, "run db migration and exit.")
 
 	var (
 		user string
