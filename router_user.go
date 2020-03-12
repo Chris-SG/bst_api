@@ -25,6 +25,8 @@ func CreateUserRouter() *mux.Router {
 		negroni.Wrap(http.HandlerFunc(LoginGet)))).Methods(http.MethodGet)
 	userRouter.Path("/login").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(LoginPost)))).Methods(http.MethodPost)
+	userRouter.Path("/logout").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(LogoutPost)))).Methods(http.MethodPost)
 
 	return userRouter
 }
@@ -132,6 +134,63 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	status := WriteStatus("ok", "loaded cookie for user")
 	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+	return
+}
+
+func LogoutPost(rw http.ResponseWriter, r *http.Request) {
+	tokenMap := profileFromToken(r)
+
+	val, ok := tokenMap["name"].(string)
+	if !ok {
+		status := WriteStatus("bad", "failed to read auth name from token")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	logoutRequest := bst_models.LogoutRequest{}
+	err = json.Unmarshal(body, &logoutRequest)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	db, err := eagate_db.GetDb()
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
+	}
+
+	user := user_db.RetrieveUserById(db, logoutRequest.Username)
+	if user != nil && user.WebUser == val {
+		user_db.SetWebUserForUser(db, user.Name, "")
+		status := WriteStatus("ok", "user unlinked")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusOK)
+		rw.Write(bytes)
+		return
+	}
+
+	status := WriteStatus("bad", "user does not belong to profile")
+	bytes, _ := json.Marshal(status)
+	rw.WriteHeader(http.StatusUnauthorized)
 	rw.Write(bytes)
 	return
 }
