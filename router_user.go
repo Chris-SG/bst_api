@@ -43,13 +43,20 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	eagateUsers := make([]bst_models.EagateUser, 0)
+	db, _ := eagate_db.GetDb()
 
 	for i, _ := range users {
 		eagateUser := bst_models.EagateUser{
-				Username: users[i].Name,
-				Expired:  users[i].Expiration > time.Now().UnixNano()/100,
-			}
-			eagateUsers = append(eagateUsers, eagateUser)
+			Username: users[i].Name,
+			Expired:  users[i].Expiration > time.Now().UnixNano()/100,
+		}
+		if !eagateUser.Expired {
+			client, _ := createClientForUser(users[i])
+			cookie := user_db.RetrieveUserCookieById(db, eagateUser.Username)
+			client.SetEaCookie(cookie)
+			eagateUser.Expired = !client.LoginState()
+		}
+		eagateUsers = append(eagateUsers, eagateUser)
 	}
 
 	bytes, err := json.Marshal(eagateUsers)

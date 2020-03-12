@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/chris-sg/eagate/user"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_db/user_db"
@@ -44,12 +43,9 @@ func createClientForUser(userModel user_models.User) (client util.EaClient, err 
 		return
 	}
 	cookie := user_db.RetrieveUserCookieById(db, userModel.Name)
-	err = user.CheckCookieEaGateAccess(client, cookie)
-	if err != nil {
-		return
+	client.SetEaCookie(cookie)
+	if !client.LoginState() {
+		err = fmt.Errorf("user not logged in")
 	}
-
-	user.AddCookiesToJar(client.Client.Jar, []*http.Cookie{cookie})
-	client.ActiveCookie = cookie.String()
 	return
 }

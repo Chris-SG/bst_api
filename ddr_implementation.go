@@ -14,6 +14,10 @@ import (
 // against the song list from the database. Any songs only located in
 // eagate will be returned.
 func checkForNewSongs(client util.EaClient) (newSongs []string, err error) {
+	if !client.LoginState() {
+		err = fmt.Errorf("user not logged into eagate")
+		return
+	}
 	siteIds, err := ddr.SongIds(client)
 	if err != nil {
 		return
@@ -41,6 +45,10 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err error) {
 // provided songIds slice. This intends to be used after checkForNewSongs
 // to update the database.
 func updateNewSongs(client util.EaClient, songIds []string) error {
+	if !client.LoginState() {
+		err := fmt.Errorf("user not logged into eagate")
+		return err
+	}
 	db, _ := eagate_db.GetDb()
 	songData, err := ddr.SongData(client, songIds)
 	if err != nil {
@@ -59,6 +67,10 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 // updateSongStatistics will load the client's statistics for the given
 // difficulties slice and update the statistics in the database.
 func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDifficulty) (err error) {
+	if !client.LoginState() {
+		err = fmt.Errorf("user not logged into eagate")
+		return
+	}
 	pi, _, err := ddr.PlayerInformation(client)
 	if err != nil {
 		return
@@ -81,6 +93,10 @@ func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDi
 // TODO: if the user has played more than 50 songs, this will not update
 // unknown song statistics. This can currently still be achieved manually.
 func updatePlayerProfile(user user_models.User, client util.EaClient) (err error) {
+	if !client.LoginState() {
+		err = fmt.Errorf("user not logged into eagate")
+		return
+	}
 	db, _ := eagate_db.GetDb()
 	newPi, playcount, _ := ddr.PlayerInformation(client)
 	newPi.EaGateUser = &user.Name
