@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
@@ -187,6 +188,10 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(bytes)
 		return
 	}
+
+	fmt.Println(logoutRequest)
+	fmt.Println(user)
+	fmt.Println(val)
 
 	status := WriteStatus("bad", "user does not belong to profile")
 	bytes, _ := json.Marshal(status)
