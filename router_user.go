@@ -50,7 +50,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 	for i, _ := range users {
 		eagateUser := bst_models.EagateUser{
 			Username: users[i].Name,
-			Expired:  users[i].Expiration > time.Now().UnixNano()/100,
+			Expired:  users[i].Expiration > time.Now().UnixNano()/1000,
 		}
 		if !eagateUser.Expired {
 			client, err := createClientForUser(users[i])

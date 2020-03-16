@@ -43,7 +43,11 @@ func createClientForUser(userModel user_models.User) (client util.EaClient, err 
 		return
 	}
 	cookie := user_db.RetrieveUserCookieById(db, userModel.Name)
-	client.SetEaCookie(cookie)
+	if cookie == nil {
+		err = fmt.Errorf("user not logged in")
+		return
+	}
+	client.SetEaCookie(util.CookieFromRawCookie(*cookie))
 	if !client.LoginState() {
 		err = fmt.Errorf("user not logged in")
 	}

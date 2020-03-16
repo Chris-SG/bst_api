@@ -97,7 +97,7 @@ func ValidateFiltering(i interface{}, filterRequest []string) (filtering string)
 func UpdateCookie(client util.EaClient) {
 	db, _ := eagate_db.GetDb()
 	oldCookie := user_db.RetrieveUserCookieById(db, client.GetUsername())
-	if oldCookie.String() != client.GetEaCookie().String() {
+	if oldCookie == nil || *oldCookie != client.GetEaCookie().String() {
 		user_db.SetCookieForUser(db, client.GetUsername(), client.GetEaCookie())
 	}
 }
