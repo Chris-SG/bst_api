@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
@@ -98,7 +97,6 @@ func ValidateFiltering(i interface{}, filterRequest []string) (filtering string)
 func UpdateCookie(client util.EaClient) {
 	db, _ := eagate_db.GetDb()
 	oldCookie := user_db.RetrieveUserCookieById(db, client.GetUsername())
-	fmt.Printf("user is %s, old cookie is %s, new cookie is %s\n", client.GetUsername(), oldCookie, client.GetEaCookie().String())
 	if oldCookie == nil || *oldCookie != client.GetEaCookie().String() {
 		user_db.SetCookieForUser(db, client.GetUsername(), client.GetEaCookie())
 	}

@@ -55,6 +55,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 		if !eagateUser.Expired {
 			client, err := createClientForUser(users[i])
 			if err != nil || !client.LoginState() {
+				fmt.Println(err)
 				eagateUser.Expired = true
 			}
 		}
@@ -187,10 +188,6 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(bytes)
 		return
 	}
-
-	fmt.Println(logoutRequest)
-	fmt.Println(user)
-	fmt.Println(val)
 
 	status := WriteStatus("bad", "user does not belong to profile")
 	bytes, _ := json.Marshal(status)

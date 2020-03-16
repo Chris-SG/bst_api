@@ -107,7 +107,6 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 			rw.Write(bytes)
 			return
 		}
-		fmt.Println(client.GetUsername())
 
 		err = updatePlayerProfile(user, client)
 		if err != nil {
