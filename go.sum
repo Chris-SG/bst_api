@@ -36,6 +36,8 @@ github.com/chris-sg/eagate v0.0.0-20200312120216-aa84f29d33b6 h1:gp79E5sCMq2cLgh
 github.com/chris-sg/eagate v0.0.0-20200312120216-aa84f29d33b6/go.mod h1:w2QCPSP2MrLozlSnNCoOgAW4/N3uA3pDTDMhdqiFKIY=
 github.com/chris-sg/eagate v0.0.0-20200312120551-8c1812fad33f h1:p0/p5HRpCWYHvJL8TmL18QHwKGDS7hDr9iN7tWEc+8c=
 github.com/chris-sg/eagate v0.0.0-20200312120551-8c1812fad33f/go.mod h1:w2QCPSP2MrLozlSnNCoOgAW4/N3uA3pDTDMhdqiFKIY=
+github.com/chris-sg/eagate v0.0.0-20200316102937-7520a2f9db2f h1:B3udbEG1yZWdM5+fF9lW+Ia7pFxsSH34nLiy2DKE9tU=
+github.com/chris-sg/eagate v0.0.0-20200316102937-7520a2f9db2f/go.mod h1:w2QCPSP2MrLozlSnNCoOgAW4/N3uA3pDTDMhdqiFKIY=
 github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f h1:4YLaCGwzfKcKmujkzueAwZibYJrdxpiCnP4jmeab5ys=
 github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f/go.mod h1:vZGKXiMao/GpPg+6KCiA2DjnHh7Bw4XK5ZPkXfM41s4=
 github.com/chris-sg/eagate_db v0.0.0-20200304230117-c7850f6e7534 h1:04qTRYt3y5hrjO5x6OQk8HoKpul4SQFzocqCbRwv2zg=
@@ -50,6 +52,8 @@ github.com/chris-sg/eagate_db v0.0.0-20200311010159-82ec184d227e h1:KH8Oojr8lOWh
 github.com/chris-sg/eagate_db v0.0.0-20200311010159-82ec184d227e/go.mod h1:DYh0Y0Ut4xBV/ZXo0OgxxHoAGDUCfDAurtRd58UQwtc=
 github.com/chris-sg/eagate_db v0.0.0-20200312013519-bd2e05114f9f h1:pDZvXJprLC3WvNcZ1HXBHbyi1dGMZYINZB3K/da7YsU=
 github.com/chris-sg/eagate_db v0.0.0-20200312013519-bd2e05114f9f/go.mod h1:EwVSf5fK4mKpb0G55KlXIHIDwqvXE/Xkpb8IVfyXoRY=
+github.com/chris-sg/eagate_db v0.0.0-20200316102554-37d04bb23fa1 h1:UPr7XUFj/7cZ4CWqqhRPSJaEG9MDzu6IEGXaznsH5oc=
+github.com/chris-sg/eagate_db v0.0.0-20200316102554-37d04bb23fa1/go.mod h1:EwVSf5fK4mKpb0G55KlXIHIDwqvXE/Xkpb8IVfyXoRY=
 github.com/chris-sg/eagate_models v0.0.0-20200229105948-310a8bb68ec6 h1:W86y97nu/QstwIvFMgEba/mlvMfze70sQPXVK/OC7Ho=
 github.com/chris-sg/eagate_models v0.0.0-20200229105948-310a8bb68ec6/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200304230137-28cddd82b243 h1:zbV9Isktx8L331Y5WYAAE0cXfHwKnLYaFGzbmUVuwHM=
