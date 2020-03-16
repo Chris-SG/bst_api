@@ -36,20 +36,26 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 // model. This is intended to only be used for this specific user model,
 // as it will use cookies from the database for eagate integration.
 func createClientForUser(userModel user_models.User) (client util.EaClient, err error) {
+	fmt.Println(userModel)
 	client = util.GenerateClient()
 	client.SetUsername(userModel.Name)
 	db, err := eagate_db.GetDb()
+	fmt.Println("get db")
 	if err != nil {
 		return
 	}
 	cookie := user_db.RetrieveUserCookieById(db, userModel.Name)
+	fmt.Println("get cookie")
 	if cookie == nil {
+		fmt.Println("null cookie")
 		err = fmt.Errorf("user not logged in")
 		return
 	}
 	client.SetEaCookie(util.CookieFromRawCookie(*cookie))
+	fmt.Println("set cookie")
 	if !client.LoginState() {
 		err = fmt.Errorf("user not logged in")
 	}
+	fmt.Println("pass")
 	return
 }
