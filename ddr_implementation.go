@@ -113,6 +113,11 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		err = fmt.Errorf("failed to load recent scores for code %d", newPi.Code)
 	}
 
+	workoutData, _ := ddr.WorkoutData(client, newPi.Code)
+	for _, workout := range workoutData {
+		fmt.Println(workout)
+	}
+
 	recentSongIds := make([]string, 0)
 	for _, score := range *recentScores {
 		found := false
