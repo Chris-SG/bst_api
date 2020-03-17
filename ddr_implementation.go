@@ -82,6 +82,7 @@ func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDi
 	}
 
 	db, _ := eagate_db.GetDb()
+	ddr_db.AddPlayerDetails(db, *pi)
 	ddr_db.AddSongStatistics(db, stats, pi.Code)
 	UpdateCookie(client)
 	return
@@ -107,6 +108,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 			return
 		}
 	}
+	ddr_db.AddPlayerDetails(db, *newPi)
 
 	recentScores, _ := ddr.RecentScores(client, newPi.Code)
 	if recentScores == nil {
@@ -180,7 +182,6 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		ddr_db.AddWorkoutData(db, workoutData)
 	}
 
-	ddr_db.AddPlayerDetails(db, *newPi)
 	ddr_db.AddPlaycountDetails(db, *playcount)
 	UpdateCookie(client)
 
