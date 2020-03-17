@@ -114,9 +114,6 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 	}
 
 	workoutData, _ := ddr.WorkoutData(client, newPi.Code)
-	for _, workout := range workoutData {
-		fmt.Println(workout)
-	}
 
 	recentSongIds := make([]string, 0)
 	for _, score := range *recentScores {
@@ -178,6 +175,11 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		statistics, _ := ddr.SongStatistics(client, songsToUpdate, newPi.Code)
 		ddr_db.AddSongStatistics(db, statistics, newPi.Code)
 	}
+
+	if workoutData != nil {
+		ddr_db.AddWorkoutData(db, workoutData)
+	}
+
 	ddr_db.AddPlayerDetails(db, *newPi)
 	ddr_db.AddPlaycountDetails(db, *playcount)
 	UpdateCookie(client)
