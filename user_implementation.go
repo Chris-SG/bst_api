@@ -7,6 +7,7 @@ import (
 	"github.com/chris-sg/eagate_db/user_db"
 	"github.com/chris-sg/eagate_models/user_models"
 	"net/http"
+	"strings"
 )
 
 // tryGetEagateUsers will attempt to load any eagate users linked to
@@ -19,6 +20,7 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 		err = fmt.Errorf("failed to extract auth0 name")
 		return
 	}
+	val = strings.ToLower(val)
 
 	db, err := eagate_db.GetDb()
 	if err != nil {

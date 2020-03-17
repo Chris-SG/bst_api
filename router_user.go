@@ -90,6 +90,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(bytes)
 		return
 	}
+	val = strings.ToLower(val)
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -144,7 +145,6 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	tokenMap := profileFromToken(r)
 
 	val, ok := tokenMap["name"].(string)
-	val = strings.ToLower(val)
 	if !ok {
 		status := WriteStatus("bad", "failed to read auth name from token")
 		bytes, _ := json.Marshal(status)
@@ -152,6 +152,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(bytes)
 		return
 	}
+	val = strings.ToLower(val)
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
