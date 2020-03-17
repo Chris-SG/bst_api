@@ -55,9 +55,6 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, _ := eagate_db.GetDb()
-	difficulties := ddr_db.RetrieveValidSongDifficulties(db)
-
 	for _, user := range users {
 		client, err := createClientForUser(user)
 		if err != nil {
@@ -68,7 +65,7 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = updateSongStatistics(client, difficulties)
+		err = refreshDdrUser(client)
 		if err != nil {
 			status := WriteStatus("bad", err.Error())
 			bytes, _ := json.Marshal(status)

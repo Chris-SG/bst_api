@@ -64,6 +64,35 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 	return nil
 }
 
+func refreshDdrUser(client util.EaClient) (err error) {
+	if !client.LoginState() {
+		err = fmt.Errorf("user not logged into eagate")
+		return
+	}
+
+	db, _ := eagate_db.GetDb()
+
+	pi, pc, err := ddr.PlayerInformation(client)
+	ddr_db.AddPlayerDetails(db, *pi)
+	ddr_db.AddPlaycountDetails(db, *pc)
+
+	songIds, _ := ddr.SongIds(client)
+	difficulties, _ := ddr.SongDifficulties(client, songIds)
+	ddr_db.AddSongDifficulties(db, difficulties)
+	difficulties = ddr_db.RetrieveValidSongDifficulties(db)
+
+	songStats, _ := ddr.SongStatistics(client, difficulties, pi.Code)
+	ddr_db.AddSongStatistics(db, songStats, pi.Code)
+
+	recentScores, _ := ddr.RecentScores(client, pi.Code)
+	ddr_db.AddScores(db, *recentScores)
+
+	workoutData, _ := ddr.WorkoutData(client, pi.Code)
+	ddr_db.AddWorkoutData(db, workoutData)
+
+	return
+}
+
 // updateSongStatistics will load the client's statistics for the given
 // difficulties slice and update the statistics in the database.
 func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDifficulty) (err error) {
