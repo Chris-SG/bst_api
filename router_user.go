@@ -11,6 +11,7 @@ import (
 	"github.com/urfave/negroni"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/chris-sg/eagate/user"
@@ -143,6 +144,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	tokenMap := profileFromToken(r)
 
 	val, ok := tokenMap["name"].(string)
+	val = strings.ToLower(val)
 	if !ok {
 		status := WriteStatus("bad", "failed to read auth name from token")
 		bytes, _ := json.Marshal(status)
