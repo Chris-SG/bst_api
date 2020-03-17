@@ -107,6 +107,9 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		if dbPlaycount != nil && playcount.Playcount == dbPlaycount.Playcount {
 			return
 		}
+	} else {
+		difficulties := ddr_db.RetrieveValidSongDifficulties(db)
+		updateSongStatistics(client, difficulties)
 	}
 	ddr_db.AddPlayerDetails(db, *newPi)
 
