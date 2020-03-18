@@ -30,6 +30,9 @@ func CreateDdrRouter() *mux.Router {
 	ddrRouter.Path("/songs").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsPatch)))).Methods(http.MethodPatch)
 
+	ddrRouter.Path("/songsreload").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(SongsReloadPatch)))).Methods(http.MethodPatch)
+
 	ddrRouter.HandleFunc("/songs/jackets", SongsJacketGet).Methods(http.MethodGet)
 
 	ddrRouter.HandleFunc("/songs/{id:[A-Za-z0-9]{32}}", SongsIdGet).Methods(http.MethodGet)
@@ -38,6 +41,9 @@ func CreateDdrRouter() *mux.Router {
 		negroni.Wrap(http.HandlerFunc(SongsScoresGet)))).Methods(http.MethodGet)
 	ddrRouter.Path("/songs/scores/{id:[A-Za-z0-9]{32}}").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresIdGet)))).Methods(http.MethodGet)
+
+	ddrRouter.Path("/songs/scores/extended").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(SongsScoresExtendedGet)))).Methods(http.MethodGet)
 
 	return ddrRouter
 }
@@ -215,6 +221,61 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 	ddr_db.AddSongDifficulties(db, songDifficulties)
 
 	status := WriteStatus("ok", fmt.Sprintf("added %d new songs (%d new difficulties)", len(newSongs), len(songDifficulties)))
+	bytes, _ := json.Marshal(status)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+}
+
+func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
+	users, err := tryGetEagateUsers(r)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	client, err := createClientForUser(users[0])
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	songIds, err := ddr.SongIds(client)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	db, _ := eagate_db.GetDb()
+	songData, err := ddr.SongData(client, songIds)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	ddr_db.AddSongs(db, songData)
+
+	songDifficulties, err := ddr.SongDifficulties(client, songIds)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	ddr_db.AddSongDifficulties(db, songDifficulties)
+
+	status := WriteStatus("ok", fmt.Sprintf("added %d new songs (%d new difficulties)", len(songIds), len(songDifficulties)))
 	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
@@ -417,6 +478,36 @@ func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	bytes, _ = json.Marshal(result)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+}
+
+// SongScoresGet will retrieve score details for the user defined
+// within the request JWT.
+func SongsScoresExtendedGet(rw http.ResponseWriter, r *http.Request) {
+	users, err := tryGetEagateUsers(r)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	db, _ := eagate_db.GetDb()
+
+	ddrProfile, err := ddr_db.RetrieveDdrPlayerDetailsByEaGateUser(db, users[0].Name)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	stats := ddr_db.RetrieveScoreStatisticsExtendedData(db, ddrProfile.Code)
+
+	bytes, _ := json.Marshal([]byte(stats))
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
 }
