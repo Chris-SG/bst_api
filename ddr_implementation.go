@@ -338,7 +338,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		statistics, err := ddr.SongStatistics(client, songsToUpdate, newPi.Code)
 		if err != nil {
 			glog.Errorf("Failed to update song statistics for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
-			return
+			return err
 		}
 		ddr_db.AddSongStatistics(db, statistics, newPi.Code)
 		glog.Infof("Updated song statistics for user %s\n", client.GetUsername())
