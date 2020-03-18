@@ -5,10 +5,11 @@ go 1.13
 require (
 	github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b
 	github.com/chris-sg/bst_server_models v0.0.0-20200312114823-f6241590b068
-	github.com/chris-sg/eagate v0.0.0-20200317034040-1fcd8645e1e5
-	github.com/chris-sg/eagate_db v0.0.0-20200317094630-ba0d0f53d857
+	github.com/chris-sg/eagate v0.0.0-20200318003437-0af7c120f36f
+	github.com/chris-sg/eagate_db v0.0.0-20200318003416-79e7ef526cb8
 	github.com/chris-sg/eagate_models v0.0.0-20200311061327-0b25012d3ff9
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/gorm v1.9.12
 	github.com/smartystreets/goconvey v1.6.4 // indirect

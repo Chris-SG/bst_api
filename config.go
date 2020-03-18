@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/chris-sg/eagate_db"
+	"github.com/golang/glog"
 )
 
 var (
@@ -17,6 +18,7 @@ var (
 )
 
 func LoadConfig() {
+	glog.Info("Loading config and flags... ")
 	flag.StringVar(&authClientIssuer, "issuer", "", "the issuer for auth server.")
 	flag.StringVar(&authClientAudience, "audience", "", "the audience for auth server.")
 
@@ -42,9 +44,12 @@ func LoadConfig() {
 
 	flag.Parse()
 
+	glog.Infoln("Done!")
+
 	_, err := eagate_db.OpenDb(user, password, dbname, host, maxIdleConnections)
 	//db_builder.Create(db)
 	if err != nil {
+		glog.Fatalln("Failed to open db!")
 		panic(err)
 	}
 

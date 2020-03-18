@@ -76,6 +76,8 @@ github.com/chris-sg/eagate v0.0.0-20200317004420-a4f396ebe91e h1:biMdZoC7B4XRv/b
 github.com/chris-sg/eagate v0.0.0-20200317004420-a4f396ebe91e/go.mod h1:w2QCPSP2MrLozlSnNCoOgAW4/N3uA3pDTDMhdqiFKIY=
 github.com/chris-sg/eagate v0.0.0-20200317034040-1fcd8645e1e5 h1:Mpfy7N6cjmZWVVUKSJ5ik9tVPYf3FCxooHd2bK+lAUY=
 github.com/chris-sg/eagate v0.0.0-20200317034040-1fcd8645e1e5/go.mod h1:swIVFAtn64Bhv5jWOoHAZPnfG/kcfHyUA6cUUAyayOY=
+github.com/chris-sg/eagate v0.0.0-20200318003437-0af7c120f36f h1:HNKqelBKKWsr8fGntT/2y5Gzv7M8xKXoRE4c61zizHs=
+github.com/chris-sg/eagate v0.0.0-20200318003437-0af7c120f36f/go.mod h1:cXhAMD69ek+tkOljgaFCuMNzaFjsGx+e9+fwnjbqAv4=
 github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f h1:4YLaCGwzfKcKmujkzueAwZibYJrdxpiCnP4jmeab5ys=
 github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f/go.mod h1:vZGKXiMao/GpPg+6KCiA2DjnHh7Bw4XK5ZPkXfM41s4=
 github.com/chris-sg/eagate_db v0.0.0-20200304230117-c7850f6e7534 h1:04qTRYt3y5hrjO5x6OQk8HoKpul4SQFzocqCbRwv2zg=
@@ -106,6 +108,8 @@ github.com/chris-sg/eagate_db v0.0.0-20200317094154-db0970d43644 h1:KoYDhkXcZUGQ
 github.com/chris-sg/eagate_db v0.0.0-20200317094154-db0970d43644/go.mod h1:EwVSf5fK4mKpb0G55KlXIHIDwqvXE/Xkpb8IVfyXoRY=
 github.com/chris-sg/eagate_db v0.0.0-20200317094630-ba0d0f53d857 h1:Ph1bHTsp7VN7H7hkgLEu6XfWHzqiMlSF+/D+NuD++DM=
 github.com/chris-sg/eagate_db v0.0.0-20200317094630-ba0d0f53d857/go.mod h1:EwVSf5fK4mKpb0G55KlXIHIDwqvXE/Xkpb8IVfyXoRY=
+github.com/chris-sg/eagate_db v0.0.0-20200318003416-79e7ef526cb8 h1:qYGTIiDQjh73T13+mS8uaw2hamm4TLEQ1FVc8k1wbFc=
+github.com/chris-sg/eagate_db v0.0.0-20200318003416-79e7ef526cb8/go.mod h1:qke1EVjGnBCskfl5nl04eV9RSnf1WlqYyp9nc18+F4k=
 github.com/chris-sg/eagate_models v0.0.0-20200229105948-310a8bb68ec6 h1:W86y97nu/QstwIvFMgEba/mlvMfze70sQPXVK/OC7Ho=
 github.com/chris-sg/eagate_models v0.0.0-20200229105948-310a8bb68ec6/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200304230137-28cddd82b243 h1:zbV9Isktx8L331Y5WYAAE0cXfHwKnLYaFGzbmUVuwHM=
@@ -125,6 +129,8 @@ github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZp
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe/go.mod h1:8vg3r2VgvsThLBIFL93Qb5yWzgyZWhEmBwUJWevAkK0=
+github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b h1:VKtxabqXZkF25pY9ekfRL6a582T4P37/31XEstQ5p58=
+github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 h1:EGx4pi6eqNxGaHF6qqu48+N2wcFQ5qg5FXgOdqsJ5d8=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
