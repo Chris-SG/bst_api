@@ -82,7 +82,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	tokenMap := profileFromToken(r)
 
-	val, ok := tokenMap["name"].(string)
+	val, ok := tokenMap["sub"].(string)
 	if !ok {
 		status := WriteStatus("bad", "failed to read auth name from token")
 		bytes, _ := json.Marshal(status)
@@ -144,7 +144,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	tokenMap := profileFromToken(r)
 
-	val, ok := tokenMap["name"].(string)
+	val, ok := tokenMap["sub"].(string)
 	if !ok {
 		status := WriteStatus("bad", "failed to read auth name from token")
 		bytes, _ := json.Marshal(status)

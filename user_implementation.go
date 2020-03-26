@@ -15,7 +15,7 @@ import (
 func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 	tokenMap := profileFromToken(r)
 
-	val, ok := tokenMap["name"].(string)
+	val, ok := tokenMap["sub"].(string)
 	if !ok {
 		err = fmt.Errorf("failed to extract auth0 name")
 		return
