@@ -92,6 +92,8 @@ github.com/chris-sg/eagate v0.0.0-20200326041436-357ee4b6c412 h1:SMrT8zK2/G6hwxl
 github.com/chris-sg/eagate v0.0.0-20200326041436-357ee4b6c412/go.mod h1:cXhAMD69ek+tkOljgaFCuMNzaFjsGx+e9+fwnjbqAv4=
 github.com/chris-sg/eagate v0.0.0-20200326043821-5821e219c7ad h1:VGyuBQU0R9dV1sae2p3654a7iisEvQ5kSv/YMdUORz4=
 github.com/chris-sg/eagate v0.0.0-20200326043821-5821e219c7ad/go.mod h1:cXhAMD69ek+tkOljgaFCuMNzaFjsGx+e9+fwnjbqAv4=
+github.com/chris-sg/eagate v0.0.0-20200326052811-0a6f37897354 h1:gYEGRUi0oBJ5EglXxw7oyoHTy3mZOjWpbwNegnzKL5o=
+github.com/chris-sg/eagate v0.0.0-20200326052811-0a6f37897354/go.mod h1:cXhAMD69ek+tkOljgaFCuMNzaFjsGx+e9+fwnjbqAv4=
 github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f h1:4YLaCGwzfKcKmujkzueAwZibYJrdxpiCnP4jmeab5ys=
 github.com/chris-sg/eagate_db v0.0.0-20200304062551-fc6bd3ecfb8f/go.mod h1:vZGKXiMao/GpPg+6KCiA2DjnHh7Bw4XK5ZPkXfM41s4=
 github.com/chris-sg/eagate_db v0.0.0-20200304230117-c7850f6e7534 h1:04qTRYt3y5hrjO5x6OQk8HoKpul4SQFzocqCbRwv2zg=
