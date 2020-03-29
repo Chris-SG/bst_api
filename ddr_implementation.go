@@ -21,7 +21,7 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err error) {
 		err = fmt.Errorf("user not logged into eagate")
 		return
 	}
-	siteIds, err := ddr.SongIds(client)
+	siteIds, err := ddr.SongIdsForClient(client)
 	if err != nil {
 		glog.Errorf("Failed to load eagate song ids: %s\n", err.Error())
 		return
@@ -60,7 +60,7 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 		return err
 	}
 	db, _ := eagate_db.GetDb()
-	songData, err := ddr.SongData(client, songIds)
+	songData, err := ddr.SongDataForClient(client, songIds)
 	if err != nil {
 		glog.Errorf("Failed to get song data from client %s\n", client.GetUsername())
 		return err
@@ -71,7 +71,7 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 		glog.Errorf("Update failed to add songs to db: %s\n", err.Error())
 		return err
 	}
-	difficulties, err := ddr.SongDifficulties(client, songIds)
+	difficulties, err := ddr.SongDifficultiesForClient(client, songIds)
 	if err != nil {
 		glog.Errorf("Failed to get song difficulties from client %s\n", client.GetUsername())
 		return err
@@ -100,13 +100,13 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		return
 	}
 
-	pi, pc, err := ddr.PlayerInformation(client)
+	pi, pc, err := ddr.PlayerInformationForClient(client)
 	if err != nil {
 		glog.Errorf("Failed to load player information for client %s: %s\n", client.GetUsername(), err.Error())
 		return
 	}
-	ddr_db.AddPlayerDetails(db, *pi)
-	ddr_db.AddPlaycountDetails(db, *pc)
+	ddr_db.AddPlayerDetails(db, pi)
+	ddr_db.AddPlaycountDetails(db, pc)
 
 	newSongs, err := checkForNewSongs(client)
 	if err != nil {
@@ -122,12 +122,12 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		}
 	}
 
-	songIds, err := ddr.SongIds(client)
+	songIds, err := ddr.SongIdsForClient(client)
 	if err != nil {
 		glog.Errorf("Failed to load song ids for client %s: %s\n", client.GetUsername(), err.Error())
 		return
 	}
-	difficulties, err := ddr.SongDifficulties(client, songIds)
+	difficulties, err := ddr.SongDifficultiesForClient(client, songIds)
 	if err != nil {
 		glog.Errorf("Failed to load song difficulties for client %s: %s\n", client.GetUsername(), err.Error())
 		return
@@ -140,7 +140,7 @@ func refreshDdrUser(client util.EaClient) (err error) {
 	}
 	difficulties = ddr_db.RetrieveValidSongDifficulties(db)
 
-	songStats, err := ddr.SongStatistics(client, difficulties, pi.Code)
+	songStats, err := ddr.SongStatisticsForClient(client, difficulties, pi.Code)
 	if err != nil {
 		glog.Errorf("Failed to load song statistics for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
 		return
@@ -152,19 +152,19 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		return
 	}
 
-	recentScores, err := ddr.RecentScores(client, pi.Code)
+	recentScores, err := ddr.RecentScoresForClient(client, pi.Code)
 	if err != nil {
 		glog.Errorf("Failed to load recent scores for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
 		return
 	}
-	glog.Infof("Adding song scores to db client %s (%d scores)", client.GetUsername(), len(*recentScores))
-	err = ddr_db.AddScores(db, *recentScores)
+	glog.Infof("Adding song scores to db client %s (%d scores)", client.GetUsername(), len(recentScores))
+	err = ddr_db.AddScores(db, recentScores)
 	if err != nil {
 		glog.Errorf("Failed to add recent scores for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
 		return
 	}
 
-	workoutData, err := ddr.WorkoutData(client, pi.Code)
+	workoutData, err := ddr.WorkoutDataForClient(client, pi.Code)
 	if err != nil {
 		glog.Errorf("Failed to load workout data for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
 		return
@@ -184,13 +184,13 @@ func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDi
 		err = fmt.Errorf("user not logged into eagate")
 		return
 	}
-	pi, _, err := ddr.PlayerInformation(client)
+	pi, _, err := ddr.PlayerInformationForClient(client)
 	if err != nil {
 		glog.Errorf("Failed to load player info for user %s: %s\n", client.GetUsername(), err.Error())
 		return
 	}
 
-	stats, err := ddr.SongStatistics(client, difficulties, pi.Code)
+	stats, err := ddr.SongStatisticsForClient(client, difficulties, pi.Code)
 	if err != nil {
 		glog.Errorf("Failed to load song statistics for user %s code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
 		return
@@ -201,7 +201,7 @@ func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDi
 		glog.Errorf("Failed to load db: %s\n", err.Error())
 		return
 	}
-	err = ddr_db.AddPlayerDetails(db, *pi)
+	err = ddr_db.AddPlayerDetails(db, pi)
 	if err != nil {
 		glog.Errorf("Failed to add player details for user %s: %s\n", client.GetUsername(), err.Error())
 		return
@@ -232,7 +232,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		glog.Errorf("Failed to load db: %s\n", err.Error())
 		return
 	}
-	newPi, playcount, err := ddr.PlayerInformation(client)
+	newPi, playcount, err := ddr.PlayerInformationForClient(client)
 	if err != nil {
 		glog.Errorf("Failed to load player info for user %s: %s\n", client.GetUsername(), err.Error())
 		return
@@ -250,13 +250,13 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		glog.Infof("Player info not found for code %d, will refresh\n", newPi.Code)
 		refreshDdrUser(client)
 	}
-	err = ddr_db.AddPlayerDetails(db, *newPi)
+	err = ddr_db.AddPlayerDetails(db, newPi)
 	if err != nil {
 		glog.Errorf("Failed to update player info for user %s: %s\n", client.GetUsername(), err.Error())
 		return
 	}
 
-	recentScores, err := ddr.RecentScores(client, newPi.Code)
+	recentScores, err := ddr.RecentScoresForClient(client, newPi.Code)
 	if err != nil {
 		glog.Errorf("Failed to load recent scores for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
 		return
@@ -266,14 +266,14 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		err = fmt.Errorf("failed to load recent scores for code %d", newPi.Code)
 	}
 
-	workoutData, err := ddr.WorkoutData(client, newPi.Code)
+	workoutData, err := ddr.WorkoutDataForClient(client, newPi.Code)
 	if err != nil {
 		glog.Errorf("Failed to load workout data for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
 		return
 	}
 
 	recentSongIds := make([]string, 0)
-	for _, score := range *recentScores {
+	for _, score := range recentScores {
 		found := false
 		for _, addedId := range recentSongIds {
 			if addedId == score.SongId {
@@ -309,7 +309,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 
 
 	if recentScores != nil {
-		err = ddr_db.AddScores(db, *recentScores)
+		err = ddr_db.AddScores(db, recentScores)
 		if err != nil {
 			glog.Errorf("Failed to add scores for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
 			return
@@ -317,7 +317,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 
 		songsToUpdate := make([]ddr_models.SongDifficulty, 0)
 
-		for _, score := range *recentScores {
+		for _, score := range recentScores {
 			added := false
 			for _, song := range songsToUpdate {
 				if score.SongId == song.SongId && score.Mode == song.Mode && score.Difficulty == song.Difficulty {
@@ -335,7 +335,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 			}
 		}
 
-		statistics, err := ddr.SongStatistics(client, songsToUpdate, newPi.Code)
+		statistics, err := ddr.SongStatisticsForClient(client, songsToUpdate, newPi.Code)
 		if err != nil {
 			glog.Errorf("Failed to update song statistics for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
 			return err
@@ -348,7 +348,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		ddr_db.AddWorkoutData(db, workoutData)
 	}
 
-	err = ddr_db.AddPlaycountDetails(db, *playcount)
+	err = ddr_db.AddPlaycountDetails(db, playcount)
 	if err != nil {
 		glog.Errorf("Failed to add playcount details for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
 		return

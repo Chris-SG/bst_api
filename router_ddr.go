@@ -201,7 +201,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	db, _ := eagate_db.GetDb()
-	songData, err := ddr.SongData(client, newSongs)
+	songData, err := ddr.SongDataForClient(client, newSongs)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
@@ -211,7 +211,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 	}
 	ddr_db.AddSongs(db, songData)
 
-	songDifficulties, err := ddr.SongDifficulties(client, newSongs)
+	songDifficulties, err := ddr.SongDifficultiesForClient(client, newSongs)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
@@ -246,7 +246,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	songIds, err := ddr.SongIds(client)
+	songIds, err := ddr.SongIdsForClient(client)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
@@ -256,7 +256,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	db, _ := eagate_db.GetDb()
-	songData, err := ddr.SongData(client, songIds)
+	songData, err := ddr.SongDataForClient(client, songIds)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
@@ -266,7 +266,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 	}
 	ddr_db.AddSongs(db, songData)
 
-	songDifficulties, err := ddr.SongDifficulties(client, songIds)
+	songDifficulties, err := ddr.SongDifficultiesForClient(client, songIds)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
@@ -328,6 +328,7 @@ func SongsJacketGet(rw http.ResponseWriter, r *http.Request) {
 
 // SongsIdGet will retrieve details about the song id located within
 // the request URI.
+// TODO improve data returned
 func SongsIdGet(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	val := vars["id"]
@@ -358,8 +359,6 @@ func SongsIdGet(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(bytes)
 		return
 	}
-
-	songs[0].Difficulties = difficulties
 
 	bytes, _ := json.Marshal(difficulties)
 	rw.WriteHeader(http.StatusOK)

@@ -113,7 +113,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	client := util.GenerateClient()
 
-	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, client)
+	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, loginRequest.OneTimePassword, client)
 	if err != nil {
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
