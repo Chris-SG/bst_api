@@ -51,6 +51,12 @@ func main() {
 		},
 	}
 
+	go func() {
+		// serve HTTP, which will redirect automatically to HTTPS
+		h := certManager.HTTPHandler(nil)
+		log.Fatal(http.ListenAndServe(":http", h))
+	}()
+
 	fmt.Println("api started")
 	log.Fatal(srv.ListenAndServeTLS("", ""))
 }
