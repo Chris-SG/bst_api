@@ -8,7 +8,6 @@ import (
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_db/ddr_db"
 	"github.com/chris-sg/eagate_models/ddr_models"
-	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"io/ioutil"
@@ -506,7 +505,6 @@ func SongsScoresExtendedGet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	stats := ddr_db.RetrieveScoreStatisticsExtendedData(db, ddrProfile.Code)
-	glog.Info(stats)
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte(stats))
