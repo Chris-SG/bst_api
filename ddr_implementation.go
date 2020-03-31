@@ -5,7 +5,6 @@ import (
 	"github.com/chris-sg/eagate/ddr"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_db/ddr_db"
 	"github.com/chris-sg/eagate_models/ddr_models"
 	"github.com/chris-sg/eagate_models/user_models"
 	"github.com/golang/glog"
@@ -26,12 +25,12 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err error) {
 		glog.Errorf("Failed to load eagate song ids: %s\n", err.Error())
 		return
 	}
-	db, err := eagate_db.GetDb()
-	if err != nil {
-		glog.Errorf("Failed to load db: %s\n", err.Error())
+
+	dbIds, errs := eagate_db.GetDdrDb().RetrieveSongIds()
+	if PrintErrors("failed to load songs from db, errors:", errs) {
+		err = fmt.Errorf("failed to load songs from db")
 		return
 	}
-	dbIds := ddr_db.RetrieveSongIds(db)
 
 	glog.Infof("Comparing %d eagate songs against %d db songs for user %s\n", len(siteIds), len(dbIds), client.GetUsername())
 	for i := len(siteIds)-1; i >= 0; i-- {
@@ -59,17 +58,16 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 		err := fmt.Errorf("user not logged into eagate")
 		return err
 	}
-	db, _ := eagate_db.GetDb()
+
 	songData, err := ddr.SongDataForClient(client, songIds)
 	if err != nil {
 		glog.Errorf("Failed to get song data from client %s\n", client.GetUsername())
 		return err
 	}
 	glog.Infof("Update new songs got %d song data points\n", len(songData))
-	err = ddr_db.AddSongs(db, songData)
-	if err != nil {
-		glog.Errorf("Update failed to add songs to db: %s\n", err.Error())
-		return err
+	errs := eagate_db.GetDdrDb().AddSongs(songData)
+	if PrintErrors("failed to add songs to db:", errs) {
+		return fmt.Errorf("failed to add songs to db")
 	}
 	difficulties, err := ddr.SongDifficultiesForClient(client, songIds)
 	if err != nil {
@@ -77,10 +75,9 @@ func updateNewSongs(client util.EaClient, songIds []string) error {
 		return err
 	}
 	glog.Infof("Update new songs got %d song difficulty points\n", len(difficulties))
-	err = ddr_db.AddSongDifficulties(db, difficulties)
-	if err != nil {
-		glog.Errorf("Update failed to add difficulties to db: %s\n", err.Error())
-		return err
+	errs = eagate_db.GetDdrDb().AddDifficulties(difficulties)
+	if PrintErrors("failed to add difficulties to db:", errs) {
+		return fmt.Errorf("failed to add difficulties to db")
 	}
 	UpdateCookie(client)
 	return nil
@@ -94,19 +91,22 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		return
 	}
 
-	db, err := eagate_db.GetDb()
-	if err != nil {
-		glog.Errorf("Failed to load db: %s\n", err.Error())
-		return
-	}
-
 	pi, pc, err := ddr.PlayerInformationForClient(client)
 	if err != nil {
 		glog.Errorf("Failed to load player information for client %s: %s\n", client.GetUsername(), err.Error())
 		return
 	}
-	ddr_db.AddPlayerDetails(db, pi)
-	ddr_db.AddPlaycountDetails(db, pc)
+
+	errs := eagate_db.GetDdrDb().AddPlayerDetails(pi)
+	if PrintErrors("failed to add player details:", errs) {
+		err = fmt.Errorf("failed to add player details")
+		return
+	}
+	errs = eagate_db.GetDdrDb().AddPlaycounts([]ddr_models.Playcount{pc})
+	if PrintErrors("failed to add playcount:", errs) {
+		err = fmt.Errorf("failed to add playcount")
+		return
+	}
 
 	newSongs, err := checkForNewSongs(client)
 	if err != nil {
@@ -133,12 +133,17 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		return
 	}
 	glog.Infof("Adding song difficulties to db client %s (%d difficulties)\n", client.GetUsername(), len(difficulties))
-	err = ddr_db.AddSongDifficulties(db, difficulties)
-	if err != nil {
-		glog.Errorf("Failed to add song difficulties to db for client %s: %s\n", client.GetUsername(), err.Error())
+	errs = eagate_db.GetDdrDb().AddDifficulties(difficulties)
+	if PrintErrors("failed to add difficulties to db:", errs) {
+		err = fmt.Errorf("failed to add difficulties to db")
 		return
 	}
-	difficulties = ddr_db.RetrieveValidSongDifficulties(db)
+
+	difficulties, errs = eagate_db.GetDdrDb().RetrieveValidDifficulties()
+	if PrintErrors("failed to retrieve difficulties from db:", errs) {
+		err = fmt.Errorf("failed to retrieve difficulties from db")
+		return
+	}
 
 	songStats, err := ddr.SongStatisticsForClient(client, difficulties, pi.Code)
 	if err != nil {
@@ -146,9 +151,9 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		return
 	}
 	glog.Infof("Adding song statistics to db client %s (%d statistics)", client.GetUsername(), len(songStats))
-	err = ddr_db.AddSongStatistics(db, songStats, pi.Code)
-	if err != nil {
-		glog.Errorf("Failed to add song statistics to db for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
+	eagate_db.GetDdrDb().AddSongStatistics(songStats)
+	if PrintErrors("failed to add song statistics to db:", errs) {
+		err = fmt.Errorf("failed to add song statistics to db")
 		return
 	}
 
@@ -158,9 +163,9 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		return
 	}
 	glog.Infof("Adding song scores to db client %s (%d scores)", client.GetUsername(), len(recentScores))
-	err = ddr_db.AddScores(db, recentScores)
-	if err != nil {
-		glog.Errorf("Failed to add recent scores for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
+	errs = eagate_db.GetDdrDb().AddScores(recentScores)
+	if PrintErrors("failed to add scores to db:", errs) {
+		err = fmt.Errorf("failed to add scores to db")
 		return
 	}
 
@@ -170,7 +175,10 @@ func refreshDdrUser(client util.EaClient) (err error) {
 		return
 	}
 	glog.Infof("Adding workout data to db client %s (%d datapoints)", client.GetUsername(), len(workoutData))
-	ddr_db.AddWorkoutData(db, workoutData)
+	errs = eagate_db.GetDdrDb().AddWorkoutData(workoutData)
+	if PrintErrors("failed to add workout data to db:", errs) {
+		err = fmt.Errorf("failed to add workout data to db")
+	}
 
 	return
 }
@@ -196,19 +204,14 @@ func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDi
 		return
 	}
 
-	db, err := eagate_db.GetDb()
-	if err != nil {
-		glog.Errorf("Failed to load db: %s\n", err.Error())
+	errs := eagate_db.GetDdrDb().AddPlayerDetails(pi)
+	if PrintErrors("failed to add player details to db:", errs) {
+		err = fmt.Errorf("failed to add player details to db")
 		return
 	}
-	err = ddr_db.AddPlayerDetails(db, pi)
-	if err != nil {
-		glog.Errorf("Failed to add player details for user %s: %s\n", client.GetUsername(), err.Error())
-		return
-	}
-	ddr_db.AddSongStatistics(db, stats, pi.Code)
-	if err != nil {
-		glog.Errorf("Failed to add %d song statistics for user %s: %s\n", len(stats), client.GetUsername(), err.Error())
+	eagate_db.GetDdrDb().AddSongStatistics(stats)
+	if PrintErrors("failed to add song statistics to db:", errs) {
+		err = fmt.Errorf("failed to add song statistics to db")
 		return
 	}
 	UpdateCookie(client)
@@ -227,22 +230,25 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		err = fmt.Errorf("user not logged into eagate")
 		return
 	}
-	db, err := eagate_db.GetDb()
-	if err != nil {
-		glog.Errorf("Failed to load db: %s\n", err.Error())
-		return
-	}
 	newPi, playcount, err := ddr.PlayerInformationForClient(client)
 	if err != nil {
 		glog.Errorf("Failed to load player info for user %s: %s\n", client.GetUsername(), err.Error())
 		return
 	}
 	newPi.EaGateUser = &user.Name
-	dbPi, _ := ddr_db.RetrieveDdrPlayerDetailsByCode(db, newPi.Code)
-	if dbPi != nil {
+	dbPi, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByPlayerCode(newPi.Code)
+	if PrintErrors("failed to retrieve player details:", errs) {
+		err = fmt.Errorf("failed to retrieve player details for code %d", newPi.Code)
+		return
+	}
+	if dbPi.Code != 0 {
 		glog.Infof("Player info found for code %d, will not refresh\n", newPi.Code)
-		dbPlaycount := ddr_db.RetrieveLatestPlaycountDetails(db, dbPi.Code)
-		if dbPlaycount != nil && playcount.Playcount == dbPlaycount.Playcount {
+		dbPlaycount, errs := eagate_db.GetDdrDb().RetrieveLatestPlaycountByPlayerCode(dbPi.Code)
+		if PrintErrors("failed to retrieve latest playcount:", errs) {
+			err = fmt.Errorf("failed to retrieve latest playcount details for %d", dbPi.Code)
+			return
+		}
+		if playcount.Playcount == dbPlaycount.Playcount {
 			glog.Infof("Playcount for %d unchanged. Will not update", dbPi.Code)
 			return
 		}
@@ -250,9 +256,9 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 		glog.Infof("Player info not found for code %d, will refresh\n", newPi.Code)
 		refreshDdrUser(client)
 	}
-	err = ddr_db.AddPlayerDetails(db, newPi)
-	if err != nil {
-		glog.Errorf("Failed to update player info for user %s: %s\n", client.GetUsername(), err.Error())
+	errs = eagate_db.GetDdrDb().AddPlayerDetails(newPi)
+	if PrintErrors("failed to update player information:", errs) {
+		err = fmt.Errorf("failed to update player info for user %s", client.GetUsername())
 		return
 	}
 
@@ -288,7 +294,11 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 	}
 	glog.Infof("Update found %d song ids to update\n", len(recentSongIds))
 
-	dbSongIds := ddr_db.RetrieveSongIds(db)
+	dbSongIds, errs := eagate_db.GetDdrDb().RetrieveSongIds()
+	if PrintErrors("failed to retrieve song ids from db:", errs) {
+		err = fmt.Errorf("failed to retrieve song ids from db")
+		return
+	}
 	for i := len(recentSongIds)-1; i >= 0; i-- {
 		for j, _ := range dbSongIds {
 			if recentSongIds[i] == dbSongIds[j] {
@@ -309,9 +319,9 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 
 
 	if recentScores != nil {
-		err = ddr_db.AddScores(db, recentScores)
-		if err != nil {
-			glog.Errorf("Failed to add scores for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
+		errs = eagate_db.GetDdrDb().AddScores(recentScores)
+		if PrintErrors("failed to add recent scores:", errs) {
+			err = fmt.Errorf("failed to add recent scores for user %s", client.GetUsername())
 			return
 		}
 
@@ -340,19 +350,26 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (err error
 			glog.Errorf("Failed to update song statistics for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
 			return err
 		}
-		ddr_db.AddSongStatistics(db, statistics, newPi.Code)
+		errs = eagate_db.GetDdrDb().AddSongStatistics(statistics)
+		if PrintErrors("failed to add song statistics to db:", errs) {
+			return fmt.Errorf("failed to add song statistics for user %s", client.GetUsername())
+		}
 		glog.Infof("Updated song statistics for user %s\n", client.GetUsername())
 	}
 
 	if workoutData != nil {
-		ddr_db.AddWorkoutData(db, workoutData)
+		errs = eagate_db.GetDdrDb().AddWorkoutData(workoutData)
+		if PrintErrors("failed to add workout data to db:", errs) {
+			err = fmt.Errorf("failed to add workout data for user %s", client.GetUsername())
+		}
 	}
 
-	err = ddr_db.AddPlaycountDetails(db, playcount)
-	if err != nil {
-		glog.Errorf("Failed to add playcount details for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Error())
+	errs = eagate_db.GetDdrDb().AddPlaycounts([]ddr_models.Playcount{playcount})
+	if PrintErrors("failed to add playcounts:", errs) {
+		err = fmt.Errorf("failed to add playcount details for %s", client.GetUsername())
 		return
 	}
+
 	glog.Infof("Profile update complete for user %s\n", client.GetUsername())
 	UpdateCookie(client)
 

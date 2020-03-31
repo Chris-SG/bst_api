@@ -46,8 +46,7 @@ func LoadConfig() {
 
 	glog.Infoln("Done!")
 
-	_, err := eagate_db.OpenDb(user, password, dbname, host, maxIdleConnections)
-	//db_builder.Create(db)
+	err := eagate_db.OpenDb("postgres", user, password, dbname, host, maxIdleConnections)
 	if err != nil {
 		glog.Fatalln("Failed to open db!")
 		panic(err)

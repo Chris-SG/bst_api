@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_db/user_db"
 	"github.com/chris-sg/eagate_models/user_models"
 	"net/http"
 	"strings"
@@ -22,15 +21,17 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 	}
 	val = strings.ToLower(val)
 
-	db, err := eagate_db.GetDb()
-	if err != nil {
+	model, errs := eagate_db.GetUserDb().RetrieveUserByWebId(val)
+	if PrintErrors("failed to retrieve user:", errs) {
+		err = fmt.Errorf("failed to retrieve user for %s", val)
 		return
 	}
 
-	models = user_db.RetrieveUserByWebId(db, val)
-	if len(models) == 0 {
+	if len(model.Name) == 0 {
 		err = fmt.Errorf("could not find any eagate users for web id %s", val)
+		return
 	}
+	models = append(models, model)
 	return
 }
 
@@ -40,16 +41,16 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 func createClientForUser(userModel user_models.User) (client util.EaClient, err error) {
 	client = util.GenerateClient()
 	client.SetUsername(userModel.Name)
-	db, err := eagate_db.GetDb()
-	if err != nil {
+	cookie, errs := eagate_db.GetUserDb().RetrieveUserCookieStringByUserId(userModel.Name)
+	if PrintErrors("failed to retrieve cookie:", errs) {
+		err = fmt.Errorf("failed to retrieve cookie for user %s", userModel.Name)
 		return
 	}
-	cookie := user_db.RetrieveUserCookieById(db, userModel.Name)
-	if cookie == nil {
+	if len(cookie) == 0 {
 		err = fmt.Errorf("user not logged in - no cookie")
 		return
 	}
-	client.SetEaCookie(util.CookieFromRawCookie(*cookie))
+	client.SetEaCookie(util.CookieFromRawCookie(cookie))
 	if !client.LoginState() {
 		err = fmt.Errorf("user not logged in - eagate rejection")
 	}

@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_db/user_db"
+	"github.com/golang/glog"
 	"reflect"
 	"strings"
 )
@@ -15,6 +16,18 @@ func WriteStatus(status string, message string) bst_models.Status {
 		Status:  status,
 		Message: message,
 	}
+}
+
+func WriteErrorStatus(errs []error) bst_models.ErrorStatus {
+
+	status := bst_models.ErrorStatus {
+		Status: "bad",
+		ErrorMessages: make([]string, 0),
+	}
+	for _, err := range errs {
+		status.ErrorMessages = append(status.ErrorMessages, err.Error())
+	}
+	return status
 }
 
 // ValidateOrdering will ensure columns in orderRequest are correct for the
@@ -95,9 +108,26 @@ func ValidateFiltering(i interface{}, filterRequest []string) (filtering string)
 }
 
 func UpdateCookie(client util.EaClient) {
-	db, _ := eagate_db.GetDb()
-	oldCookie := user_db.RetrieveUserCookieById(db, client.GetUsername())
-	if oldCookie == nil || *oldCookie != client.GetEaCookie().String() {
-		user_db.SetCookieForUser(db, client.GetUsername(), client.GetEaCookie())
+	oldCookie, errs := eagate_db.GetUserDb().RetrieveUserCookieStringByUserId(client.GetUsername())
+	if PrintErrors("failed to retrieve cookie for user:", errs) {
+		return
 	}
+	if len(oldCookie) == 0 || oldCookie != client.GetEaCookie().String() {
+		errs := eagate_db.GetUserDb().SetCookieForUser(client.GetUsername(), client.GetEaCookie())
+		if PrintErrors("failed to set cookie for user:", errs) {
+			return
+		}
+	}
+	return
+}
+
+func PrintErrors(errMsg string, errs []error) bool {
+	if len(errs) > 0 {
+		glog.ErrorDepth(1, fmt.Sprintf("%s\n", errMsg))
+		for _, err := range errs {
+			glog.ErrorDepth(1, fmt.Sprintf("\t%s\n", err.Error()))
+		}
+		return true
+	}
+	return false
 }

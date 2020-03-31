@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_db/db_builder"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"
@@ -26,8 +25,7 @@ func main() {
 	LoadConfig()
 
 	if dbMigration {
-		db, _ := eagate_db.GetDb()
-		db_builder.Create(db)
+		eagate_db.GetMigrator().Create()
 		return
 	}
 

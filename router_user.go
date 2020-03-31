@@ -6,7 +6,6 @@ import (
 	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_db/user_db"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"io/ioutil"
@@ -122,17 +121,22 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := eagate_db.GetDb()
-	if err != nil {
-		status := WriteStatus("bad", err.Error())
+	errs := eagate_db.GetUserDb().SetCookieForUser(loginRequest.Username, cookie)
+	if len(errs) > 0 {
+		status := WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
+		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
 		return
 	}
-
-	user_db.SetCookieForUser(db, loginRequest.Username, cookie)
-	user_db.SetWebUserForUser(db, loginRequest.Username, val)
+	errs = eagate_db.GetUserDb().SetWebUserForEaUser(loginRequest.Username, val)
+	if len(errs) > 0 {
+		status := WriteErrorStatus(errs)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
 
 	status := WriteStatus("ok", "loaded cookie for user")
 	bytes, _ := json.Marshal(status)
@@ -173,18 +177,25 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := eagate_db.GetDb()
-	if err != nil {
-		status := WriteStatus("bad", err.Error())
+	user, errs := eagate_db.GetUserDb().RetrieveUserByUserId(logoutRequest.Username)
+	if len(errs) > 0 {
+		status := WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
+		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
 		return
 	}
 
-	user := user_db.RetrieveUserById(db, logoutRequest.Username)
-	if user != nil && user.WebUser == val {
-		user_db.SetWebUserForUser(db, user.Name, "")
+	if user.WebUser == val {
+		errs := eagate_db.GetUserDb().SetWebUserForEaUser(user.Name, "")
+		if len(errs) > 0 {
+			status := WriteErrorStatus(errs)
+			bytes, _ := json.Marshal(status)
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write(bytes)
+			return
+		}
+
 		status := WriteStatus("ok", "user unlinked")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusOK)
