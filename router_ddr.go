@@ -19,6 +19,9 @@ import (
 func CreateDdrRouter() *mux.Router {
 	ddrRouter := mux.NewRouter().PathPrefix("/ddr").Subrouter()
 
+	ddrRouter.Path("/profile").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(ProfileGet)))).Methods(http.MethodGet)
+
 	ddrRouter.Path("/profile/update").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(ProfileUpdatePatch)))).Methods(http.MethodPatch)
 
@@ -84,6 +87,52 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
+}
+
+// ProfileGet will retrieve formatted profile details for
+// the current user.
+func ProfileGet(rw http.ResponseWriter, r *http.Request) {
+	users, err := tryGetEagateUsers(r)
+	if err != nil {
+		status := WriteStatus("bad", err.Error())
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	playerDetails, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	if PrintErrors("failed to retrieve player details by eagate user:", errs) {
+		status := WriteStatus("bad", "could not get eagate user")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	wd, errs := eagate_db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, 29, 0)
+	if PrintErrors("failed to retrieve playcounts:", errs) {
+		status := WriteStatus("bad", "could not get playcounts for user")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	type profile struct {
+		Name string
+		Id int
+		WorkoutData []ddr_models.WorkoutData
+	}
+
+	p := profile{
+		Name:        playerDetails.Name,
+		Id:          playerDetails.Code,
+		WorkoutData: wd,
+	}
+
+	bytes, _ := json.Marshal(p)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+	return
 }
 
 // ProfileUpdatePatch will check the past 50 plays for the user.
