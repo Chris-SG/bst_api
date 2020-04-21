@@ -6,6 +6,7 @@ import (
 	"github.com/chris-sg/bst_server_models"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"io/ioutil"
@@ -103,6 +104,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	loginRequest := bst_models.LoginRequest{}
 	err = json.Unmarshal(body, &loginRequest)
 	if err != nil {
+		glog.Warningf("failed to decode login request for %s: %s\n", loginRequest.Username, err.Error())
 		status := WriteStatus("bad", err.Error())
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
@@ -110,6 +112,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	glog.Infof("user %s attempting to login to eagate\n", loginRequest.Username)
 	client := util.GenerateClient()
 
 	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, loginRequest.OneTimePassword, client)

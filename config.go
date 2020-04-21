@@ -18,7 +18,6 @@ var (
 )
 
 func LoadConfig() {
-	glog.Info("Loading config and flags... ")
 	flag.StringVar(&authClientIssuer, "issuer", "", "the issuer for auth server.")
 	flag.StringVar(&authClientAudience, "audience", "", "the audience for auth server.")
 

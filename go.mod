@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b
-	github.com/chris-sg/bst_server_models v0.0.0-20200331080657-664e2512d918
+	github.com/chris-sg/bst_server_models v0.0.0-20200421142232-ea5488213431
 	github.com/chris-sg/eagate v0.0.0-20200330225644-fd9f84b30be2
 	github.com/chris-sg/eagate_db v0.0.0-20200420013201-4d08d45669c6
 	github.com/chris-sg/eagate_models v0.0.0-20200331063313-abfe6c0c2570
