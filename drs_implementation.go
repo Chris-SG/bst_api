@@ -36,6 +36,5 @@ func refreshDrsUser(client util.EaClient) (err error) {
 	errs = eagate_db.GetDrsDb().AddPlayerScores(playerScores)
 	PrintErrors("failed to add player scores to db:", errs)
 
-	glog.Info(dancerInfo, musicData, playHist)
 	return
 }
