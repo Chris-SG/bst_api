@@ -23,6 +23,7 @@ var (
 
 func main() {
 	LoadConfig()
+	eagate_db.GetMigrator().Create()
 
 	if dbMigration {
 		eagate_db.GetMigrator().Create()
