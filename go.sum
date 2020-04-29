@@ -28,6 +28,12 @@ github.com/chris-sg/eagate v0.0.0-20200429072536-aa0c0e675303 h1:PpXXNDukHlN5bQP
 github.com/chris-sg/eagate v0.0.0-20200429072536-aa0c0e675303/go.mod h1:jY0lf1dSPenGtYZc141Z6gjksBgGE2/nvDhGNiU3FjY=
 github.com/chris-sg/eagate v0.0.0-20200429074642-f533b1964194 h1:YIAAtxRwloUyBiAFX24fjqbl3Pslv0FvhpHnLbBVEqQ=
 github.com/chris-sg/eagate v0.0.0-20200429074642-f533b1964194/go.mod h1:WEPEBVQLDQ89EBdCzzii5eiXIIdweumHOMMsN1G7Cto=
+github.com/chris-sg/eagate v0.0.0-20200429080157-02364013b922 h1:B37NIyOzSvNPx4zq33orTCWUknGCIfN0Qwcfj+XdoLE=
+github.com/chris-sg/eagate v0.0.0-20200429080157-02364013b922/go.mod h1:gbcS3bP2g12umEF7U0u+sNoM+ZRAGSUG0ilyhlSUGqQ=
+github.com/chris-sg/eagate v0.0.0-20200429080712-50bdc96c6a3c h1:A490Xj/IO3C/2slS2zEZhpDMSr19n7yhD1r9h7emUf8=
+github.com/chris-sg/eagate v0.0.0-20200429080712-50bdc96c6a3c/go.mod h1:gbcS3bP2g12umEF7U0u+sNoM+ZRAGSUG0ilyhlSUGqQ=
+github.com/chris-sg/eagate v0.0.0-20200429081805-518c746036c9 h1:dU3KFyTNTiTS2RROuF8VvN5BCddbEI4DkZVN0y06Bsc=
+github.com/chris-sg/eagate v0.0.0-20200429081805-518c746036c9/go.mod h1:GL9R9QIb/1FhzDwW0iip3bXmTifC8JcbNyr/lkMWmVQ=
 github.com/chris-sg/eagate_db v0.0.0-20200329223904-3ad270e399a3 h1:wqYMSJwqWs0ZCoAlwCLA2CGZdIz5Gf7ezEqRBVMO9BE=
 github.com/chris-sg/eagate_db v0.0.0-20200329223904-3ad270e399a3/go.mod h1:Cv2ktpQm66Xk1VCwu4Uhhg/dLPcEQTPkZyoDTYEqjfM=
 github.com/chris-sg/eagate_db v0.0.0-20200331070400-6079c3dad7ff h1:q4RF2oLFOPBFPWOnxyBA0X5sp26Aaurpk6ncKPvuu+0=
@@ -58,6 +64,10 @@ github.com/chris-sg/eagate_models v0.0.0-20200429072331-8f31b1b09185 h1:ATb/JHai
 github.com/chris-sg/eagate_models v0.0.0-20200429072331-8f31b1b09185/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200429074537-e29f9d96720d h1:+jHHiJoA8dtaoSoO+a79/b1yfIWGTxOGHjTWpi8jojE=
 github.com/chris-sg/eagate_models v0.0.0-20200429074537-e29f9d96720d/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
+github.com/chris-sg/eagate_models v0.0.0-20200429080130-96f640b0777e h1:ozvj6XBC/rmDYfsR1kotyJ5bKz3CJnPu3j5N4zR9wPs=
+github.com/chris-sg/eagate_models v0.0.0-20200429080130-96f640b0777e/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
+github.com/chris-sg/eagate_models v0.0.0-20200429081710-a273d5333e4f h1:cBlLepYEHFVT8t/PCOvvA/GazrQC1PygBUjoTFj5VFM=
+github.com/chris-sg/eagate_models v0.0.0-20200429081710-a273d5333e4f/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6ROGeiHFAP8WJdI2RoxALQYgdllERc3N5N2DM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
