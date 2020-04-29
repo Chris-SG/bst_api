@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/chris-sg/eagate/drs"
 	"github.com/chris-sg/eagate/util"
+	"github.com/chris-sg/eagate_db"
 	"github.com/golang/glog"
 )
 
@@ -17,38 +17,18 @@ func refreshDrsUser(client util.EaClient) (err error) {
 	}
 
 	dancerInfo, err := drs.LoadDancerInfo(client)
-	if err != nil {
-		glog.Errorf("%s\n", err.Error())
-	}
 	musicData, err := drs.LoadMusicData(client)
-	if err != nil {
-		glog.Errorf("%s\n", err.Error())
-	}
 	playHist, err := drs.LoadPlayHist(client)
-	if err != nil {
-		glog.Errorf("%s\n", err.Error())
-	}
 
-	d, err := json.MarshalIndent(dancerInfo, "", "  ")
-	d, err = json.MarshalIndent(musicData, "", "  ")
-	if err != nil {
-		glog.Errorf("%s\n", err.Error())
-	}
-	glog.Info(string(d))
-	d, err = json.MarshalIndent(playHist, "", "  ")
 
 	playerDetails, profileSnapshot, songs, difficulties, playerSongStats, playerScores := drs.Transform(dancerInfo, musicData, playHist)
 
-	d, err = json.MarshalIndent(playerDetails, "", "  ")
-	d, err = json.MarshalIndent(profileSnapshot, "", "  ")
-	d, err = json.MarshalIndent(songs, "", "  ")
-	d, err = json.MarshalIndent(difficulties, "", "  ")
-	if err != nil {
-		glog.Errorf("%s\n", err.Error())
-	}
-	glog.Info(string(d))
-	d, err = json.MarshalIndent(playerSongStats, "", "  ")
-	d, err = json.MarshalIndent(playerScores, "", "  ")
+	eagate_db.GetDrsDb().AddPlayerDetails(playerDetails)
+	eagate_db.GetDrsDb().AddPlayerProfileSnapshot(profileSnapshot)
+	eagate_db.GetDrsDb().AddSongs(songs)
+	eagate_db.GetDrsDb().AddDifficulties(difficulties)
+	eagate_db.GetDrsDb().AddPlayerSongStats(playerSongStats)
+	eagate_db.GetDrsDb().AddPlayerScores(playerScores)
 
 	glog.Info(dancerInfo, musicData, playHist)
 	return

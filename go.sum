@@ -54,6 +54,8 @@ github.com/chris-sg/eagate_db v0.0.0-20200421145545-ad704412c8ce h1:dVPcIxps0zEE
 github.com/chris-sg/eagate_db v0.0.0-20200421145545-ad704412c8ce/go.mod h1:IFBHga2yNGINdwattr94Jf0/COqv7x2sPFdeI2SPnP4=
 github.com/chris-sg/eagate_db v0.0.0-20200421150448-c3eeeb730bc3 h1:x793Br1FeNWV0MfFGsJF1NubXL+8g5dXGZZu6gFDuuA=
 github.com/chris-sg/eagate_db v0.0.0-20200421150448-c3eeeb730bc3/go.mod h1:IFBHga2yNGINdwattr94Jf0/COqv7x2sPFdeI2SPnP4=
+github.com/chris-sg/eagate_db v0.0.0-20200429094032-a25be2c88795 h1:VFscqmqf5DkLPnbZPrOcG0xWRpjAiAmlkz4E9+iuEkw=
+github.com/chris-sg/eagate_db v0.0.0-20200429094032-a25be2c88795/go.mod h1:1zyZwl/VU2DhqexRYhmcymfDLjP675Qjr5X9qJWJcJk=
 github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3 h1:3Hxo5ORGiMzhrxLBcmSZy/j5EFcUwZ8qFbVXMFkm3HA=
 github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200331063313-abfe6c0c2570 h1:dPM7S8rNnavEWCYXf75RrGPAVce0d4fGsTtLbv+trQQ=
@@ -68,6 +70,8 @@ github.com/chris-sg/eagate_models v0.0.0-20200429080130-96f640b0777e h1:ozvj6XBC
 github.com/chris-sg/eagate_models v0.0.0-20200429080130-96f640b0777e/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200429081710-a273d5333e4f h1:cBlLepYEHFVT8t/PCOvvA/GazrQC1PygBUjoTFj5VFM=
 github.com/chris-sg/eagate_models v0.0.0-20200429081710-a273d5333e4f/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
+github.com/chris-sg/eagate_models v0.0.0-20200429085721-762005d86979 h1:uc71E2gCXtJHCDV8syVHdPgJP93RhAzSh+riTOSpYu8=
+github.com/chris-sg/eagate_models v0.0.0-20200429085721-762005d86979/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6ROGeiHFAP8WJdI2RoxALQYgdllERc3N5N2DM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
