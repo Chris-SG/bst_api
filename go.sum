@@ -20,6 +20,10 @@ github.com/chris-sg/eagate v0.0.0-20200330223223-89f9d492f467 h1:IIDDgDOyNmj2BiB
 github.com/chris-sg/eagate v0.0.0-20200330223223-89f9d492f467/go.mod h1:sDfZ2aPQCCKIUxrGMjdYI06w9/U5xrgENJEnta7uSpg=
 github.com/chris-sg/eagate v0.0.0-20200330225644-fd9f84b30be2 h1:vpY3LK76SqXKAFqjFNKlVTK3Vh7ob/IUPPQVFL+LlnY=
 github.com/chris-sg/eagate v0.0.0-20200330225644-fd9f84b30be2/go.mod h1:sDfZ2aPQCCKIUxrGMjdYI06w9/U5xrgENJEnta7uSpg=
+github.com/chris-sg/eagate v0.0.0-20200429070033-f2530c94e500 h1:EuFUOlqZDPxHoyGNvZyXwh9T8YurZDoL+buHGgb2bDE=
+github.com/chris-sg/eagate v0.0.0-20200429070033-f2530c94e500/go.mod h1:xr/Ja9B+gIfzr5NBailHtwkPSLm7xm4nWVpG0V8fP20=
+github.com/chris-sg/eagate v0.0.0-20200429070546-08bce0a08aa9 h1:TVSRmtYOZPJMN7nosps0HaOz/APRyToP55Wp5QG/Hzw=
+github.com/chris-sg/eagate v0.0.0-20200429070546-08bce0a08aa9/go.mod h1:xr/Ja9B+gIfzr5NBailHtwkPSLm7xm4nWVpG0V8fP20=
 github.com/chris-sg/eagate_db v0.0.0-20200329223904-3ad270e399a3 h1:wqYMSJwqWs0ZCoAlwCLA2CGZdIz5Gf7ezEqRBVMO9BE=
 github.com/chris-sg/eagate_db v0.0.0-20200329223904-3ad270e399a3/go.mod h1:Cv2ktpQm66Xk1VCwu4Uhhg/dLPcEQTPkZyoDTYEqjfM=
 github.com/chris-sg/eagate_db v0.0.0-20200331070400-6079c3dad7ff h1:q4RF2oLFOPBFPWOnxyBA0X5sp26Aaurpk6ncKPvuu+0=
@@ -44,6 +48,8 @@ github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3 h1:3Hxo5ORG
 github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200331063313-abfe6c0c2570 h1:dPM7S8rNnavEWCYXf75RrGPAVce0d4fGsTtLbv+trQQ=
 github.com/chris-sg/eagate_models v0.0.0-20200331063313-abfe6c0c2570/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
+github.com/chris-sg/eagate_models v0.0.0-20200429055856-81080543e574 h1:V2SBy26QGeIUktsOfcDnYbv13pk1lA6tc/pi0yFDjY8=
+github.com/chris-sg/eagate_models v0.0.0-20200429055856-81080543e574/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6ROGeiHFAP8WJdI2RoxALQYgdllERc3N5N2DM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=

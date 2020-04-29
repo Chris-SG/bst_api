@@ -79,6 +79,9 @@ func CreateApiRouter() (r *mux.Router) {
 	apiRouter.PathPrefix("/ddr").Handler(negroni.New(
 		negroni.Wrap(CreateDdrRouter())))
 
+	apiRouter.PathPrefix("/drs").Handler(negroni.New(
+		negroni.Wrap(CreateDrsRouter())))
+
 	AttachGeneralRoutes(r)
 
 	r.PathPrefix(apiBase).Handler(commonMiddleware.With(
