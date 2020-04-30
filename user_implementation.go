@@ -11,11 +11,12 @@ import (
 
 // tryGetEagateUsers will attempt to load any eagate users linked to
 // the auth0 account provided in the request.
-func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
+func tryGetEagateUsers(r *http.Request) (models []user_models.User, errMsg string, err error) {
 	tokenMap := profileFromToken(r)
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
+		errMsg = "jwt_err"
 		err = fmt.Errorf("failed to extract auth0 name")
 		return
 	}
@@ -23,11 +24,13 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 
 	model, errs := eagate_db.GetUserDb().RetrieveUserByWebId(val)
 	if PrintErrors("failed to retrieve user:", errs) {
+		errMsg = "no_user"
 		err = fmt.Errorf("failed to retrieve user for %s", val)
 		return
 	}
 
 	if len(model.Name) == 0 {
+		errMsg = "no_user"
 		err = fmt.Errorf("could not find any eagate users for web id %s", val)
 		return
 	}
@@ -38,20 +41,23 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, err error) {
 // createClientForUser will generate a http client for the provided user
 // model. This is intended to only be used for this specific user model,
 // as it will use cookies from the database for eagate integration.
-func createClientForUser(userModel user_models.User) (client util.EaClient, err error) {
+func createClientForUser(userModel user_models.User) (client util.EaClient, errMsg string, err error) {
 	client = util.GenerateClient()
 	client.SetUsername(userModel.Name)
 	cookie, errs := eagate_db.GetUserDb().RetrieveUserCookieStringByUserId(userModel.Name)
 	if PrintErrors("failed to retrieve cookie:", errs) {
+		errMsg = "no_cookie"
 		err = fmt.Errorf("failed to retrieve cookie for user %s", userModel.Name)
 		return
 	}
 	if len(cookie) == 0 {
+		errMsg = "no_cookie"
 		err = fmt.Errorf("user not logged in - no cookie")
 		return
 	}
 	client.SetEaCookie(util.CookieFromRawCookie(cookie))
 	if !client.LoginState() {
+		errMsg = "bad_cookie"
 		err = fmt.Errorf("user not logged in - eagate rejection")
 	}
 	return

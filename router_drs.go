@@ -21,9 +21,9 @@ func CreateDrsRouter() *mux.Router {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func DrsUpdateUser(rw http.ResponseWriter, r *http.Request) {
-	users, err := tryGetEagateUsers(r)
+	users, errMsg, err := tryGetEagateUsers(r)
 	if err != nil {
-		status := WriteStatus("bad", err.Error())
+		status := WriteStatus("bad", errMsg)
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write(bytes)
@@ -31,9 +31,9 @@ func DrsUpdateUser(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, user := range users {
-		client, err := createClientForUser(user)
+		client, errMsg, err := createClientForUser(user)
 		if err != nil {
-			status := WriteStatus("bad", err.Error())
+			status := WriteStatus("bad", errMsg)
 			bytes, _ := json.Marshal(status)
 			rw.WriteHeader(http.StatusUnauthorized)
 			rw.Write(bytes)

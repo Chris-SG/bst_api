@@ -67,3 +67,31 @@ At some point, a Postman collection will be added to fast-track usage of the API
  - Improve this readme
  - Add endpoints
  - ???
+ 
+ --- 
+ 
+ *Error Messages*
+ _jwt_err_: could not extract auth0 name
+ _no_user_: no eagate user exists
+ _no_cookie_: no cookie found for user
+ _bad_cookie_: user cookie has expired
+ 
+ _ddr_songid_fail_: could not get ddr song ids
+ _ddr_songid_db_fail_: could not get ddr song ids from database
+ _ddr_songdata_fail_: could not get song data for user
+ _ddr_songdiff_fail": could not get diff data from eagate
+ _ddr_addsong_fail_: could not add songs to database
+ _ddr_adddiff_fail_: could not add diff data to database
+ _ddr_retdiff_fail_: could not retrieve diff data from database
+ _ddr_pi_fail_: could not get player info from eagate
+ _ddr_addpi_fail_: could not add player info to database
+ _ddr_retpi_fail_: could not retrieve player info from database
+ _ddr_addpc_fail_: could not add playcount data to database
+ _ddr_retpc_fail_: could not retrieve playcount data from database
+ _ddr_songstat_fail_: could not get song stats from eagate
+ _ddr_addsongstat_fail_: could not add song stats to database
+ _ddr_recent_fail_: could not get recent scores from eagate
+ _ddr_addscore_fail_: could not add recent scores to database
+ _ddr_wd_fail_: could not load workout data from eagate
+ _ddr_addwd_fail_: could not add workout data to database
+ _ddr_retwd_fail_: could not retrieve workout data from database

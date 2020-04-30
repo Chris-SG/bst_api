@@ -37,9 +37,9 @@ func CreateUserRouter() *mux.Router {
 // database. This may produce multiple relations in the case a user
 // has linked multiple accounts. Any stored cookies will be nullified.
 func LoginGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := tryGetEagateUsers(r)
+	users, errMsg, err := tryGetEagateUsers(r)
 	if err != nil {
-		status := WriteStatus("bad", err.Error())
+		status := WriteStatus("bad", errMsg)
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write(bytes)
@@ -54,7 +54,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 			Expired:  users[i].Expiration < time.Now().UnixNano()/1000,
 		}
 		if !eagateUser.Expired {
-			client, err := createClientForUser(users[i])
+			client, _, err := createClientForUser(users[i])
 			if err != nil || !client.LoginState() {
 				fmt.Println(err)
 				eagateUser.Expired = true
@@ -65,7 +65,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(eagateUsers)
 	if err != nil {
-		status := WriteStatus("bad", err.Error())
+		status := WriteStatus("bad", "marshal_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write(bytes)
@@ -84,7 +84,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := WriteStatus("bad", "failed to read auth name from token")
+		status := WriteStatus("bad", "jwt_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -94,7 +94,8 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		status := WriteStatus("bad", err.Error())
+		glog.Errorf("%s\n", err.Error())
+		status := WriteStatus("bad", "bad_api_req")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -105,7 +106,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &loginRequest)
 	if err != nil {
 		glog.Warningf("failed to decode login request for %s: %s\n", loginRequest.Username, err.Error())
-		status := WriteStatus("bad", err.Error())
+		status := WriteStatus("bad", "unmarshal_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -117,7 +118,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, loginRequest.OneTimePassword, client)
 	if err != nil {
-		status := WriteStatus("bad", err.Error())
+		status := WriteStatus("bad", "bad_cookie")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -153,7 +154,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := WriteStatus("bad", "failed to read auth name from token")
+		status := WriteStatus("bad", "jwt_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -163,7 +164,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		status := WriteStatus("bad", err.Error())
+		status := WriteStatus("bad", "bad_api_req")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -173,7 +174,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	logoutRequest := bst_models.LogoutRequest{}
 	err = json.Unmarshal(body, &logoutRequest)
 	if err != nil {
-		status := WriteStatus("bad", err.Error())
+		status := WriteStatus("bad", "unmarshal_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -206,7 +207,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status := WriteStatus("bad", "user does not belong to profile")
+	status := WriteStatus("bad", "no_user")
 	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusUnauthorized)
 	rw.Write(bytes)

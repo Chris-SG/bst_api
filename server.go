@@ -156,6 +156,7 @@ func SetForbidden(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc
 
 	res := rw.(negroni.ResponseWriter)
 	if res.Status() == 0 {
+		rw.Write([]byte("bad_token"))
 		rw.WriteHeader(http.StatusForbidden)
 	}
 }
