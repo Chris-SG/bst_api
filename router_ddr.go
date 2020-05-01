@@ -41,6 +41,8 @@ func CreateDdrRouter() *mux.Router {
 
 	ddrRouter.Path("/songs/scores").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresGet)))).Methods(http.MethodGet)
+	ddrRouter.Path("/songs/scores/{id:[A-Za-z0-9]{32}}/{mode:[A-Za-z]+}/{difficulty:[A-Za-z]+}").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(SongsScoresIdDiffGet)))).Methods(http.MethodGet)
 	ddrRouter.Path("/songs/scores/{id:[A-Za-z0-9]{32}}").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresIdGet)))).Methods(http.MethodGet)
 
@@ -500,6 +502,52 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 	}
 	if PrintErrors("failed to retrieve song statistics for player:", errs) {
 		status := WriteStatus("bad", "ddr_retsongstat_fail")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
+	}
+
+	bytes, _ := json.Marshal(scores)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+}
+
+func SongsScoresIdDiffGet(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	mode := strings.ToUpper(vars["mode"])
+	diff := strings.ToUpper(vars["difficulty"])
+	mode = cleanString(mode)
+	diff = cleanString(diff)
+
+	users, errMsg, err := tryGetEagateUsers(r)
+	if err != nil {
+		status := WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	ddrProfile, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	if PrintErrors("failed to retrieve player details:", errs) {
+		status := WriteStatus("bad", "no_user")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
+	}
+	if ddrProfile.Code == 0 {
+		status := WriteStatus("bad", "no_user")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+	scores, errs := eagate_db.GetDdrDb().RetrieveScoresByPlayerCodeForChart(ddrProfile.Code, id, mode, diff)
+	if PrintErrors("failed to retrieve scores for player:", errs) {
+		status := WriteStatus("bad", "ddr_retsongstat_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write(bytes)

@@ -131,3 +131,7 @@ func PrintErrors(errMsg string, errs []error) bool {
 	}
 	return false
 }
+
+func cleanString(in string) string {
+	return strings.ReplaceAll(in, "'", "&#39;")
+}
