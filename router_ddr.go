@@ -7,6 +7,7 @@ import (
 	"github.com/chris-sg/eagate/ddr"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_models/ddr_models"
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"io/ioutil"
@@ -45,6 +46,9 @@ func CreateDdrRouter() *mux.Router {
 		negroni.Wrap(http.HandlerFunc(SongsScoresIdDiffGet)))).Methods(http.MethodGet)
 	ddrRouter.Path("/songs/scores/{id:[A-Za-z0-9]{32}}").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresIdGet)))).Methods(http.MethodGet)
+
+	ddrRouter.Path("/song/scores").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(SongScoresGet)))).Methods(http.MethodGet)
 
 	ddrRouter.Path("/songs/scores/extended").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresExtendedGet)))).Methods(http.MethodGet)
@@ -636,6 +640,60 @@ func SongsScoresIdGet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	bytes, _ = json.Marshal(result)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+}
+
+func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
+	users, errMsg, err := tryGetEagateUsers(r)
+	if err != nil {
+		status := WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+
+	type scoreReq struct {
+		Id string `json:"id"`
+		Mode string `json:"mode;omit_empty"`
+		Difficulty string `json:"difficulty;omit_empty"`
+	}
+
+	ddrProfile, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	if PrintErrors("failed to retrieve player details for user:", errs) {
+		status := WriteStatus("bad", "no_user")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	req := scoreReq{}
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		status := WriteStatus("bad", "json_err")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
+	}
+	glog.Info(body)
+	glog.Info(req)
+
+	var scores []ddr_models.Score
+	scores, errs = eagate_db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, req.Id, req.Mode, req.Difficulty)
+
+	if PrintErrors("failed to retrieve scores details for user:", errs) {
+		status := WriteStatus("bad", "ddr_retsongscore_fail")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	bytes, _ := json.Marshal(scores)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
 }
