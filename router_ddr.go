@@ -7,7 +7,6 @@ import (
 	"github.com/chris-sg/eagate/ddr"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_models/ddr_models"
-	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"io/ioutil"
@@ -654,12 +653,6 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type scoreReq struct {
-		Id string `json:"id"`
-		Mode string `json:"mode;omit_empty"`
-		Difficulty string `json:"difficulty;omit_empty"`
-	}
-
 	ddrProfile, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if PrintErrors("failed to retrieve player details for user:", errs) {
 		status := WriteStatus("bad", "no_user")
@@ -669,21 +662,10 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
-	req := scoreReq{}
-	err = json.Unmarshal(body, &req)
-	if err != nil {
-		status := WriteStatus("bad", "json_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write(bytes)
-		return
-	}
-	glog.Info(body)
-	glog.Info(req)
+	query := r.URL.Query()
 
 	var scores []ddr_models.Score
-	scores, errs = eagate_db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, req.Id, req.Mode, req.Difficulty)
+	scores, errs = eagate_db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, query.Get("id"), query.Get("mode"), query.Get("difficulty"))
 
 	if PrintErrors("failed to retrieve scores details for user:", errs) {
 		status := WriteStatus("bad", "ddr_retsongscore_fail")
