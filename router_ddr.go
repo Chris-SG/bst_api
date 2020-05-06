@@ -665,7 +665,7 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	var scores []ddr_models.Score
-	scores, errs = eagate_db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, query.Get("id"), query.Get("mode"), query.Get("difficulty"))
+	scores, errs = eagate_db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, query.Get("id"), query.Get("mode"), query.Get("difficulty"), query["ordering"])
 
 	if PrintErrors("failed to retrieve scores details for user:", errs) {
 		status := WriteStatus("bad", "ddr_retsongscore_fail")
