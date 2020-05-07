@@ -15,14 +15,20 @@ func CreateDrsRouter() *mux.Router {
 	drsRouter := mux.NewRouter().PathPrefix("/drs").Subrouter()
 
 	drsRouter.Path("/profile").Handler(utilities.GetProtectionMiddleware().With(
-		negroni.Wrap(http.HandlerFunc(DrsUpdateUser)))).Methods(http.MethodPatch)
+		negroni.Wrap(http.HandlerFunc(ProfilePatch)))).Methods(http.MethodPatch)
+
+	drsRouter.Path("/details").Handler(utilities.GetProtectionMiddleware().With(
+		negroni.Wrap(http.HandlerFunc(DetailsGet)))).Methods(http.MethodGet)
+
+	drsRouter.Path("/songs/stats").Handler(utilities.GetProtectionMiddleware().With(
+		negroni.Wrap(http.HandlerFunc(SongStatsGet)))).Methods(http.MethodGet)
 
 	return drsRouter
 }
 
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
-func DrsUpdateUser(rw http.ResponseWriter, r *http.Request) {
+func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
 	users, errMsg, err := common.TryGetEagateUsers(r)
 	if err != nil {
 		status := utilities.WriteStatus("bad", errMsg)
@@ -56,4 +62,79 @@ func DrsUpdateUser(rw http.ResponseWriter, r *http.Request) {
 	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
+}
+
+// DrsUpdateUser will load all data provided by the Dance
+// Rush API.
+func DetailsGet(rw http.ResponseWriter, r *http.Request) {
+	users, errMsg, err := common.TryGetEagateUsers(r)
+	if err != nil {
+		status := utilities.WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	if len(users) == 0 {
+		status := utilities.WriteStatus("bad", "drs_nouser")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	details, err := retrieveDrsPlayerDetails(users[0].Name)
+	if err != nil {
+		status := utilities.WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
+	}
+
+	bytes, _ := json.Marshal(details)
+	rw.WriteHeader(http.StatusOK)
+	_, _ = rw.Write(bytes)
+	return
+}
+
+// DrsUpdateUser will load all data provided by the Dance
+// Rush API.
+func SongStatsGet(rw http.ResponseWriter, r *http.Request) {
+	users, errMsg, err := common.TryGetEagateUsers(r)
+	if err != nil {
+		status := utilities.WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	if len(users) == 0 {
+		status := utilities.WriteStatus("bad", "drs_nouser")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write(bytes)
+		return
+	}
+	details, err := retrieveDrsPlayerDetails(users[0].Name)
+	if err != nil {
+		status := utilities.WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
+	}
+
+	stats, err := retrieveDrsSongStats(details.Code)
+	if err != nil {
+		status := utilities.WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(bytes)
+		return
+	}
+
+	bytes, _ := json.Marshal(stats)
+	rw.WriteHeader(http.StatusOK)
+	_, _ = rw.Write(bytes)
+	return
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/chris-sg/eagate/drs"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
+	"github.com/chris-sg/eagate_models/drs_models"
 	"github.com/golang/glog"
 )
 
@@ -23,6 +24,10 @@ func refreshDrsUser(client util.EaClient) (err error) {
 
 
 	playerDetails, profileSnapshot, songs, difficulties, playerSongStats, playerScores := drs.Transform(dancerInfo, musicData, playHist)
+	user := client.GetUsername()
+	if len(user) > 0 {
+		playerDetails.EaGateUser = &user
+	}
 
 	errs := eagate_db.GetDrsDb().AddPlayerDetails(playerDetails)
 	utilities.PrintErrors("failed to add player details to db:", errs)
@@ -37,5 +42,21 @@ func refreshDrsUser(client util.EaClient) (err error) {
 	errs = eagate_db.GetDrsDb().AddPlayerScores(playerScores)
 	utilities.PrintErrors("failed to add player scores to db:", errs)
 
+	return
+}
+
+func retrieveDrsPlayerDetails(eaUser string) (details drs_models.PlayerDetails, err error) {
+	details, errs := eagate_db.GetDrsDb().RetrievePlayerDetailsByEaGateUser(eaUser)
+	if utilities.PrintErrors("failed to retrieve user:", errs) {
+		err = fmt.Errorf("drs_retdetails_err")
+	}
+	return
+}
+
+func retrieveDrsSongStats(code int) (songStats []drs_models.PlayerSongStats, err error) {
+	songStats, errs := eagate_db.GetDrsDb().RetrieveSongStatisticsByPlayerCode(code)
+	if utilities.PrintErrors("failed to retrieve user:", errs) {
+		err = fmt.Errorf("drs_retdetails_err")
+	}
 	return
 }

@@ -30,10 +30,11 @@ func CreateDdrRouter() *mux.Router {
 		negroni.Wrap(http.HandlerFunc(ProfileRefreshPatch)))).Methods(http.MethodPatch)
 
 	ddrRouter.HandleFunc("/songs", SongsGet).Methods(http.MethodGet)
+
 	ddrRouter.Path("/songs").Handler(utilities.GetProtectionMiddleware().With(
 		negroni.Wrap(http.HandlerFunc(SongsPatch)))).Methods(http.MethodPatch)
 
-	ddrRouter.Path("/songsreload").Handler(utilities.GetProtectionMiddleware().With(
+	ddrRouter.Path("/songs/reload").Handler(utilities.GetProtectionMiddleware().With(
 		negroni.Wrap(http.HandlerFunc(SongsReloadPatch)))).Methods(http.MethodPatch)
 
 	ddrRouter.Path("/songs/scores").Handler(utilities.GetProtectionMiddleware().With(
