@@ -16,13 +16,9 @@ import (
 	"time"
 )
 
-var (
-	commonMiddleware *negroni.Negroni
-	protectionMiddleware *negroni.Negroni
-)
-
 func main() {
 	utilities.LoadConfig()
+	utilities.PrepareMiddleware()
 
 	if utilities.DbMigration {
 		eagate_db.GetMigrator().Create()
@@ -74,7 +70,7 @@ func CreateApiRouter() (r *mux.Router) {
 
 	common.AttachGeneralRoutes(r)
 
-	r.PathPrefix(utilities.ApiBase).Handler(commonMiddleware.With(
+	r.PathPrefix(utilities.ApiBase).Handler(utilities.GetCommonMiddleware().With(
 		negroni.Wrap(apiRouter),
 	))
 
