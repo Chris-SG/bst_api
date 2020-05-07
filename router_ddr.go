@@ -48,6 +48,8 @@ func CreateDdrRouter() *mux.Router {
 
 	ddrRouter.Path("/song/scores").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongScoresGet)))).Methods(http.MethodGet)
+	ddrRouter.Path("/song/jacket").Handler(protectionMiddleware.With(
+		negroni.Wrap(http.HandlerFunc(SongJacketGet)))).Methods(http.MethodGet)
 
 	ddrRouter.Path("/songs/scores/extended").Handler(protectionMiddleware.With(
 		negroni.Wrap(http.HandlerFunc(SongsScoresExtendedGet)))).Methods(http.MethodGet)
@@ -676,6 +678,24 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	bytes, _ := json.Marshal(scores)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(bytes)
+}
+
+func SongJacketGet(rw http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	jacket, errs := eagate_db.GetDdrDb().RetrieveJacketForSongId(query.Get("id"))
+
+	if PrintErrors("failed to retrieve jacket:", errs) {
+		status := WriteStatus("bad", "ddr_retsongjack_fail")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(bytes)
+		return
+	}
+
+	bytes, _ := json.Marshal(jacket)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
 }
