@@ -96,6 +96,14 @@ github.com/chris-sg/eagate_db v0.0.0-20200507034014-f75ab80ef57f h1:inC2DqCCKh+x
 github.com/chris-sg/eagate_db v0.0.0-20200507034014-f75ab80ef57f/go.mod h1:eCLIHBbhrhcvx7coasx6xw4Qtv6nKLdQXJhN5vJSN4o=
 github.com/chris-sg/eagate_db v0.0.0-20200507034651-e9074b22a69f h1:sLUXmP9hQ1G5NGK88Aw2YS+OxuZzNSKTxFaf1zcexis=
 github.com/chris-sg/eagate_db v0.0.0-20200507034651-e9074b22a69f/go.mod h1:eCLIHBbhrhcvx7coasx6xw4Qtv6nKLdQXJhN5vJSN4o=
+github.com/chris-sg/eagate_db v0.0.0-20200507070035-bf3023d8aa06 h1:X0ZWBcqRFuNjCBmdhxbLoYKEFToU/rhnw82eoRzA7Vw=
+github.com/chris-sg/eagate_db v0.0.0-20200507070035-bf3023d8aa06/go.mod h1:eCLIHBbhrhcvx7coasx6xw4Qtv6nKLdQXJhN5vJSN4o=
+github.com/chris-sg/eagate_db v0.0.0-20200507072410-26d424712cb5 h1:c4XNB241PWpRsVMOkjoHIXMCOQqzUhe8h++YaHPNC3M=
+github.com/chris-sg/eagate_db v0.0.0-20200507072410-26d424712cb5/go.mod h1:eCLIHBbhrhcvx7coasx6xw4Qtv6nKLdQXJhN5vJSN4o=
+github.com/chris-sg/eagate_db v0.0.0-20200507073414-6417c4db727c h1:ocNY6i2bc80tZ7ZVD3En1i51EVKUcfYscEW451MAo4U=
+github.com/chris-sg/eagate_db v0.0.0-20200507073414-6417c4db727c/go.mod h1:eCLIHBbhrhcvx7coasx6xw4Qtv6nKLdQXJhN5vJSN4o=
+github.com/chris-sg/eagate_db v0.0.0-20200507074120-fea16b45840f h1:Xd5n6e8XsQObtZ0qAlnbhvezO16G8+FhHEwX/D1Jzb8=
+github.com/chris-sg/eagate_db v0.0.0-20200507074120-fea16b45840f/go.mod h1:eCLIHBbhrhcvx7coasx6xw4Qtv6nKLdQXJhN5vJSN4o=
 github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3 h1:3Hxo5ORGiMzhrxLBcmSZy/j5EFcUwZ8qFbVXMFkm3HA=
 github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200331063313-abfe6c0c2570 h1:dPM7S8rNnavEWCYXf75RrGPAVce0d4fGsTtLbv+trQQ=

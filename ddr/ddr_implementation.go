@@ -38,7 +38,7 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, errMsg string, e
 
 	glog.Infof("Comparing %d eagate songs against %d db songs for user %s\n", len(siteIds), len(dbIds), client.GetUsername())
 	for i := len(siteIds)-1; i >= 0; i-- {
-		for j, _ := range dbIds {
+		for j := range dbIds {
 			if dbIds[j] == siteIds[i] {
 				siteIds = append(siteIds[:i], siteIds[i+1:]...)
 				dbIds = append(dbIds[:j], dbIds[j+1:]...)
@@ -204,46 +204,6 @@ func refreshDdrUser(client util.EaClient) (errMsg string, err error) {
 		err = fmt.Errorf("failed to add workout data to db")
 	}
 
-	return
-}
-
-// updateSongStatistics will load the client's statistics for the given
-// difficulties slice and update the statistics in the database.
-func updateSongStatistics(client util.EaClient, difficulties []ddr_models.SongDifficulty) (errMsg string, err error) {
-	glog.Infof("Updating song statistics for user %s (%d difficulties)\n", client.GetUsername(), len(difficulties))
-	if !client.LoginState() {
-		errMsg = "bad_cookie"
-		glog.Errorf("Client %s not logged into eagate\n", client.GetUsername())
-		err = fmt.Errorf("user not logged into eagate")
-		return
-	}
-	pi, _, err := ddr.PlayerInformationForClient(client)
-	if err != nil {
-		errMsg = "ddr_pi_fail"
-		glog.Errorf("Failed to load player info for user %s: %s\n", client.GetUsername(), err.Error())
-		return
-	}
-
-	stats, err := ddr.SongStatisticsForClient(client, difficulties, pi.Code)
-	if err != nil {
-		errMsg = "ddr_songstat_fail"
-		glog.Errorf("Failed to load song statistics for user %s code %d: %s\n", client.GetUsername(), pi.Code, err.Error())
-		return
-	}
-
-	errs := eagate_db.GetDdrDb().AddPlayerDetails(pi)
-	if utilities.PrintErrors("failed to add player details to db:", errs) {
-		errMsg = "ddr_addpi_fail"
-		err = fmt.Errorf("failed to add player details to db")
-		return
-	}
-	eagate_db.GetDdrDb().AddSongStatistics(stats)
-	if utilities.PrintErrors("failed to add song statistics to db:", errs) {
-		errMsg = "ddr_addsongstat_fail"
-		err = fmt.Errorf("failed to add song statistics to db")
-		return
-	}
-	utilities.UpdateCookie(client)
 	return
 }
 
