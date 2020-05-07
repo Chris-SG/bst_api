@@ -1,45 +1,27 @@
-package main
+package common
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chris-sg/bst_server_models"
+	"github.com/chris-sg/bst_api/utilities"
+	bst_models "github.com/chris-sg/bst_server_models"
+	"github.com/chris-sg/eagate/user"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
 	"github.com/golang/glog"
-	"github.com/gorilla/mux"
-	"github.com/urfave/negroni"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/chris-sg/eagate/user"
 )
-
-// CreateUserRouter will generate a new subrouter prefixed with `/user`.
-// This intends to be used for anything relating to an external user eg.
-// eagate.
-func CreateUserRouter() *mux.Router {
-	userRouter := mux.NewRouter().PathPrefix("/user").Subrouter()
-
-	userRouter.Path("/login").Handler(protectionMiddleware.With(
-		negroni.Wrap(http.HandlerFunc(LoginGet)))).Methods(http.MethodGet)
-	userRouter.Path("/login").Handler(protectionMiddleware.With(
-		negroni.Wrap(http.HandlerFunc(LoginPost)))).Methods(http.MethodPost)
-	userRouter.Path("/logout").Handler(protectionMiddleware.With(
-		negroni.Wrap(http.HandlerFunc(LogoutPost)))).Methods(http.MethodPost)
-
-	return userRouter
-}
 
 // LoginGet will retrieve any relations between the requester and the
 // database. This may produce multiple relations in the case a user
 // has linked multiple accounts. Any stored cookies will be nullified.
 func LoginGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := tryGetEagateUsers(r)
+	users, errMsg, err := TryGetEagateUsers(r)
 	if err != nil {
-		status := WriteStatus("bad", errMsg)
+		status := utilities.WriteStatus("bad", errMsg)
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write(bytes)
@@ -54,7 +36,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 			Expired:  users[i].Expiration < time.Now().UnixNano()/1000,
 		}
 		if !eagateUser.Expired {
-			client, _, err := createClientForUser(users[i])
+			client, _, err := CreateClientForUser(users[i])
 			if err != nil || !client.LoginState() {
 				fmt.Println(err)
 				eagateUser.Expired = true
@@ -65,7 +47,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(eagateUsers)
 	if err != nil {
-		status := WriteStatus("bad", "marshal_err")
+		status := utilities.WriteStatus("bad", "marshal_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write(bytes)
@@ -80,11 +62,11 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 // This will not check the current user state, which if exists, will have
 // its cookie updated and web user replaced (if applicable).
 func LoginPost(rw http.ResponseWriter, r *http.Request) {
-	tokenMap := profileFromToken(r)
+	tokenMap := utilities.ProfileFromToken(r)
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := WriteStatus("bad", "jwt_err")
+		status := utilities.WriteStatus("bad", "jwt_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -95,7 +77,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		glog.Errorf("%s\n", err.Error())
-		status := WriteStatus("bad", "bad_api_req")
+		status := utilities.WriteStatus("bad", "bad_api_req")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -106,7 +88,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &loginRequest)
 	if err != nil {
 		glog.Warningf("failed to decode login request for %s: %s\n", loginRequest.Username, err.Error())
-		status := WriteStatus("bad", "unmarshal_err")
+		status := utilities.WriteStatus("bad", "unmarshal_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -118,7 +100,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, loginRequest.OneTimePassword, client)
 	if err != nil {
-		status := WriteStatus("bad", "bad_cookie")
+		status := utilities.WriteStatus("bad", "bad_cookie")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -127,7 +109,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	errs := eagate_db.GetUserDb().SetCookieForUser(loginRequest.Username, cookie)
 	if len(errs) > 0 {
-		status := WriteErrorStatus(errs)
+		status := utilities.WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -135,14 +117,14 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	}
 	errs = eagate_db.GetUserDb().SetWebUserForEaUser(loginRequest.Username, val)
 	if len(errs) > 0 {
-		status := WriteErrorStatus(errs)
+		status := utilities.WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
 		return
 	}
 
-	status := WriteStatus("ok", "loaded cookie for user")
+	status := utilities.WriteStatus("ok", "loaded cookie for user")
 	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(bytes)
@@ -150,11 +132,11 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutPost(rw http.ResponseWriter, r *http.Request) {
-	tokenMap := profileFromToken(r)
+	tokenMap := utilities.ProfileFromToken(r)
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := WriteStatus("bad", "jwt_err")
+		status := utilities.WriteStatus("bad", "jwt_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -164,7 +146,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		status := WriteStatus("bad", "bad_api_req")
+		status := utilities.WriteStatus("bad", "bad_api_req")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -174,7 +156,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	logoutRequest := bst_models.LogoutRequest{}
 	err = json.Unmarshal(body, &logoutRequest)
 	if err != nil {
-		status := WriteStatus("bad", "unmarshal_err")
+		status := utilities.WriteStatus("bad", "unmarshal_err")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -183,7 +165,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 
 	user, errs := eagate_db.GetUserDb().RetrieveUserByUserId(logoutRequest.Username)
 	if len(errs) > 0 {
-		status := WriteErrorStatus(errs)
+		status := utilities.WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write(bytes)
@@ -193,21 +175,21 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	if user.WebUser == val {
 		errs := eagate_db.GetUserDb().SetWebUserForEaUser(user.Name, "")
 		if len(errs) > 0 {
-			status := WriteErrorStatus(errs)
+			status := utilities.WriteErrorStatus(errs)
 			bytes, _ := json.Marshal(status)
 			rw.WriteHeader(http.StatusBadRequest)
 			rw.Write(bytes)
 			return
 		}
 
-		status := WriteStatus("ok", "user unlinked")
+		status := utilities.WriteStatus("ok", "user unlinked")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusOK)
 		rw.Write(bytes)
 		return
 	}
 
-	status := WriteStatus("bad", "no_user")
+	status := utilities.WriteStatus("bad", "no_user")
 	bytes, _ := json.Marshal(status)
 	rw.WriteHeader(http.StatusUnauthorized)
 	rw.Write(bytes)

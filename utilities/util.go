@@ -1,4 +1,4 @@
-package main
+package utilities
 
 import (
 	"fmt"
@@ -132,6 +132,6 @@ func PrintErrors(errMsg string, errs []error) bool {
 	return false
 }
 
-func cleanString(in string) string {
+func CleanString(in string) string {
 	return strings.ReplaceAll(in, "'", "&#39;")
 }

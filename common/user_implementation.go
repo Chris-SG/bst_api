@@ -1,7 +1,8 @@
-package main
+package common
 
 import (
 	"fmt"
+	"github.com/chris-sg/bst_api/utilities"
 	"github.com/chris-sg/eagate/util"
 	"github.com/chris-sg/eagate_db"
 	"github.com/chris-sg/eagate_models/user_models"
@@ -11,8 +12,8 @@ import (
 
 // tryGetEagateUsers will attempt to load any eagate users linked to
 // the auth0 account provided in the request.
-func tryGetEagateUsers(r *http.Request) (models []user_models.User, errMsg string, err error) {
-	tokenMap := profileFromToken(r)
+func TryGetEagateUsers(r *http.Request) (models []user_models.User, errMsg string, err error) {
+	tokenMap := utilities.ProfileFromToken(r)
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
@@ -23,7 +24,7 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, errMsg strin
 	val = strings.ToLower(val)
 
 	model, errs := eagate_db.GetUserDb().RetrieveUserByWebId(val)
-	if PrintErrors("failed to retrieve user:", errs) {
+	if utilities.PrintErrors("failed to retrieve user:", errs) {
 		errMsg = "no_user"
 		err = fmt.Errorf("failed to retrieve user for %s", val)
 		return
@@ -41,11 +42,11 @@ func tryGetEagateUsers(r *http.Request) (models []user_models.User, errMsg strin
 // createClientForUser will generate a http client for the provided user
 // model. This is intended to only be used for this specific user model,
 // as it will use cookies from the database for eagate integration.
-func createClientForUser(userModel user_models.User) (client util.EaClient, errMsg string, err error) {
+func CreateClientForUser(userModel user_models.User) (client util.EaClient, errMsg string, err error) {
 	client = util.GenerateClient()
 	client.SetUsername(userModel.Name)
 	cookie, errs := eagate_db.GetUserDb().RetrieveUserCookieStringByUserId(userModel.Name)
-	if PrintErrors("failed to retrieve cookie:", errs) {
+	if utilities.PrintErrors("failed to retrieve cookie:", errs) {
 		errMsg = "no_cookie"
 		err = fmt.Errorf("failed to retrieve cookie for user %s", userModel.Name)
 		return

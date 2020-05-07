@@ -1,4 +1,4 @@
-package main
+package utilities
 
 import (
 	"flag"
@@ -10,22 +10,22 @@ var (
 	authClientIssuer string
 	authClientAudience string
 
-	serveHost string
-	servePort string
-	apiBase string
+	ServeHost string
+	ServePort string
+	ApiBase string
 
-	dbMigration bool
+	DbMigration bool
 )
 
 func LoadConfig() {
 	flag.StringVar(&authClientIssuer, "issuer", "", "the issuer for auth server.")
 	flag.StringVar(&authClientAudience, "audience", "", "the audience for auth server.")
 
-	flag.StringVar(&serveHost, "host", "", "the host.")
-	flag.StringVar(&servePort, "port", "8443", "the port.")
-	flag.StringVar(&apiBase, "apibase", "/", "bst api base path.")
+	flag.StringVar(&ServeHost, "host", "", "the host.")
+	flag.StringVar(&ServePort, "port", "8443", "the port.")
+	flag.StringVar(&ApiBase, "apibase", "/", "bst api base path.")
 
-	flag.BoolVar(&dbMigration, "dbmigrate", false, "run db migration and exit.")
+	flag.BoolVar(&DbMigration, "dbmigrate", false, "run db migration and exit.")
 
 	var (
 		user string
