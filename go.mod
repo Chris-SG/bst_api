@@ -6,8 +6,8 @@ require (
 	github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b
 	github.com/chris-sg/bst_server_models v0.0.0-20200421142232-ea5488213431
 	github.com/chris-sg/eagate v0.0.0-20200508055559-d6f4979d8e12
-	github.com/chris-sg/eagate_db v0.0.0-20200508103441-2d88bf81bd2f
-	github.com/chris-sg/eagate_models v0.0.0-20200508055405-8dcd8fa6d829
+	github.com/chris-sg/eagate_db v0.0.0-20200509022831-374d5899deb6
+	github.com/chris-sg/eagate_models v0.0.0-20200509022728-a8000473b3c8
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/gorilla/mux v1.7.4

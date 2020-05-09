@@ -134,6 +134,8 @@ github.com/chris-sg/eagate_db v0.0.0-20200508074312-1c6ab2051940 h1:hyUmckAh6cNu
 github.com/chris-sg/eagate_db v0.0.0-20200508074312-1c6ab2051940/go.mod h1:obFD3/DO5uHemcpl6t/gyBa+A35A5CunO4G32ydt0Bk=
 github.com/chris-sg/eagate_db v0.0.0-20200508103441-2d88bf81bd2f h1:R6X2DtTdVzICk6Y8NX78aGG9NwSzEKjlSUbpIpZzG2U=
 github.com/chris-sg/eagate_db v0.0.0-20200508103441-2d88bf81bd2f/go.mod h1:obFD3/DO5uHemcpl6t/gyBa+A35A5CunO4G32ydt0Bk=
+github.com/chris-sg/eagate_db v0.0.0-20200509022831-374d5899deb6 h1:87dPbOv2lUCs4o1MT2ZBzlpP/WE55xUVA3eTMJDHX1w=
+github.com/chris-sg/eagate_db v0.0.0-20200509022831-374d5899deb6/go.mod h1:f/LfPippXcNslfNrgoZQCcy1nIZQDLIxpUszGmeVrnM=
 github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3 h1:3Hxo5ORGiMzhrxLBcmSZy/j5EFcUwZ8qFbVXMFkm3HA=
 github.com/chris-sg/eagate_models v0.0.0-20200329054902-04df0781c4a3/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200331063313-abfe6c0c2570 h1:dPM7S8rNnavEWCYXf75RrGPAVce0d4fGsTtLbv+trQQ=
@@ -154,6 +156,8 @@ github.com/chris-sg/eagate_models v0.0.0-20200429134546-a6a671a90f32 h1:lsHm8T2S
 github.com/chris-sg/eagate_models v0.0.0-20200429134546-a6a671a90f32/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/chris-sg/eagate_models v0.0.0-20200508055405-8dcd8fa6d829 h1:/WR4+tADPTJAHEy6x37F95fBgdSME0mSwqGXlAQWzW0=
 github.com/chris-sg/eagate_models v0.0.0-20200508055405-8dcd8fa6d829/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
+github.com/chris-sg/eagate_models v0.0.0-20200509022728-a8000473b3c8 h1:6xPYO0oUkEA56VwPhAGQCD/55qE/6IWO7fPxUQnmDQE=
+github.com/chris-sg/eagate_models v0.0.0-20200509022728-a8000473b3c8/go.mod h1:4KbN1UqlmA6tSV7FETgmHHOiWs+WBU3xzf40xbosCjM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6ROGeiHFAP8WJdI2RoxALQYgdllERc3N5N2DM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
