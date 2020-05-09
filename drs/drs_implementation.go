@@ -29,6 +29,9 @@ func refreshDrsUser(client util.EaClient) (err error) {
 		playerDetails.EaGateUser = &user
 	}
 
+	glog.Infof("songs: %d\n", len(songs))
+	glog.Infof("diff: %d\n", len(difficulties))
+
 	errs := eagate_db.GetDrsDb().AddPlayerDetails(playerDetails)
 	utilities.PrintErrors("failed to add player details to db:", errs)
 	errs = eagate_db.GetDrsDb().AddPlayerProfileSnapshot(profileSnapshot)
