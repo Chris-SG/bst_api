@@ -19,7 +19,6 @@ import (
 func main() {
 	utilities.LoadConfig()
 	utilities.PrepareMiddleware()
-	eagate_db.GetMigrator().Create()
 
 	if utilities.DbMigration {
 		eagate_db.GetMigrator().Create()
