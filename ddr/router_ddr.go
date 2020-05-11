@@ -23,6 +23,9 @@ func CreateDdrRouter() *mux.Router {
 	ddrRouter.Path("/profile").Handler(utilities.GetProtectionMiddleware().With(
 		negroni.Wrap(http.HandlerFunc(ProfileGet)))).Methods(http.MethodGet)
 
+	ddrRouter.Path("/profile/workoutdata").Handler(utilities.GetProtectionMiddleware().With(
+		negroni.Wrap(http.HandlerFunc(ProfileWorkoutDataGet)))).Methods(http.MethodGet)
+
 	ddrRouter.Path("/profile/update").Handler(utilities.GetProtectionMiddleware().With(
 		negroni.Wrap(http.HandlerFunc(ProfileUpdatePatch)))).Methods(http.MethodPatch)
 
@@ -141,6 +144,79 @@ func ProfileGet(rw http.ResponseWriter, r *http.Request) {
 	_, _ = rw.Write(bytes)
 	return
 }
+
+func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
+	users, errMsg, err := common.TryGetEagateUsers(r)
+	if err != nil {
+		status := utilities.WriteStatus("bad", errMsg)
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		_, _ = rw.Write(bytes)
+		return
+	}
+	playerDetails, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
+		status := utilities.WriteStatus("bad", "ddr_retpi_fail")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		_, _ = rw.Write(bytes)
+		return
+	}
+	query := r.URL.Query()
+
+	tz, _ := time.LoadLocation("UTC")
+
+	startDateString := query.Get("start")
+	if len(startDateString) == 0 {
+		status := utilities.WriteStatus("bad","missing start param")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	endDateString := query.Get("end")
+	if len(startDateString) == 0 {
+		status := utilities.WriteStatus("bad","missing end param")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	start, err := time.ParseInLocation("2006-01-02", startDateString, tz)
+	if err != nil {
+		status := utilities.WriteStatus("bad","start must be in format: YYYY-MM-DD")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	end, err := time.ParseInLocation("2006-01-02", endDateString, tz)
+	if err != nil {
+		status := utilities.WriteStatus("bad","start must be in format: YYYY-MM-DD")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	workoutData, errs := eagate_db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, start, end)
+	if utilities.PrintErrors("could not retrieve workout data:", errs) {
+		status := utilities.WriteStatus("bad","ddr_retwd_err")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	bytes, _ := json.Marshal(workoutData)
+	rw.WriteHeader(http.StatusOK)
+	_, _ = rw.Write(bytes)
+	return
+}
+
 
 // ProfileUpdatePatch will check the past 50 plays for the user.
 // These scores will be added to the database, and then the
