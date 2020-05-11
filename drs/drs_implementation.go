@@ -2,11 +2,11 @@ package drs
 
 import (
 	"fmt"
+	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/eagate/drs"
+	"github.com/chris-sg/bst_api/eagate/util"
+	"github.com/chris-sg/bst_api/models/drs_models"
 	"github.com/chris-sg/bst_api/utilities"
-	"github.com/chris-sg/eagate/drs"
-	"github.com/chris-sg/eagate/util"
-	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_models/drs_models"
 	"github.com/golang/glog"
 )
 

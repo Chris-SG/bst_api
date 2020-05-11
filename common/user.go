@@ -3,11 +3,11 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/eagate/user"
+	"github.com/chris-sg/bst_api/eagate/util"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
-	"github.com/chris-sg/eagate/user"
-	"github.com/chris-sg/eagate/util"
-	"github.com/chris-sg/eagate_db"
 	"github.com/golang/glog"
 	"io/ioutil"
 	"net/http"
@@ -30,7 +30,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 
 	eagateUsers := make([]bst_models.EagateUser, 0)
 
-	for i, _ := range users {
+	for i := range users {
 		eagateUser := bst_models.EagateUser{
 			Username: users[i].Name,
 			Expired:  users[i].Expiration < time.Now().UnixNano()/1000,

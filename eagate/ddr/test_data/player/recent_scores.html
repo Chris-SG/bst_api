@@ -1,0 +1,722 @@
+<!doctype html>
+<html style="">
+<head>
+    <script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script async="" src="https://www.googletagmanager.com/gtm.js?id=GTM-K4TKPK2"></script>
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+            var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-K4TKPK2');</script>
+    <title>DanceDanceRevolution A20</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="description"
+          content="「e-amusement」 サイトで、コナミのアミューズメントゲームをもっとに楽しく。登録無料。SNS機能無料。ＰＣからでもスマホからでも。SNSでゲーム仲間とコミュニケーションしよう！">
+    <meta name="keywords"
+          content="e-amusement,e-amusement pass,eAMUSEMENT,e-AMUSEMENT PASS,イーアミューズメントパス,e-AMUSEMENT,イーアミューズメント,データ引き継ぎ,コナミ,konami, AMUSEMENT,アミューズメント,ゲームセンター,アーケードゲーム,KONAMI ID,SNS,ソーシャル,PASELI,パセリ,PC,スマートフォン,携帯,課金,BASEBALL HEROES,ベースボールヒーローズ,G1-HORSEPARK,G1ホースパーク,GuitarFreaks,ギターフリークス,DrumMania,ドラムマニア,Dance Dance Revolution,DDR,ダンスダンスレボリューション,pop'n music,ポップン,ウイニングイレブン, ウィイレ,麻雀格闘倶楽部,beatmania,ビーマニ,QMA,クイズマジックアカデミー,jubeat,ユビート,IIDX,ラブプラス アーケード,REFLEC BEAT,リフレクビート,メダルゲーム,ビデオゲーム,プライズ,">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DanceDanceRevolution A20 | e-amusement">
+    <meta property="og:description"
+          content="ダンス知らなくても踊れるよ！！BEMANIシリーズのダンスシミュレーションゲーム「DanceDanceRevolution A20」のスペシャルサイトです。">
+    <meta property="og:url" content="https://p.eagate.573.jp/game/ddr/ddra20/">
+    <meta property="og:site_name" content="DanceDanceRevolution A20 | e-amusement">
+    <meta property="og:image" content="https://p.eagate.573.jp/gate/p/images/common/elogo_256_256.png">
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <meta name="format-detection" content="telephone=no, address=no">
+    <meta http-equiv="keywords" content="DDR,DanceDanceRevolution,dance,A20,ダンス,レボリューション,">
+    <meta http-equiv="description"
+          content="BEMANIシリーズのダンスシミュレーションゲーム「DanceDanceRevolution A20」のスペシャルサイトです。さあ、音楽のリズムにあわせて Let's DANCE！！">
+    <link href="/gate/p/common/tk/ea_common_layout.css?v20180523" rel="stylesheet" type="text/css">
+    <link rel="apple-touch-icon-precomposed" href="/gate/p/images/common/elogo_114_114.png">
+    <script src="/common/js/jquery-2.0.2.min.js" type="text/javascript"></script>
+    <script src="/common/js/css3-mediaqueries.js"></script>
+    <script src="/gate/p/common/tk/ea_common_header.js?v20180523"></script>
+    <style>  footer ul li a {
+            border-left: 2px solid #a2aeae;
+        }
+
+        #wrapper.wrapx header .ea-menu {
+            background: #a2aeae;
+        }
+
+        #wrapper.wrapx .cl_menu_catgory {
+            background: #a2aeae;
+        }
+
+        #wrapper.wrapx .main-nav a {
+            background: #a2aeae;
+        }
+
+        #wrapper.wrapx .main-nav a:hover, .main-nav a:focus {
+            background: linear-gradient(90deg, #a2aeae 10%, #ffffff 180%);
+        }    </style>
+    <link href="/css/p/timelineGadget.css?v3" rel="stylesheet" type="text/css">
+    <script src="/common/js/timelineGadget.js?20190125"></script>
+    <link href="https://eacache.s.konaminet.jp/gate/p/css/common.css" rel="stylesheet" type="text/css">
+    <link href="https://eacache.s.konaminet.jp/gate/p/images/favicon.ico" rel="shortcut icon">
+    <link href="https://eacache.s.konaminet.jp/gate/p/css/setting.css" rel="stylesheet" type="text/css">
+    <link href="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/css/reset.css" rel="stylesheet" type="text/css">
+    <link href="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/css/_common.css" rel="stylesheet" type="text/css">
+    <link href="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/css/menu.css" rel="stylesheet" type="text/css">
+    <link href="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/css/waku_all.css" rel="stylesheet" type="text/css">
+    <link href="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/css/playdata.css" rel="stylesheet" type="text/css">
+    <link href="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/css/colorbox.css" rel="stylesheet" type="text/css">
+    <script src="https://eacache.s.konaminet.jp/gate/p/js/link.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/function.js"></script>
+    <script type="text/javascript" src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/jquery-1.7.1.js"></script>
+    <script type="text/javascript"
+            src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/css3-mediaqueries.js"></script>
+    <script type="text/javascript" src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/common.js"></script>
+    <script type="text/javascript" src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/menu.js"></script>
+    <script type="text/javascript"
+            src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/slick/slick.min.js"></script>
+    <script src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/jquery.colorbox.js"
+            type="text/javascript"></script>
+    <script src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/js/music_info.js" type="text/javascript"></script>
+    <script>/*メニューカレント*/
+        $(document).ready(function () {
+            $("#ddr_menu ul li#menu_play a").addClass("select");
+            $('div.side_menu_play_song').css("background-position", "0px -24px");
+            $('div.side_menu2_play_latest').css("background-position", "0px -24px");
+        });
+        $(document).ready(function () {
+            $('table#data_tbl th').css('background', '#696969');
+            $('table#data_tbl th').css('color', '#ffffff');
+            $('table#data_tbl th').css('font-weight', 'initial');
+            $('table#data_tbl th').css('text-align', 'center');
+            $('table#data_tbl tr:even').css('background-color', '#efefef');
+            $('table#data_tbl tr:odd').css('background-color', '#ffffff');
+        });
+        $(function () {
+            var resizeTimer = null;
+            $(window).on('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function () {
+                    var w = $(window).width();
+                    var x = 767;
+                    if (w <= x) {
+                        $.colorbox.resize({width: "90%", height: "90%"});
+                        $(".inline").colorbox({maxWidth: "90%", maxHeight: "90%"});
+                    } else {
+                        $.colorbox.resize({width: "750px", height: "90%"});
+                        $(".inline").colorbox({maxWidth: "750px", maxHeight: "90%"});
+                    }
+                }, 200);
+            });
+        });</script>
+    <meta http-equiv="cache-control" content="no-cache">
+</head>
+<body style="">
+<div id="cboxOverlay" style="display: none;"></div>
+<div id="colorbox" class="" style="padding-bottom: 0px; padding-right: 0px; display: none;">
+    <div id="cboxWrapper">
+        <div>
+            <div id="cboxTopLeft" style="float: left;"></div>
+            <div id="cboxTopCenter" style="float: left;"></div>
+            <div id="cboxTopRight" style="float: left;"></div>
+        </div>
+        <div style="clear: left;">
+            <div id="cboxMiddleLeft" style="float: left;"></div>
+            <div id="cboxContent" style="float: left;">
+                <div id="cboxLoadedContent" style="width: 0px; height: 0px; overflow: hidden; float: left;"></div>
+                <div id="cboxLoadingOverlay" style="float: left;"></div>
+                <div id="cboxLoadingGraphic" style="float: left;"></div>
+                <div id="cboxTitle" style="float: left;"></div>
+                <div id="cboxCurrent" style="float: left;"></div>
+                <div id="cboxNext" style="float: left;"></div>
+                <div id="cboxPrevious" style="float: left;"></div>
+                <div id="cboxSlideshow" style="float: left;"></div>
+                <div id="cboxClose" style="float: left;"></div>
+            </div>
+            <div id="cboxMiddleRight" style="float: left;"></div>
+        </div>
+        <div style="clear: left;">
+            <div id="cboxBottomLeft" style="float: left;"></div>
+            <div id="cboxBottomCenter" style="float: left;"></div>
+            <div id="cboxBottomRight" style="float: left;"></div>
+        </div>
+    </div>
+    <div style="position: absolute; width: 9999px; visibility: hidden; display: none;"></div>
+</div>
+<noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K4TKPK2" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
+</noscript>
+<div id="wrapper" class="wrapx">
+    <nav class="main-nav" id="main-nav">
+        <ul>
+            <li class="cl_ea_variable_document" data-id="eavd_side_mypage" style="display: list-item;"><a
+                        href="/gate/p/mypage/index.html"> <img src="/gate/img/profile/qma/img11.jpg"
+                                                               style="width:30px;position:absolute;left:15px;top:8px;">
+                    <span style="margin-left:36px;">マイページ</span></a></li>
+            <li class="cl_ea_variable_document" data-id="eavd_side_eamusement" style="display: list-item;"><a
+                        href="/gate/eapass/menu.html" data-reserve_url="">e-amusement pass</a></li>
+            <li class="cl_ea_variable_parent"><a
+                        href="/gate/p/login.html?path=/game/ddr/ddra20/p/playdata/music_recent.html"
+                        class="cl_ea_variable_document" data-id="eavd_side_login"></a></li>
+            <li><a href="/payment/lead_payment.html" data-reserve_url="">サービス一覧</a></li>
+            <li class="cl_ea_variable_document" data-id="eavd_side_facility_search" style="display: list-item;"><a
+                        href="/game/facility/search/p/index.html" data-reserve_url="">設置店舗検索</a></li>
+            <li class="cl_ea_variable_document" data-id="eavd_side_select_course" style="display: list-item;"><a
+                        href="https://p.eagate.573.jp/payment/p/select_course.html" data-reserve_url="">コース加入</a></li>
+            <li class="cl_ea_variable_document" data-id="eavd_side_mycharge" style="display: list-item;"><a
+                        href="https://p.eagate.573.jp/payment/mycharge.html" data-reserve_url="">課金通帳</a></li>
+            <li><a href="/gate/dungeon/index.html?h=1">e-amusement迷宮</a></li>
+            <li><a href="/etc/faq/p/index.html" target="_blank">FAQ</a></li>
+            <li class="cl_ea_variable_document" data-id="eavd_side_help" style="display: list-item;"><a
+                        href="/etc/help/index.html">ヘルプ</a></li>
+            <li class="cl_ea_variable_document" data-id="eavd_side_setting" style="display: list-item;"><a
+                        href="/gate/p/setting/index.html" data-reserve_url="">各種設定</a></li>
+            <li class="cl_ea_variable_document" data-id="eavd_side_logout" style="display: list-item;"><a
+                        href="/gate/p/logout.html">ログアウト</a></li>
+        </ul>
+    </nav>
+    <div id="container" class="page-wrap">
+        <header id="id_nav_menu_1" style="position: relative;">
+            <script>        var p = document.getElementsByTagName("header").item(0);
+                if (p) {
+                    p.style.position = "relative";
+                } else {
+                    p = document.getElementsByTagName("body").item(0);
+                }
+                if (p) {
+                    var element = document.createElement('div');
+                    element.innerHTML = '<a href="https://www.konami.com/amusement/" style="background:transparent;position:absolute;top:0;left:0;z-index:9999;display:block;">' + '<img src="/ci/logo/konami_logo_blur.png" width="130" height="37" style="vertical-align:bottom" /></a>';
+                    p.appendChild(element);
+                }</script>
+            <div><a href="https://www.konami.com/amusement/"
+                    style="background:transparent;position:absolute;top:0;left:0;z-index:9999;display:block;"><img
+                            src="/ci/logo/konami_logo_blur.png" width="130" height="37"
+                            style="vertical-align:bottom"></a></div>
+            <div id="id_nav_menu_2" class="common-header ea_common_center">
+                <dl>
+                    <dt>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGP6zwAAAgcBApocMXEAAAAASUVORK5CYII="
+                             width="130" height="10"></dt>
+                    <dd>
+                        <ul>
+                            <li><a id="id_ea_header_line" href="#" style="visibility: hidden;"><img
+                                            src="/img/btn_line.png" alt="LINE"></a></li>
+                            <li><a id="id_ea_header_twitter" href="#" style="visibility: hidden;"><img
+                                            src="/img/btn_twitter.png" alt="twitter"></a></li>
+                            <li><a id="id_ea_header_facebook" href="#" style="visibility: hidden;"><img
+                                            src="/img/btn_facebook.png" alt="Facebook"></a></li>
+                            <li style="margin-left:30px;margin-right:20px;"><a href="/index.html"><img
+                                            src="/gate/p/images/common/logo_gate_ss.gif" alt="e-amusement TOP"
+                                            style="width:45px;height:20px;"></a></li>
+                        </ul>
+                    </dd>
+                </dl>
+            </div>
+            <div id="id_nav_menu_3" class="ea-menu" style="padding: 0px; height: 12px;">
+                <div class="ea_common_center" style="display: none;">
+                    <div class="cl_old_h1"><a href="/index.html"><img src="/img/ea_logo.png" alt="e-amusement"
+                                                                      width="137px"></a></div>
+                    <p><span class="cl_ea_variable_document" data-id="eavd_header_konamiid" style="display: inline;">      <a
+                                    href="/gate/p/mypage/index.html">    <span class="cl_nav_menu_span"
+                                                                               style="float:left;height:30px;">    <img
+                                            src="/gate/img/profile/qma/img11.jpg"
+                                            style="height:100%;margin:0px;">    </span>    </a>      <span
+                                    class="cl_nav_menu_span cl_pc_dsp"
+                                    style="float:left;">          eagate-user        </span></span> <span
+                                class="cl_nav_menu_span" style="float:left;">                <a class="open-menu"
+                                                                                                href="javascript:void(0)"><img
+                                        src="/img/icon_menu.png" alt="menu" width="20px"></a>              </span></p>
+                </div>
+            </div>
+            <div id="id_nav_menu_3_dummy" style="height: 12px;"></div>
+        </header>
+        <div id="id_ea_common_content_whole">
+            <div id="id_ea_common_content" class="ea_content_center">
+                <div id="ddr_body">
+                    <div class="ddr_body_on" id="top">
+                        <div id="Gmenu_sp">
+                            <div id="ddr_menu_sp" class="sp">
+                                <div id="spmenu_swich">
+                                    <div id="sp_opcl_mark"><span class="line01"></span> <span class="line02"></span>
+                                        <span class="line03"></span>
+                                        <div class="bg"></div>
+                                    </div>
+                                </div>
+                                <ul id="spg_menu" class="spg_menu" style="display: none;">
+                                    <div id="spmenu_logo_bg" class="link_top">
+                                        <div class="spmenu_logo"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_logo.png" alt="DDR A20">
+                                        </div>
+                                    </div>
+                                    <li class="link_newsinfo" data-link="newsinfo"><span>INFORMATION</span></li>
+                                    <li class="pull" data-link="howto"><span>HOW TO PLAY</span></li>
+                                    <ul id="howto" class="sp_sub" style="display: none;">
+                                        <li class="link_howto01" data-link="link_howto01"><span>DDRとは</span></li>
+                                        <li class="pull_sub" data-link="link_howto02"><span>基本の遊び方</span></li>
+                                        <ul id="link_howto02" class="sp_sub_sub" style="display: none;">
+                                            <li class="link_howto02_01"><span>スタイル選択</span></li>
+                                            <li class="link_howto02_02"><span>楽曲選択</span></li>
+                                            <li class="link_howto02_03"><span>難易度選択</span></li>
+                                            <li class="link_howto02_04"><span>オプション選択</span></li>
+                                            <li class="link_howto02_05"><span>プレー</span></li>
+                                            <li class="link_howto02_06"><span>リザルト</span></li>
+                                            <li class="link_howto02_07"><span>特殊な矢印</span></li>
+                                            <li></li>
+                                        </ul>
+                                        <li class="link_howto05" data-link="link_howto05"><span>コースとは</span></li>
+                                        <li class="link_howto03" data-link="link_howto03"><span>オプション項目一覧</span></li>
+                                        <li class="pull_sub" data-link="link_howto04"><span>e-amusement passを<br>利用した遊び方</span>
+                                        </li>
+                                        <li></li>
+                                        <ul id="link_howto04" class="sp_sub_sub" style="display: none;">
+                                            <li class="link_howto04_01"><span>e-amusement passについて</span></li>
+                                            <li class="link_howto04_02"><span>初めて使用するとき</span></li>
+                                            <li class="link_howto04_03"><span>PASELIでできること</span></li>
+                                            <li class="link_howto04_04"><span>EXTRA STAGEとは?</span></li>
+                                            <li class="link_howto04_05"><span>プレーシェア機能</span></li>
+                                            <li></li>
+                                        </ul>
+                                    </ul>
+                                    <li class="pull" data-link="music"><span>MUSIC</span></li>
+                                    <li class="pull" data-link="event"><span>EVENT</span></li>
+                                    <ul id="music" class="sp_sub" style="display: none;">
+                                        <li class="link_music01" data-link="link_music01"><span>収録曲一覧</span></li>
+                                        <li></li>
+                                    </ul>
+                                    <ul id="event" class="sp_sub" style="display: none;">
+                                        <li class="link_event01" data-link="link_event01"><span>イベント一覧</span></li>
+                                        <li class="link_event02" data-link="link_event02"><span>EXTRA EXCLUSIVE</span>
+                                        </li>
+                                        <li class="link_event06" data-link="link_event06"><span>20周年グランドフィナーレ</span>
+                                        </li>
+                                        <li class="link_event03" data-link="link_event03"><span>レジェンド楽曲</span></li>
+                                        <li class="link_event04" data-link="link_event04"><span>段位認定</span></li>
+                                        <li class="link_event05" data-link="link_event05"><span>ゴールデンリーグ</span></li>
+                                    </ul>
+                                    <li class="pull link_playdata" data-link="playdata"><span>PLAY DATA</span></li>
+                                    <li class="pull link_rival" data-link="rival"><span>RIVAL</span></li>
+                                    <ul id="playdata" class="sp_sub" style="display: none;">
+                                        <li class="link_playdata01"><span>ステータス</span></li>
+                                        <li class="pull_sub link_playdata02" data-link="link_playdata02">
+                                            <span>楽曲データ</span></li>
+                                        <ul id="link_playdata02" class="sp_sub_sub" style="display: none;">
+                                            <li class="link_playdata02_01"><span>楽曲データ一覧<br>《ベーシックコース》</span></li>
+                                            <li class="link_playdata02_02"><span>MY選曲ランキング<br>《ベーシックコース》</span></li>
+                                            <li class="link_playdata02_03"><span>最近プレーした曲<br>《ベーシックコース》</span></li>
+                                            <li></li>
+                                        </ul>
+                                        <li class="pull_sub link_playdata03" data-link="link_playdata03">
+                                            <span>コースデータ</span></li>
+                                        <li class="link_playdata04"><span>エリアブラウザー</span></li>
+                                        <ul id="link_playdata03" class="sp_sub_sub" style="display: none;">
+                                            <li class="link_playdata03_01"><span>NONSTOPデータ一覧<br>《ベーシックコース》</span></li>
+                                            <li class="link_playdata03_02"><span>段位認定データ一覧<br>《ベーシックコース》</span></li>
+                                        </ul>
+                                        <li class="link_playdata05"><span>ワークアウト履歴<br>《ベーシックコース》</span></li>
+                                        <li></li>
+                                    </ul>
+                                    <ul id="rival" class="sp_sub" style="display: none;">
+                                        <li class="link_rival01"><span>ライバルリスト</span></li>
+                                        <li class="link_rival02"><span>ライバル検索</span></li>
+                                        <li class="link_rival03"><span>逆ライバルリスト</span></li>
+                                        <li></li>
+                                    </ul>
+                                    <li class="pull link_setting" data-link="setting"><span>SETTING</span></li>
+                                    <li class="pull link_ranking" data-link="ranking"><span>RANKING</span></li>
+                                    <ul id="setting" class="sp_sub" style="display: none;">
+                                        <li class="link_setting01"><span>ゲーム設定</span></li>
+                                        <li class="link_setting02"><span>公開設定</span></li>
+                                    </ul>
+                                    <ul id="ranking" class="sp_sub" style="display: none;">
+                                        <li class="link_ranking01"><span>ゴールデンリーグ</span></li>
+                                        <li class="link_ranking02"><span>20周年グランドフィナーレ</span></li>
+                                    </ul>
+                                    <div id="sp_link_menu">
+                                        <ul>
+                                            <li><a href="/game/facility/search/p/index.html?gkey=DDR20TH"
+                                                   target="_blank" class="top_info_button">設置店舗検索</a></li>
+                                        </ul>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="title_bg" alcss="ja">
+                            <div class="inner">
+                                <div class="title_logo"><a href="/game/ddr/ddra20/p/top/index.html"><img
+                                                src="https://eacache.s.konaminet.jp/game/ddr/ddra20/p/images/common/top_logo.png"
+                                                alt="ロゴ"></a></div>
+                                <ul id="ontitle_link" class="pc"><span class="lg-ja"><a
+                                                href="https://p.eagate.573.jp/gate/pub/1play/"><li
+                                                    id="freeplay"></li></a><li id="shop"><a
+                                                    onclick="popuphelp('/game/facility/ddra20/p/index.html?gkey=DDR20TH','shopsearch')"
+                                                    href="javascript:void(0)">設置店舗</a></li></span></ul>
+                            </div>
+                        </div>
+                        <div id="Gmenu_pc">
+                            <div id="ddr_menu" class="pc">
+                                <ul>
+                                    <li id="menu_info"><a href="/game/ddr/ddra20/p/info/index.html"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="アップデート情報"></a></li>
+                                    <li id="menu_how"><a href="/game/ddr/ddra20/p/howto/index.html"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="HOW TO PLAY"></a></li>
+                                    <li id="menu_music"><a href="/game/ddr/ddra20/p/music/index.html"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="MUSIC"></a></li>
+                                    <li id="menu_event"><a href="/game/ddr/ddra20/p/event/index.html"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="EVENT"></a></li>
+                                    <li id="menu_play"><a href="/game/ddr/ddra20/p/playdata/index.html"
+                                                          class="select"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="PLAY DATA"></a></li>
+                                    <li id="menu_rival"><a href="/game/ddr/ddra20/p/rival/index.html"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="RIVAL"></a></li>
+                                    <li id="menu_setting"><a href="/game/ddr/ddra20/p/setting/index.html"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="SETTING"></a></li>
+                                    <li id="menu_ranking"><a href="/game/ddr/ddra20/p/ranking/index.html"><img
+                                                    src="/game/ddr/ddra20/p/images/common/top_menu_size.png"
+                                                    alt="RANKING"></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="user_name" class="user_all">
+                            <div id="community_nickname" class="nickname"><a href="/gate/p/mypage/index.html"><img
+                                            src="/gate/img/profile/qma/img11.jpg">
+                                    <div class="name_str">Eagate</div>
+                                </a></div>
+                            <div id="dancer_name" class="dancer_name"><img
+                                        src="/game/ddr/ddra20/p/images/common/gate_menu_d_name.png"><a id="no_link"><img
+                                            src="/game/ddr/ddra20/p/images/common/chara_icon/chara_icon_8.jpg">
+                                    <div class="name_str">EAGATE</div>
+                                </a></div>
+                        </div>
+                        <div id="ddr_contents">
+                            <div id="ddr_main">
+                                <div id="ddr_left">
+                                    <div class="contents_top">
+                                        <div class="waku_top_l"></div>
+                                        <div class="waku_top_m"></div>
+                                        <div class="waku_top_r"></div>
+                                    </div>
+                                    <div class="contents_middle">
+                                        <div class="waku_middle_l">
+                                            <div class="waku_middle_r">
+                                                <div class="waku_middle_m">
+                                                    <div class="menu_mdl">
+                                                        <div class="title"><img
+                                                                    src="/game/ddr/ddra20/p/images/play_data/side_title_playdata.png">
+                                                        </div>
+                                                        <a href="/game/ddr/ddra20/p/playdata/index.html" alt="ステータス">
+                                                            <div class="item side_menu_play_status"></div>
+                                                        </a>
+                                                        <a href="/game/ddr/ddra20/p/playdata/music_data_single.html"
+                                                           alt="楽曲データ一覧">
+                                                            <div class="item side_menu_play_song" id="bottom"
+                                                                 alt="楽曲データ"
+                                                                 style="background-position: 0px -24px;"></div>
+                                                        </a>
+                                                        <a href="/game/ddr/ddra20/p/playdata/music_data_single.html"
+                                                           alt="楽曲データ一覧">
+                                                            <div class="subitem side_menu2_play_list"></div>
+                                                        </a> <a href="/game/ddr/ddra20/p/playdata/music_top20.html"
+                                                                alt="MY選曲ランキング">
+                                                            <div class="subitem side_menu2_music_myranking"></div>
+                                                        </a> <a href="/game/ddr/ddra20/p/playdata/music_recent.html"
+                                                                alt="最近プレーした曲">
+                                                            <div class="subitem side_menu2_play_latest"
+                                                                 style="background-position: 0px -24px;"></div>
+                                                        </a>
+                                                        <a href="/game/ddr/ddra20/p/playdata/nonstop_data_single.html"
+                                                           alt="コースデータ一覧">
+                                                            <div class="item side_menu_play_course" id="bottom"
+                                                                 alt="コースデータ"></div>
+                                                        </a>
+                                                        <a href="/game/ddr/ddra20/p/playdata/nonstop_data_single.html"
+                                                        "="" alt="NONSTOPデータ一覧">
+                                                        <div class="subitem side_menu2_non"></div>
+                                                        </a>  <a
+                                                                href="/game/ddr/ddra20/p/playdata/grade_data_single.html"
+                                                        "="" alt="段位認定データ一覧">
+                                                        <div class="subitem side_menu2_grade"></div>
+                                                        </a>    <a href="/game/ddr/ddra20/p/playdata/areabrowser.html"
+                                                                   alt="エリアブラウザ">
+                                                            <div class="item side_menu_play_area" id="top"></div>
+                                                        </a> <a href="/game/ddr/ddra20/p/playdata/workout.html"
+                                                                alt="ワークアウト履歴">
+                                                            <div class="item side_menu_play_workout"></div>
+                                                        </a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="contents_bottom">
+                                        <div class="waku_bottom_sabmenu_l"></div>
+                                        <div class="waku_bottom_sabmenu_m"></div>
+                                        <div class="waku_bottom_sabmenu_r"></div>
+                                    </div>
+                                </div>
+                                <div id="ddr_right">
+                                    <div class="contents_top">
+                                        <div class="waku_top_l"></div>
+                                        <div class="waku_top_m"></div>
+                                        <div class="waku_top_r"></div>
+                                    </div>
+                                    <div class="contents_middle">
+                                        <div class="waku_middle_l">
+                                            <div class="waku_middle_r">
+                                                <div class="waku_middle_m">
+                                                    <div id="playdata_top"><img
+                                                                src="/game/ddr/ddra20/p/images/play_data/title_menu_musiclist.png"
+                                                                class="pc" alt="楽曲データ"><img
+                                                                src="/game/ddr/ddra20/p/images/play_data/sp_title_menu_musiclist.png"
+                                                                class="sp" alt="楽曲データ"></div>
+                                                    <div class="main">
+                                                        <div class="chapter"><h2><img
+                                                                        src="/game/ddr/ddra20/p/images/play_data/midashi_latest.png"
+                                                                        class="pc" alt="最近プレーした曲"><img
+                                                                        src="/game/ddr/ddra20/p/images/play_data/sp_midashi_latest.png"
+                                                                        class="sp" alt="最近プレーした曲"></h2></div>
+                                                        <div id="search_result"><p
+                                                                    style="font-size:small; padding-left:10px;">
+                                                                最近プレーした曲の一覧です。<br>楽曲名クリックで詳細情報が閲覧できます。</p><br>
+                                                            <table id="data_tbl" cellspacing="0">
+                                                                <tbody>
+                                                                <tr style="background-color: rgb(239, 239, 239);">
+                                                                    <th style="background: rgb(105, 105, 105); color: rgb(255, 255, 255); font-weight: initial; text-align: center;">
+                                                                        楽曲名
+                                                                    </th>
+                                                                    <th style="background: rgb(105, 105, 105); color: rgb(255, 255, 255); font-weight: initial; text-align: center;">
+                                                                        難易度
+                                                                    </th>
+                                                                    <th style="background: rgb(105, 105, 105); color: rgb(255, 255, 255); font-weight: initial; text-align: center;">
+                                                                        ランク
+                                                                    </th>
+                                                                    <th style="min-width: 50px; background: rgb(105, 105, 105); color: rgb(255, 255, 255); font-weight: initial; text-align: center;">
+                                                                        スコア
+                                                                    </th>
+                                                                    <th class="date"
+                                                                        style="background: rgb(105, 105, 105); color: rgb(255, 255, 255); font-weight: initial; text-align: center;">
+                                                                        プレー日時
+                                                                    </th>
+                                                                </tr>
+                                                                <tr style="background-color: rgb(255, 255, 255);">
+                                                                    <td>
+                                                                        <img src="/game/ddr/ddra20/p/images/binary_jk.html?img=b1do8OI6qDDlQO0PI16868ql6bdbI886&amp;kind=2"
+                                                                             class="jk" width="30"><a
+                                                                                href="/game/ddr/ddra20/p/playdata/music_detail.html?index=b1do8OI6qDDlQO0PI16868ql6bdbI886&amp;diff=3"
+                                                                                class="music_info cboxelement cboxElement"
+                                                                                style="">Splash Gold</a></td>
+                                                                    <td class="diff expert">EXPERT</td>
+                                                                    <td class="rank"><img
+                                                                                src="/game/ddr/ddra20/p/images/play_data/rank_s_e.png">
+                                                                    </td>
+                                                                    <td class="score">818290</td>
+                                                                    <td class="date">2020-03-18 18:52:17</td>
+                                                                </tr>
+                                                                <tr style="background-color: rgb(239, 239, 239);">
+                                                                    <td>
+                                                                        <img src="/game/ddr/ddra20/p/images/binary_jk.html?img=08PO96OlIoQqPdq91Q1Qqlo8lPidbPP8&amp;kind=2"
+                                                                             class="jk" width="30"><a
+                                                                                href="/game/ddr/ddra20/p/playdata/music_detail.html?index=08PO96OlIoQqPdq91Q1Qqlo8lPidbPP8&amp;diff=3"
+                                                                                class="music_info cboxelement cboxElement"
+                                                                                style="">New Beginning</a></td>
+                                                                    <td class="diff expert">EXPERT</td>
+                                                                    <td class="rank"><img
+                                                                                src="/game/ddr/ddra20/p/images/play_data/rank_s_aa_p.png">
+                                                                    </td>
+                                                                    <td class="score">987390</td>
+                                                                    <td class="date">2020-03-18 18:49:09</td>
+                                                                </tr>
+                                                                <tr style="background-color: rgb(255, 255, 255);">
+                                                                    <td>
+                                                                        <img src="/game/ddr/ddra20/p/images/binary_jk.html?img=1OlD9Iqb9Oqol09dDi6iiQ9Iod1oP0il&amp;kind=2"
+                                                                             class="jk" width="30"><a
+                                                                                href="/game/ddr/ddra20/p/playdata/music_detail.html?index=1OlD9Iqb9Oqol09dDi6iiQ9Iod1oP0il&amp;diff=3"
+                                                                                class="music_info cboxelement cboxElement"
+                                                                                style="">message</a></td>
+                                                                    <td class="diff expert">EXPERT</td>
+                                                                    <td class="rank"><img
+                                                                                src="/game/ddr/ddra20/p/images/play_data/rank_s_aa_p.png">
+                                                                    </td>
+                                                                    <td class="score">989630</td>
+                                                                    <td class="date">2020-03-18 18:46:39</td>
+                                                                </tr>
+                                                                <tr style="background-color: rgb(239, 239, 239);">
+                                                                    <td>
+                                                                        <img src="/game/ddr/ddra20/p/images/binary_jk.html?img=8QbqP80q9PI8bbi0qOoiibOQD08OPdli&amp;kind=2"
+                                                                             class="jk" width="30"><a
+                                                                                href="/game/ddr/ddra20/p/playdata/music_detail.html?index=8QbqP80q9PI8bbi0qOoiibOQD08OPdli&amp;diff=2"
+                                                                                class="music_info cboxelement cboxElement"
+                                                                                style="">Fascination ～eternal love
+                                                                            mix～</a></td>
+                                                                    <td class="diff difficult">DIFFICULT</td>
+                                                                    <td class="rank"><img
+                                                                                src="/game/ddr/ddra20/p/images/play_data/rank_s_aa.png">
+                                                                    </td>
+                                                                    <td class="score">946550</td>
+                                                                    <td class="date">2020-03-18 18:43:30</td>
+                                                                </tr>
+                                                                <tr style="background-color: rgb(255, 255, 255);">
+                                                                    <td>
+                                                                        <img src="/game/ddr/ddra20/p/images/binary_jk.html?img=bilO9D91P1lo81oIDP6qOoqdDdQdoDlP&amp;kind=2"
+                                                                             class="jk" width="30"><a
+                                                                                href="/game/ddr/ddra20/p/playdata/music_detail.html?index=bilO9D91P1lo81oIDP6qOoqdDdQdoDlP&amp;diff=3"
+                                                                                class="music_info cboxelement cboxElement"
+                                                                                style="">Truare!</a></td>
+                                                                    <td class="diff expert">EXPERT</td>
+                                                                    <td class="rank"><img
+                                                                                src="/game/ddr/ddra20/p/images/play_data/rank_s_a.png">
+                                                                    </td>
+                                                                    <td class="score">835080</td>
+                                                                    <td class="date">2020-03-18 18:39:36</td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <div id="license">"Trill auf G" 原曲名：Air auf der G-Saite
+                                                                著作者名：Johann Sebastian Bach / "Play Hard" Written by
+                                                                Sebastiaan Molijn, Shaffer Chimere Smith, Eelke A.
+                                                                Kalberg, Aliaume Damala Badara Thiam, Giorgio Hesdey
+                                                                Tuinfort, Pierre David Guetta, Frederic Jean Riesterer
+                                                                Published by Universal PolyGram Int. Publishing, Inc. on
+                                                                behalf of Universal Music Publishing Int. B.V. Universal
+                                                                Music - Z Tunes Llc on behalf of itself, and Pen In The
+                                                                Ground Publishing Used by Permission - All Rights
+                                                                Reserved BMG Platinum Songs obo BMG Talpa Music BV obo
+                                                                KALBERG PUBLISHING Kobalt Songs Music Publishing obo
+                                                                What A Publishing Limited Shapiro, Bernstein &amp; Co.,
+                                                                Inc. on behalf of Rister Prod. Sony/ATV Songs LLC,
+                                                                Sony/ATV Harmony, Byefall Productions Inc. Performed by
+                                                                David Guetta Courtesy of Warner Music France By
+                                                                arrangement with Warner Music Group Film &amp; TV
+                                                                Licensing Ne-Yo appears courtesy of Motown Records Akon
+                                                                appears courtesy of Republic Records / "JOKER"
+                                                                作詞・作曲：Royz Licensed by B'Forest Inc. / "Happy" “Happy”
+                                                                from the film DESPICABLE ME 2 Written and performed by
+                                                                Pharrell L. Williams Published by UNIVERSAL MUSIC CORP.
+                                                                ON BEHALF OF UNIVERSAL PICTURES MUSIC EMI April Music
+                                                                Inc. Courtesy of Universal Studios /
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="contents_bottom">
+                                        <div class="waku_bottom_l"></div>
+                                        <div class="waku_bottom_m"></div>
+                                        <div class="waku_bottom_r"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="page-top"><a href="#ddr_body"><span>▲</span><br>PAGE<br>TOP</a></p></div>
+                </div>
+                <input type="hidden" id="id_ea_common_content_bottom" value="p.eagate.573.jp"></div>
+        </div>
+        <footer>
+            <ul class="ea_common_center">
+                <li class="cl_ea_variable_document" data-id="eavd_help" style="display: list-item;"><a
+                            href="/etc/help/index.html">ヘルプ</a></li>
+                <li class="cl_ea_variable_document" data-id="eavd_terms" style="display: list-item;"><a
+                            href="https://p.eagate.573.jp/rules/index.html" target="_blank">利用規約</a></li>
+                <li class="cl_ea_variable_document" data-id="eavd_privacy_policy" style="display: list-item;"><a
+                            href="https://legal.konami.com/kam/privacy/ja/" target="_blank">個人情報等保護方針</a></li>
+                <li class="cl_ea_variable_document" data-id="eavd_specific" style="display: list-item;"><a
+                            href="https://p.eagate.573.jp/etc/specific/p/index.html" target="_blank">特定商取引法に基づく表示</a>
+                </li>
+                <li class="cl_ea_variable_document" data-id="eavd_site_policy" style="display: list-item;"><a
+                            href="https://www.konami.com/siteinfo/ja/" target="_blank">サイトポリシー</a></li>
+                <li class="cl_ea_variable_document" data-id="eavd_manner_rule" style="display: list-item;"><a
+                            href="/etc/rule_manner/p/index.html">マナー＆ルール</a></li>
+                <li class="cl_ea_variable_document" data-id="eavd_contact" style="display: list-item;"><a
+                            href="https://p.eagate.573.jp/inquiry/index.html" target="_blank">お問い合わせ</a></li>
+                <li class="cl_ea_variable_document" data-id="eavd_facility_search" style="display: list-item;"><a
+                            href="/game/facility/search/p/index.html" data-reserve_url="">設置店舗検索</a></li>
+            </ul>
+            <p>©2020 Konami Amusement</p></footer>
+    </div>
+    <div id="page-cover"></div>
+</div>
+<input id="id_ea_feed" type="hidden" data-msg="" data-path="" data-hashtag=""> <input id="id_ea_menu_ctrl" type="hidden"
+                                                                                      value="simplify:notfix"> <input
+        id="id_ea_reserve_url" type="hidden" value="" data-reserve_url="/game/ddr/ddra20/p/playdata/music_recent.html"
+        data-self="/game/ddr/ddra20/p/playdata/music_recent.html">
+<script>    ea_common_template.context = {
+        top_dir: '/game/ddr/ddra20/',
+        this_dir: '/game/ddr/ddra20/p/playdata/',
+        this_file: 'music_recent.html',
+        cache_locator: 'https://eacache.s.konaminet.jp'
+    };  </script>
+<script>ea_common_template.userstatus = {
+        "99": {
+            "maintxt": "\u30B7\u30B9\u30C6\u30E0\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F\u3002\u7533\u3057\u8A33\u3042\u308A\u307E\u305B\u3093\u304C\u6642\u9593\u3092\u7F6E\u3044\u3066\u518D\u5EA6\u304A\u8A66\u3057\u304F\u3060\u3055\u3044\u3002",
+            "path": null,
+            "linktxt": ""
+        },
+        "1": {
+            "maintxt": "\u3053\u306E\u30B3\u30F3\u30C6\u30F3\u30C4\u3092\u95B2\u89A7\u3059\u308B\u306B\u306F\u30ED\u30B0\u30A4\u30F3\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+            "path": "/gate/p/login.html?path=/game/ddr/ddra20/p/playdata/music_recent.html",
+            "linktxt": "\u30ED\u30B0\u30A4\u30F3\u3059\u308B\u306B\u306F\u3053\u3061\u3089"
+        },
+        "2": {
+            "maintxt": "\u30D9\u30FC\u30B7\u30C3\u30AF\u30B3\u30FC\u30B9\u3078\u306E\u52A0\u5165\u304C\u5FC5\u8981\u3067\u3059\u3002",
+            "path": "/payment/p/select_course.html?course=eaBASIC",
+            "linktxt": "\u30B3\u30FC\u30B9\u52A0\u5165\u3059\u308B\u306B\u306F\u3053\u3061\u3089",
+            "reserve_url": true
+        },
+        "3": {
+            "maintxt": "\u30D7\u30EC\u30DF\u30A2\u30E0\u30B3\u30FC\u30B9\u3078\u306E\u52A0\u5165\u304C\u5FC5\u8981\u3067\u3059\u3002",
+            "path": "/payment/p/select_course.html?course=eaPREMIUM",
+            "linktxt": "\u30B3\u30FC\u30B9\u52A0\u5165\u3059\u308B\u306B\u306F\u3053\u3061\u3089",
+            "reserve_url": true
+        },
+        "4": {
+            "maintxt": "\u53C2\u7167\u4E2D\u306Ee-amusement pass\u304C\u3042\u308A\u307E\u305B\u3093\u3002",
+            "path": "/gate/eapass/menu.html",
+            "linktxt": "e-amusement pass\u3092\u53C2\u7167\u4E2D\u306B\u3059\u308B\u306B\u306F",
+            "reserve_url": true
+        },
+        "5": {
+            "maintxt": "\u30D7\u30EC\u30FC\u30C7\u30FC\u30BF\u304C\u3042\u308A\u307E\u305B\u3093\u3002",
+            "path": "/gate/eapass/menu.html",
+            "linktxt": "e-amusement pass\u3092\u5207\u308A\u66FF\u3048\u308B\u306B\u306F",
+            "reserve_url": true
+        },
+        "region": "JP",
+        "state": {
+            "course": {"eaBASIC": true},
+            "eapass": true,
+            "login": true,
+            "playdata": true,
+            "sg": {
+                "SG-L44JD": true,
+                "SG-KFCJA": true,
+                "SG-L44JC": true,
+                "SG-L44JE": true,
+                "SG-LDJJA": true,
+                "SG-RECJA": true,
+                "SG-M39JA": true,
+                "SG-PIXJA": true,
+                "SG-KDMJA": true,
+                "SG-PANJA": true,
+                "SG-QCVJA": true,
+                "SG-MDXJA": true,
+                "SG-O70JA": true
+            },
+            "subscription": true
+        }
+    };</script>
+<script type="text/javascript" id="">function hashclear() {
+        location.hash && location.hash.match(/(#|&)(_ga)=.+/) && ("replaceState" in history ? history.replaceState("", document.title, location.pathname + location.search) : window.location.hash = "")
+    }
+
+    setTimeout("hashclear()", 100);</script>
+</body>
+</html>

@@ -2,9 +2,9 @@ package common
 
 import (
 	"encoding/json"
+	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/eagate/util"
 	bst_models "github.com/chris-sg/bst_server_models"
-	"github.com/chris-sg/eagate/util"
-	"github.com/chris-sg/eagate_db"
 	"net/http"
 	"time"
 )
@@ -64,4 +64,15 @@ func updateCachedDb() {
 func updateCachedGate() {
 	client := util.GenerateClient()
 	cachedGate = !util.IsMaintenanceMode(client)
+}
+
+func Cache(rw http.ResponseWriter, r *http.Request) {
+	type CacheableData struct {
+		Id int `json:"id"`
+		Nickname string `json:"nickname"`
+		Public bool `json:"public"`
+	}
+
+//	query := r.URL.Query()
+//	user := query.Get("user")
 }

@@ -2,9 +2,9 @@ package utilities
 
 import (
 	"fmt"
+	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/eagate/util"
 	"github.com/chris-sg/bst_server_models"
-	"github.com/chris-sg/eagate/util"
-	"github.com/chris-sg/eagate_db"
 	"github.com/golang/glog"
 	"reflect"
 	"strings"

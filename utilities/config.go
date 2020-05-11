@@ -2,7 +2,7 @@ package utilities
 
 import (
 	"flag"
-	"github.com/chris-sg/eagate_db"
+	"github.com/chris-sg/bst_api/db"
 	"github.com/golang/glog"
 )
 

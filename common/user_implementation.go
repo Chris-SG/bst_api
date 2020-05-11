@@ -2,10 +2,10 @@ package common
 
 import (
 	"fmt"
+	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/eagate/util"
+	"github.com/chris-sg/bst_api/models/user_models"
 	"github.com/chris-sg/bst_api/utilities"
-	"github.com/chris-sg/eagate/util"
-	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_models/user_models"
 	"net/http"
 	"strings"
 )

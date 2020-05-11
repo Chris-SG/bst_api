@@ -26,11 +26,11 @@ func PrepareMiddleware() {
 	}
 }
 
-func GetCommonMiddleware() (*negroni.Negroni) {
+func GetCommonMiddleware() *negroni.Negroni {
 	return commonMiddleware
 }
 
-func GetProtectionMiddleware() (*negroni.Negroni) {
+func GetProtectionMiddleware() *negroni.Negroni {
 	return protectionMiddleware
 }
 

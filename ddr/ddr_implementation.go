@@ -2,12 +2,12 @@ package ddr
 
 import (
 	"fmt"
+	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/eagate/ddr"
+	"github.com/chris-sg/bst_api/eagate/util"
+	"github.com/chris-sg/bst_api/models/ddr_models"
+	"github.com/chris-sg/bst_api/models/user_models"
 	"github.com/chris-sg/bst_api/utilities"
-	"github.com/chris-sg/eagate/ddr"
-	"github.com/chris-sg/eagate/util"
-	"github.com/chris-sg/eagate_db"
-	"github.com/chris-sg/eagate_models/ddr_models"
-	"github.com/chris-sg/eagate_models/user_models"
 	"github.com/golang/glog"
 )
 
@@ -297,7 +297,7 @@ func updatePlayerProfile(user user_models.User, client util.EaClient) (errMsg st
 		return
 	}
 	for i := len(recentSongIds)-1; i >= 0; i-- {
-		for j, _ := range dbSongIds {
+		for j := range dbSongIds {
 			if recentSongIds[i] == dbSongIds[j] {
 				recentSongIds = append(recentSongIds[:i], recentSongIds[i+1:]...)
 				dbSongIds = append(dbSongIds[:j], dbSongIds[j+1:]...)

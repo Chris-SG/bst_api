@@ -3,8 +3,8 @@ package drs
 import (
 	"encoding/json"
 	"github.com/chris-sg/bst_api/common"
+	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/utilities"
-	"github.com/chris-sg/eagate_db"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"net/http"
