@@ -4,8 +4,8 @@ github.com/andybalholm/cascadia v1.1.0 h1:BuuO6sSfQNFRu1LppgbD25Hr2vLYW25JvxHs5z
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b h1:CvoEHGmxWl5kONC5icxwqV899dkf4VjOScbxLpllEnw=
 github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b/go.mod h1:LWMyo4iOLWXHGdBki7NIht1kHru/0wM179h+d3g8ATM=
-github.com/chris-sg/bst_server_models v0.0.0-20200421142232-ea5488213431 h1:jUP6Wn0ZC8V+4I+Pa4u7dMUJWOYKdozLP7Ls0bbDu9E=
-github.com/chris-sg/bst_server_models v0.0.0-20200421142232-ea5488213431/go.mod h1:QAm0zB8hwap1niFFJWwSf7AJz/0Bh1q5RCDvTXP/p4o=
+github.com/chris-sg/bst_server_models v0.0.0-20200512065713-0481221bae30 h1:39GMtdNAsYme+/8dagjpH/kkFUGHM+2TzFtuK0WVLHk=
+github.com/chris-sg/bst_server_models v0.0.0-20200512065713-0481221bae30/go.mod h1:QAm0zB8hwap1niFFJWwSf7AJz/0Bh1q5RCDvTXP/p4o=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6ROGeiHFAP8WJdI2RoxALQYgdllERc3N5N2DM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=

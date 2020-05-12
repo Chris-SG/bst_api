@@ -70,12 +70,7 @@ func updateCachedGate() {
 }
 
 func Cache(rw http.ResponseWriter, r *http.Request) {
-	type CacheableData struct {
-		Id int `json:"id"`
-		Nickname string `json:"nickname"`
-		Public bool `json:"public"`
-	}
-	data := CacheableData{}
+	data := bstServerModels.UserCache{}
 
 	query := r.URL.Query()
 	user := query.Get("user")
