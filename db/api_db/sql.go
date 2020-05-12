@@ -33,12 +33,18 @@ func (dbcomm ApiDbCommunicationPostgres) SetProfile(profile bst_models.BstProfil
 }
 
 func (dbcomm ApiDbCommunicationPostgres) RetrieveProfile(user string) (profile bst_models.BstProfile, errs []error) {
-	resultDb := dbcomm.db.Model(&bst_models.BstProfile{}).Where("user = ?", user).First(&profile)
+	p := make([]bst_models.BstProfile, 0)
+	resultDb := dbcomm.db.Model(&bst_models.BstProfile{}).Where("user = ?", user).Scan(&p)
 
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
 		errs = append(errs, errors...)
 	}
+
+	if len(p) > 0 {
+		profile = p[0]
+	}
+
 	return
 }
 

@@ -15,11 +15,19 @@ var (
 	ApiBase string
 
 	DbMigration bool
+
+	a0MgmtAudience string
+	a0MgmtClientId string
+	a0MgmtClientSecret string
 )
 
 func LoadConfig() {
 	flag.StringVar(&authClientIssuer, "issuer", "", "the issuer for auth server.")
 	flag.StringVar(&authClientAudience, "audience", "", "the audience for auth server.")
+
+	flag.StringVar(&a0MgmtAudience, "a0mgmtaudience", "", "audience for auth0 management.")
+	flag.StringVar(&a0MgmtClientId, "a0mgmtclientid", "", "client id for auth0 management.")
+	flag.StringVar(&a0MgmtClientSecret, "a0mgmtclientsecret", "", "client secret for auth0 management.")
 
 	flag.StringVar(&ServeHost, "host", "", "the host.")
 	flag.StringVar(&ServePort, "port", "8443", "the port.")
