@@ -7,8 +7,8 @@ import (
 	"github.com/chris-sg/bst_api/models/bst_models"
 	"github.com/chris-sg/bst_api/utilities"
 	bstServerModels "github.com/chris-sg/bst_server_models"
+	"github.com/golang/glog"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -129,12 +129,10 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user = strings.ToLower(user)
-
-	decoder := json.NewDecoder(r.Body)
 	data := UpdateableData{}
-	err := decoder.Decode(&data)
+	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
+		glog.Warningf("unable to decode body: %s", err.Error())
 		status := utilities.WriteStatus("bad", "invalid_data")
 		bytes, _ := json.Marshal(status)
 		rw.WriteHeader(http.StatusBadRequest)
