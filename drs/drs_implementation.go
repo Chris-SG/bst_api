@@ -29,24 +29,24 @@ func refreshDrsUser(client util.EaClient) (err error) {
 		playerDetails.EaGateUser = &user
 	}
 
-	errs := eagate_db.GetDrsDb().AddPlayerDetails(playerDetails)
+	errs := db.GetDrsDb().AddPlayerDetails(playerDetails)
 	utilities.PrintErrors("failed to add player details to db:", errs)
-	errs = eagate_db.GetDrsDb().AddPlayerProfileSnapshot(profileSnapshot)
+	errs = db.GetDrsDb().AddPlayerProfileSnapshot(profileSnapshot)
 	utilities.PrintErrors("failed to add player profile snapshot to db:", errs)
-	errs = eagate_db.GetDrsDb().AddSongs(songs)
+	errs = db.GetDrsDb().AddSongs(songs)
 	utilities.PrintErrors("failed to add songs to db:", errs)
-	errs = eagate_db.GetDrsDb().AddDifficulties(difficulties)
+	errs = db.GetDrsDb().AddDifficulties(difficulties)
 	utilities.PrintErrors("failed to add difficulties to db:", errs)
-	errs = eagate_db.GetDrsDb().AddPlayerSongStats(playerSongStats)
+	errs = db.GetDrsDb().AddPlayerSongStats(playerSongStats)
 	utilities.PrintErrors("failed to add song stats to db:", errs)
-	errs = eagate_db.GetDrsDb().AddPlayerScores(playerScores)
+	errs = db.GetDrsDb().AddPlayerScores(playerScores)
 	utilities.PrintErrors("failed to add player scores to db:", errs)
 
 	return
 }
 
 func retrieveDrsPlayerDetails(eaUser string) (details drs_models.PlayerDetails, err error) {
-	details, errs := eagate_db.GetDrsDb().RetrievePlayerDetailsByEaGateUser(eaUser)
+	details, errs := db.GetDrsDb().RetrievePlayerDetailsByEaGateUser(eaUser)
 	if utilities.PrintErrors("failed to retrieve user:", errs) {
 		err = fmt.Errorf("drs_retdetails_err")
 	}
@@ -54,7 +54,7 @@ func retrieveDrsPlayerDetails(eaUser string) (details drs_models.PlayerDetails, 
 }
 
 func retrieveDrsSongStats(code int) (songStats []drs_models.PlayerSongStats, err error) {
-	songStats, errs := eagate_db.GetDrsDb().RetrieveSongStatisticsByPlayerCode(code)
+	songStats, errs := db.GetDrsDb().RetrieveSongStatisticsByPlayerCode(code)
 	if utilities.PrintErrors("failed to retrieve user:", errs) {
 		err = fmt.Errorf("drs_retdetails_err")
 	}

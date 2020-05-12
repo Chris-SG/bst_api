@@ -170,7 +170,7 @@ func TableDataGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tableData, errs := eagate_db.GetDrsDb().RetrieveDataForTable(details.Code)
+	tableData, errs := db.GetDrsDb().RetrieveDataForTable(details.Code)
 	if utilities.PrintErrors("failed to retrieve user:", errs) {
 		status := utilities.WriteStatus("bad", "drs_rettbl_err")
 		bytes, _ := json.Marshal(status)

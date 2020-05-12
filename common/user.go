@@ -107,7 +107,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errs := eagate_db.GetUserDb().SetCookieForUser(loginRequest.Username, cookie)
+	errs := db.GetUserDb().SetCookieForUser(loginRequest.Username, cookie)
 	if len(errs) > 0 {
 		status := utilities.WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
@@ -115,7 +115,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(bytes)
 		return
 	}
-	errs = eagate_db.GetUserDb().SetWebUserForEaUser(loginRequest.Username, val)
+	errs = db.GetUserDb().SetWebUserForEaUser(loginRequest.Username, val)
 	if len(errs) > 0 {
 		status := utilities.WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
@@ -163,7 +163,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, errs := eagate_db.GetUserDb().RetrieveUserByUserId(logoutRequest.Username)
+	user, errs := db.GetUserDb().RetrieveUserByUserId(logoutRequest.Username)
 	if len(errs) > 0 {
 		status := utilities.WriteErrorStatus(errs)
 		bytes, _ := json.Marshal(status)
@@ -173,7 +173,7 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.WebUser == val {
-		errs := eagate_db.GetUserDb().SetWebUserForEaUser(user.Name, "")
+		errs := db.GetUserDb().SetWebUserForEaUser(user.Name, "")
 		if len(errs) > 0 {
 			status := utilities.WriteErrorStatus(errs)
 			bytes, _ := json.Marshal(status)

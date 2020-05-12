@@ -1,7 +1,8 @@
-package eagate_db
+package db
 
 import (
 	"fmt"
+	"github.com/chris-sg/bst_api/db/api_db"
 	"github.com/chris-sg/bst_api/db/db_builder"
 	"github.com/chris-sg/bst_api/db/ddr_db"
 	"github.com/chris-sg/bst_api/db/drs_db"
@@ -12,6 +13,7 @@ import (
 
 var (
 	db *gorm.DB
+	apiDbComm api_db.ApiDbCommunication
 	ddrDbComm ddr_db.DdrDbCommunication
 	drsDbComm drs_db.DrsDbCommunication
 	idleConnectionLimit int
@@ -52,6 +54,7 @@ func openDbPostgres(user string, password string, dbname string, host string, ma
 	db.DB().SetMaxIdleConns(maxIdleConnections)
 	idleConnectionLimit = maxIdleConnections
 
+	apiDbComm = api_db.CreateApiDbCommunicationPostgres(db)
 	ddrDbComm = ddr_db.CreateDdrDbCommunicationPostgres(db)
 	drsDbComm = drs_db.CreateDrsDbCommunicationPostgres(db)
 	migrator = db_builder.CreateDbMigratorPostgres(db)
@@ -65,6 +68,10 @@ func GetDb() (*gorm.DB, error) {
 		return nil, fmt.Errorf("db connection has not been created, please use OpenDb()")
 	}
 	return db, nil
+}
+
+func GetApiDb() api_db.ApiDbCommunication {
+	return apiDbComm
 }
 
 func GetDdrDb() ddr_db.DdrDbCommunication {

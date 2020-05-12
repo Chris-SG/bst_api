@@ -13,6 +13,9 @@ func AttachGeneralRoutes(r *mux.Router) {
 
 	r.Path("/cache").Handler(negroni.New(
 		negroni.Wrap(http.HandlerFunc(Cache)))).Methods(http.MethodGet)
+
+	r.Path("/bstuser").Handler(negroni.New(
+		negroni.Wrap(http.HandlerFunc(PutBstUser)))).Methods(http.MethodPut)
 }
 
 // CreateUserRouter will generate a new subrouter prefixed with `/user`.

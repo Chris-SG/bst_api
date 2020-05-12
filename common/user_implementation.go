@@ -23,7 +23,7 @@ func TryGetEagateUsers(r *http.Request) (models []user_models.User, errMsg strin
 	}
 	val = strings.ToLower(val)
 
-	model, errs := eagate_db.GetUserDb().RetrieveUserByWebId(val)
+	model, errs := db.GetUserDb().RetrieveUserByWebId(val)
 	if utilities.PrintErrors("failed to retrieve user:", errs) {
 		errMsg = "no_user"
 		err = fmt.Errorf("failed to retrieve user for %s", val)
@@ -45,7 +45,7 @@ func TryGetEagateUsers(r *http.Request) (models []user_models.User, errMsg strin
 func CreateClientForUser(userModel user_models.User) (client util.EaClient, errMsg string, err error) {
 	client = util.GenerateClient()
 	client.SetUsername(userModel.Name)
-	cookie, errs := eagate_db.GetUserDb().RetrieveUserCookieStringByUserId(userModel.Name)
+	cookie, errs := db.GetUserDb().RetrieveUserCookieStringByUserId(userModel.Name)
 	if utilities.PrintErrors("failed to retrieve cookie:", errs) {
 		errMsg = "no_cookie"
 		err = fmt.Errorf("failed to retrieve cookie for user %s", userModel.Name)

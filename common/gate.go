@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/eagate/util"
-	bst_models "github.com/chris-sg/bst_server_models"
+	"github.com/chris-sg/bst_api/models/bst_models"
+	"github.com/chris-sg/bst_api/utilities"
+	bstServerModels "github.com/chris-sg/bst_server_models"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -26,7 +29,7 @@ func Status(rw http.ResponseWriter, r *http.Request) {
 		updateCachedGate()
 	}
 
-	status := bst_models.ApiStatus{
+	status := bstServerModels.ApiStatus{
 		Api: "ok",
 	}
 	if cachedGate {
@@ -50,7 +53,7 @@ func Status(rw http.ResponseWriter, r *http.Request) {
 // This allows us to confirm whether the connection has broken
 // or not.
 func updateCachedDb() {
-	db, err := eagate_db.GetDb()
+	db, err := db.GetDb()
 	if err != nil || db.DB().Ping() != nil {
 		cachedDb = false
 	} else {
@@ -72,7 +75,101 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 		Nickname string `json:"nickname"`
 		Public bool `json:"public"`
 	}
+	data := CacheableData{}
 
-//	query := r.URL.Query()
-//	user := query.Get("user")
+	query := r.URL.Query()
+	user := query.Get("user")
+
+	apiDb := db.GetApiDb()
+
+	profile, errs := apiDb.RetrieveProfile(user)
+	if utilities.PrintErrors("failed to retrieve profile:", errs) {
+		status := utilities.WriteStatus("bad", "cache_err")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		_, _ = rw.Write(bytes)
+		return
+	}
+	if len(profile.User) == 0 {
+		profile = bst_models.BstProfile{ User: user, Public: false }
+		errs = apiDb.SetProfile(profile)
+		if utilities.PrintErrors("failed to set profile:", errs) {
+			status := utilities.WriteStatus("bad", "cache_err")
+			bytes, _ := json.Marshal(status)
+			rw.WriteHeader(http.StatusInternalServerError)
+			_, _ = rw.Write(bytes)
+			return
+		}
+	}
+
+	data.Public = profile.Public
+	data.Nickname = profile.Nickname
+	data.Id = profile.UserId
+
+	bytes, _ := json.Marshal(data)
+	rw.WriteHeader(http.StatusOK)
+	_, _ = rw.Write(bytes)
+	return
+}
+
+func PutBstUser(rw http.ResponseWriter, r *http.Request) {
+	type UpdateableData struct {
+		Nickname string `json:"nickname"`
+		Public bool `json:"public"`
+	}
+
+	tokenMap := utilities.ProfileFromToken(r)
+
+	user, ok := tokenMap["sub"].(string)
+	if !ok {
+		status := utilities.WriteStatus("bad", "jwt_err")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusUnauthorized)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	user = strings.ToLower(user)
+
+	decoder := json.NewDecoder(r.Body)
+	data := UpdateableData{}
+	err := decoder.Decode(&data)
+	if err != nil {
+		status := utilities.WriteStatus("bad", "invalid_data")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	apiDb := db.GetApiDb()
+	profile, errs := apiDb.RetrieveProfile(user)
+	if utilities.PrintErrors("failed to retrieve profile:", errs) {
+		status := utilities.WriteStatus("bad", "bst_err")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		_, _ = rw.Write(bytes)
+		return
+	}
+	if len(profile.User) == 0 {
+		profile.User = user
+	}
+	if len(data.Nickname) > 0 {
+		profile.Nickname = data.Nickname
+	}
+	profile.Public = data.Public
+
+	errs = apiDb.SetProfile(profile)
+	if utilities.PrintErrors("failed to set profile:", errs) {
+		status := utilities.WriteStatus("bad", "bst_err")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusInternalServerError)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
+	bytes, _ := json.Marshal(profile)
+	rw.WriteHeader(http.StatusOK)
+	_, _ = rw.Write(bytes)
+	return
 }

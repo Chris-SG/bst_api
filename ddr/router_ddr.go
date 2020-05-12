@@ -105,7 +105,7 @@ func ProfileGet(rw http.ResponseWriter, r *http.Request) {
 		_, _ = rw.Write(bytes)
 		return
 	}
-	playerDetails, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_retpi_fail")
 		bytes, _ := json.Marshal(status)
@@ -118,7 +118,7 @@ func ProfileGet(rw http.ResponseWriter, r *http.Request) {
 
 	endDate := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, tz)
 	startDate := endDate.AddDate(0, -1, 0)
-	wd, errs := eagate_db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, startDate, endDate)
+	wd, errs := db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, startDate, endDate)
 	if utilities.PrintErrors("failed to retrieve playcounts:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_retwd_fail")
 		bytes, _ := json.Marshal(status)
@@ -154,7 +154,7 @@ func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
 		_, _ = rw.Write(bytes)
 		return
 	}
-	playerDetails, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_retpi_fail")
 		bytes, _ := json.Marshal(status)
@@ -202,7 +202,7 @@ func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workoutData, errs := eagate_db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, start, end)
+	workoutData, errs := db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, start, end)
 	if utilities.PrintErrors("could not retrieve workout data:", errs) {
 		status := utilities.WriteStatus("bad","ddr_retwd_err")
 		bytes, _ := json.Marshal(status)
@@ -263,7 +263,7 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 // Data returned will not include the jacket image, which should
 // be retrieved with the `/ddr/songs/images` endpoint.
 func SongsGet(rw http.ResponseWriter, r *http.Request) {
-	songIds, errs := eagate_db.GetDdrDb().RetrieveSongIds()
+	songIds, errs := db.GetDdrDb().RetrieveSongIds()
 	if utilities.PrintErrors("failed to retrieve song ids from db:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_songid_db_fail")
 		bytes, _ := json.Marshal(status)
@@ -275,7 +275,7 @@ func SongsGet(rw http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	var songs []ddr_models.Song
-	songs, errs = eagate_db.GetDdrDb().RetrieveSongsById(songIds, query["ordering"])
+	songs, errs = db.GetDdrDb().RetrieveSongsById(songIds, query["ordering"])
 
 	if utilities.PrintErrors("failed to retrieve songs by id:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_retsong_fail")
@@ -340,7 +340,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 		_, _ = rw.Write(bytes)
 		return
 	}
-	errs := eagate_db.GetDdrDb().AddSongs(songData)
+	errs := db.GetDdrDb().AddSongs(songData)
 	if utilities.PrintErrors("failed to add songs to db:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_addsong_fail")
 		bytes, _ := json.Marshal(status)
@@ -357,7 +357,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 		_, _ = rw.Write(bytes)
 		return
 	}
-	errs = eagate_db.GetDdrDb().AddDifficulties(songDifficulties)
+	errs = db.GetDdrDb().AddDifficulties(songDifficulties)
 	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_adddiff_fail")
 		bytes, _ := json.Marshal(status)
@@ -409,7 +409,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 		_, _ = rw.Write(bytes)
 		return
 	}
-	errs := eagate_db.GetDdrDb().AddSongs(songData)
+	errs := db.GetDdrDb().AddSongs(songData)
 	if utilities.PrintErrors("failed to add songs to db:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_addsong_fail")
 		bytes, _ := json.Marshal(status)
@@ -426,7 +426,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 		_, _ = rw.Write(bytes)
 		return
 	}
-	errs = eagate_db.GetDdrDb().AddDifficulties(songDifficulties)
+	errs = db.GetDdrDb().AddDifficulties(songDifficulties)
 	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_adddiff_fail")
 		bytes, _ := json.Marshal(status)
@@ -454,7 +454,7 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ddrProfile, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
 		status := utilities.WriteStatus("bad", "no_user")
 		bytes, _ := json.Marshal(status)
@@ -478,7 +478,7 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	var scores []ddr_models.SongStatistics
-	scores, errs = eagate_db.GetDdrDb().RetrieveSongStatisticsByPlayerCode(ddrProfile.Code, ids)
+	scores, errs = db.GetDdrDb().RetrieveSongStatisticsByPlayerCode(ddrProfile.Code, ids)
 
 	if utilities.PrintErrors("failed to retrieve song statistics for player:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_retsongstat_fail")
@@ -504,7 +504,7 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ddrProfile, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
 		status := utilities.WriteStatus("bad", "no_user")
 		bytes, _ := json.Marshal(status)
@@ -516,7 +516,7 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	var scores []ddr_models.Score
-	scores, errs = eagate_db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, query.Get("id"), query.Get("mode"), query.Get("difficulty"), query["ordering"])
+	scores, errs = db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, query.Get("id"), query.Get("mode"), query.Get("difficulty"), query["ordering"])
 
 	if utilities.PrintErrors("failed to retrieve scores details for user:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_retsongscore_fail")
@@ -535,7 +535,7 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 func SongJacketGet(rw http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
-	jacket, errs := eagate_db.GetDdrDb().RetrieveJacketForSongId(query.Get("id"))
+	jacket, errs := db.GetDdrDb().RetrieveJacketForSongId(query.Get("id"))
 
 	if utilities.PrintErrors("failed to retrieve jacket:", errs) {
 		status := utilities.WriteStatus("bad", "ddr_retsongjack_fail")
@@ -563,7 +563,7 @@ func SongsScoresExtendedGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ddrProfile, errs := eagate_db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details:", errs) {
 		status := utilities.WriteStatus("bad", "no_user")
 		bytes, _ := json.Marshal(status)
@@ -579,7 +579,7 @@ func SongsScoresExtendedGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats, errs := eagate_db.GetDdrDb().RetrieveExtendedScoreStatisticsByPlayerCode(ddrProfile.Code)
+	stats, errs := db.GetDdrDb().RetrieveExtendedScoreStatisticsByPlayerCode(ddrProfile.Code)
 
 	rw.WriteHeader(http.StatusOK)
 	_, _ = rw.Write([]byte(stats))

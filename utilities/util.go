@@ -108,12 +108,12 @@ func ValidateFiltering(i interface{}, filterRequest []string) (filtering string)
 }
 
 func UpdateCookie(client util.EaClient) {
-	oldCookie, errs := eagate_db.GetUserDb().RetrieveUserCookieStringByUserId(client.GetUsername())
+	oldCookie, errs := db.GetUserDb().RetrieveUserCookieStringByUserId(client.GetUsername())
 	if PrintErrors("failed to retrieve cookie for user:", errs) {
 		return
 	}
 	if len(oldCookie) == 0 || oldCookie != client.GetEaCookie().String() {
-		errs := eagate_db.GetUserDb().SetCookieForUser(client.GetUsername(), client.GetEaCookie())
+		errs := db.GetUserDb().SetCookieForUser(client.GetUsername(), client.GetEaCookie())
 		if PrintErrors("failed to set cookie for user:", errs) {
 			return
 		}
