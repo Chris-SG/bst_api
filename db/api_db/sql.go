@@ -36,7 +36,7 @@ func (dbcomm ApiDbCommunicationPostgres) SetProfile(profile bst_models.BstProfil
 func (dbcomm ApiDbCommunicationPostgres) RetrieveProfile(user string) (profile bst_models.BstProfile, errs []error) {
 	glog.Infof("bst profile for %s", user)
 	p := make([]bst_models.BstProfile, 0)
-	resultDb := dbcomm.db.Model(&bst_models.BstProfile{}).Where("user = ?", user).Scan(&p)
+	resultDb := dbcomm.db.Model(&bst_models.BstProfile{}).Where("user_sub = ?", user).Scan(&p)
 	glog.Infof("%d results for %s", len(p), user)
 
 	errors := resultDb.GetErrors()
