@@ -130,7 +130,7 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 	type UpdateableData struct {
 		Nickname string `json:"nickname"`
-		Public bool `json:"public"`
+		Public *bool `json:"public;omit_empty"`
 	}
 
 	tokenMap := utilities.ProfileFromToken(r)
@@ -170,7 +170,9 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 	if len(data.Nickname) > 0 {
 		profile.Nickname = data.Nickname
 	}
-	profile.Public = data.Public
+	if data.Public != nil {
+		profile.Public = *data.Public
+	}
 
 	errs = apiDb.SetProfile(profile)
 	if utilities.PrintErrors("failed to set profile:", errs) {
@@ -181,7 +183,13 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, _ := json.Marshal(profile)
+	userCache := bstServerModels.UserCache{
+		Id:       profile.UserId,
+		Nickname: profile.Nickname,
+		Public:   profile.Public,
+	}
+
+	bytes, _ := json.Marshal(userCache)
 	rw.WriteHeader(http.StatusOK)
 	_, _ = rw.Write(bytes)
 	return
