@@ -74,6 +74,7 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	user := query.Get("user")
+	glog.Infof("get cache data for %s", user)
 
 	apiDb := db.GetApiDb()
 
@@ -86,6 +87,7 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(profile.User) == 0 {
+		glog.Infof("user %s not found, adding to db", user)
 		profile = bst_models.BstProfile{ User: user, Public: false }
 		errs = apiDb.SetProfile(profile)
 		if utilities.PrintErrors("failed to set profile:", errs) {

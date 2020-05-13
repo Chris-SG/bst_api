@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chris-sg/bst_api/models/api_models"
 	"github.com/chris-sg/bst_api/models/bst_models"
+	"github.com/golang/glog"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -33,8 +34,10 @@ func (dbcomm ApiDbCommunicationPostgres) SetProfile(profile bst_models.BstProfil
 }
 
 func (dbcomm ApiDbCommunicationPostgres) RetrieveProfile(user string) (profile bst_models.BstProfile, errs []error) {
+	glog.Infof("bst profile for %s", user)
 	p := make([]bst_models.BstProfile, 0)
 	resultDb := dbcomm.db.Model(&bst_models.BstProfile{}).Where("user = ?", user).Scan(&p)
+	glog.Infof("%d results for %s", len(p), user)
 
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
