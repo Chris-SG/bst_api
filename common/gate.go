@@ -74,6 +74,15 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	user := query.Get("user")
+	if len(user) == 0 {
+		glog.Warningf("tried to get user cache for empty user")
+		status := utilities.WriteStatus("bad", "user_err")
+		bytes, _ := json.Marshal(status)
+		rw.WriteHeader(http.StatusBadRequest)
+		_, _ = rw.Write(bytes)
+		return
+	}
+
 	glog.Infof("get cache data for %s", user)
 
 	apiDb := db.GetApiDb()
@@ -91,6 +100,15 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 		profile = bst_models.BstProfile{ User: user, Public: false }
 		errs = apiDb.SetProfile(profile)
 		if utilities.PrintErrors("failed to set profile:", errs) {
+			status := utilities.WriteStatus("bad", "cache_err")
+			bytes, _ := json.Marshal(status)
+			rw.WriteHeader(http.StatusInternalServerError)
+			_, _ = rw.Write(bytes)
+			return
+		}
+
+		profile, errs = apiDb.RetrieveProfile(user)
+		if utilities.PrintErrors("failed to retrieve profile:", errs) {
 			status := utilities.WriteStatus("bad", "cache_err")
 			bytes, _ := json.Marshal(status)
 			rw.WriteHeader(http.StatusInternalServerError)
