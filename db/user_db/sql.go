@@ -12,6 +12,7 @@ import (
 
 type UserDbCommunication interface {
 	SetCookieForUser(userId string, cookie *http.Cookie) (errs []error)
+	SetSubscriptionForUser(userId string, sub string) (errs []error)
 	RetrieveUserByUserId(userId string) (user user_models.User, errs []error)
 	RetrieveUserByWebId(webUserId string) (user user_models.User, errs []error)
 	RetrieveUserCookieStringByUserId(userId string) (cookie string, errs []error)
@@ -40,6 +41,29 @@ func (dbcomm UserDbCommunicationPostgres) SetCookieForUser(userId string, cookie
 	eaGateUser.Name = strings.ToLower(eaGateUser.Name)
 	eaGateUser.Cookie = cookie.String()
 	eaGateUser.Expiration = cookie.Expires.UnixNano() / 1000
+
+	resultDb := dbcomm.db.Save(eaGateUser)
+
+	errors := resultDb.GetErrors()
+	if errors != nil && len(errors) != 0 {
+		errs = append(errs, errors...)
+	}
+	return
+}
+
+func (dbcomm UserDbCommunicationPostgres) SetSubscriptionForUser(userId string, sub string) (errs []error) {
+	glog.Infof("SetCookieForUser for user id %s\n", userId)
+	userId = strings.ToLower(userId)
+	eaGateUser, errs := dbcomm.RetrieveUserByUserId(userId)
+	if len(errs) > 0 {
+		return
+	}
+	if eaGateUser.Name == "" {
+		eaGateUser = user_models.User{}
+	}
+
+	eaGateUser.Name = strings.ToLower(eaGateUser.Name)
+	eaGateUser.EaSubscription = sub
 
 	resultDb := dbcomm.db.Save(eaGateUser)
 

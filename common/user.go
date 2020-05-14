@@ -90,9 +90,21 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sub, err := user.ProfileEaSubscriptionState(client)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
+		return
+	}
+
+
 	errs := db.GetUserDb().SetCookieForUser(loginRequest.Username, cookie)
 	if utilities.PrintErrors("could not set cookie for user", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorWriteCookie)
+		return
+	}
+	errs = db.GetUserDb().SetSubscriptionForUser(loginRequest.Username, sub)
+	if utilities.PrintErrors("could not set ea subscription for user", errs) {
+		utilities.RespondWithError(rw, bst_models.ErrorWriteWebUser)
 		return
 	}
 	errs = db.GetUserDb().SetWebUserForEaUser(loginRequest.Username, val)
