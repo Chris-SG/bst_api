@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/chris-sg/bst_api/eagate/util"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
 	"io/ioutil"
 	"net/http"
@@ -69,7 +70,7 @@ func getChecksums() map[string]string {
 
 // GetCookieFromEaGate will submit a request to login as the given
 // username with the provided password and optionally, otp.
-func GetCookieFromEaGate(username string, password string, otp string, client util.EaClient) (*http.Cookie, error) {
+func GetCookieFromEaGate(username string, password string, otp string, client util.EaClient) (*http.Cookie, bst_models.Error) {
 	glog.Infof("attempting to login user %s", username)
 	const eagateLoginAuthResource = "/gate/p/common/login/api/login_auth.html"
 
@@ -77,16 +78,16 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 
 	glog.Infof("loading captcha data for user %s", client.GetUsername())
 	captchaData, err := LoadCaptchaData(client)
-	if err != nil {
-		glog.Errorf("user %s failed loading captcha: %s", client.GetUsername(), err.Error())
-		return nil, fmt.Errorf("user %s failed to get cookie from eagate", client.GetUsername())
+	if !err.Equals(bst_models.ErrorOK) {
+		glog.Errorf("user %s failed loading captcha: %s", client.GetUsername(), err.Message)
+		return nil, err
 	}
 
 	glog.Infof("solving captcha for user %s", client.GetUsername())
 	session, correct, err := SolveCaptcha(captchaData)
-	if err != nil {
-		glog.Errorf("user %s failed solving captcha: %s", client.GetUsername(), err.Error())
-		return nil, fmt.Errorf("user %s failed to get cookie from eagate", client.GetUsername())
+	if !err.Equals(bst_models.ErrorOK) {
+		glog.Errorf("user %s failed solving captcha: %s", client.GetUsername(), err.Message)
+		return nil, err
 	}
 
 	form := url.Values{}
@@ -99,65 +100,69 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 	}
 	form.Add("captcha", captchaResult)
 
-	res, err := client.Client.PostForm(eagateLoginAuthURI, form)
+	res, e := client.Client.PostForm(eagateLoginAuthURI, form)
 
-	if err != nil {
-		glog.Warningf("user %s failed login: %s", username, err.Error())
-		return nil, err
+	if e != nil {
+		glog.Warningf("user %s failed login: %s", username, e.Error())
+		return nil, bst_models.ErrorClientRequest
 	}
 
 	if !client.LoginState() {
-		err = fmt.Errorf("login attempt failed")
-		return nil, err
+		return nil, bst_models.ErrorLoginFailed
 	}
 
 	cookies := res.Cookies()
 
 	if len(cookies) == 0 {
 		glog.Errorf("cookie was not generated for user %s", username)
-		return nil, fmt.Errorf("could not generate cookie")
+		return nil, bst_models.ErrorNoCookie
 	}
 
-	return cookies[0], nil
+	return cookies[0], bst_models.ErrorOK
 }
 
-func LoadCaptchaData(client util.EaClient) (captchaData Captcha, err error) {
+func LoadCaptchaData(client util.EaClient) (captchaData Captcha, err bst_models.Error) {
 	const eagateCaptchaGenerateResource = "/gate/p/common/login/api/kcaptcha_generate.html"
 	eagateCaptchaGenerateURI := util.BuildEaURI(eagateCaptchaGenerateResource)
 
-	res, err := client.Client.Get(eagateCaptchaGenerateURI)
-	if err != nil {
+	res, e := client.Client.Get(eagateCaptchaGenerateURI)
+	if e != nil {
+		err = bst_models.ErrorClientRequest
 		return
 	}
 
 	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
+	body, e := ioutil.ReadAll(res.Body)
+	if e != nil {
+		err = bst_models.ErrorClientResponse
 		return
 	}
 
-	err = json.Unmarshal(body, &captchaData)
+	e = json.Unmarshal(body, &captchaData)
+	if e != nil {
+		err = bst_models.ErrorJsonDecode
+	}
 	return
 }
 
 // SolveCaptcha will load a Konami Captcha and attempt to solve it.
 // It returns a string containing the captcha session, a slice containing
 // all correct keys, and any errors encountered.
-func SolveCaptcha(captchaData Captcha) (session string, correct string, err error) {
+func SolveCaptcha(captchaData Captcha) (session string, correct string, err bst_models.Error) {
 	correctPicData, err := LoadImageDataFromUri(captchaData.Data.CorrectPic)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 
 	correctPicMD5 := GetMD5FromImageData(correctPicData)
 
 	correctCharacter, err := FindCharacterFromMD5(string(correctPicMD5))
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		re := regexp.MustCompile("[A-Fa-f0-9]{32}")
 		match := re.FindStringSubmatch(captchaData.Data.CorrectPic)
 
 		glog.Errorf("captcha failed due to missing character key %s with md5 %s", match[0], correctPicMD5)
-		return "", "", fmt.Errorf("character key %s md5 %s was not found", match[0], correctPicMD5)
+		return
 	}
 
 	type Choice struct {
@@ -172,16 +177,12 @@ func SolveCaptcha(captchaData Captcha) (session string, correct string, err erro
 			continue
 		}
 		glog.Infoln(element)
-		picture, err := LoadImageDataFromUri(element.ImgURL)
-		if err != nil {
-			glog.Errorf("could not load image data for url %s: %s\n", element.ImgURL, err.Error())
+		picture, e := LoadImageDataFromUri(element.ImgURL)
+		if !e.Equals(bst_models.ErrorOK) {
+			glog.Errorf("could not load image data for url %s: %s\n", element.ImgURL, err.Message)
 			continue
 		}
 		md5 := GetMD5FromImageData(picture)
-		if err != nil {
-			glog.Errorf("failed to find md5 for url %s: %s", element.ImgURL, err.Error())
-			continue
-		}
 		choiceImages = append(choiceImages, Choice{string(md5), element.Key})
 	}
 
@@ -189,26 +190,26 @@ func SolveCaptcha(captchaData Captcha) (session string, correct string, err erro
 
 	for _, element := range choiceImages {
 		captchaString += "_"
-		character, err := FindCharacterFromMD5(element.md5)
+		character, e := FindCharacterFromMD5(element.md5)
 		if character == correctCharacter {
 			captchaString += element.key
-		} else if err != nil {
-			glog.Errorf("captcha error: %s", err.Error())
+		} else if !e.Equals(bst_models.ErrorOK) {
+			glog.Errorf("captcha error: %s", e.Message)
 		}
 	}
 
-	return captchaData.Data.Kcsess, captchaString, nil
+	return captchaData.Data.Kcsess, captchaString, bst_models.ErrorOK
 }
 
 // LoadMD5OfImageURI will attempt to Get an image from the provided
 // URI, and calculate the MD5 checksum of this image.
 // Returns the MD5 checksum as a string and an error if the process fails.
-func LoadImageDataFromUri(uri string) ([]byte, error) {
+func LoadImageDataFromUri(uri string) ([]byte, bst_models.Error) {
 	image, err := http.Get(uri)
 
 	if err != nil {
 		glog.Errorf("failed to load %s: %s", uri, err.Error())
-		return nil, err
+		return nil, bst_models.ErrorClientRequest
 	}
 
 	defer image.Body.Close()
@@ -216,9 +217,9 @@ func LoadImageDataFromUri(uri string) ([]byte, error) {
 
 	if err != nil {
 		glog.Errorf("failed to load %s: %s", uri, err.Error())
-		return nil, err
+		return nil, bst_models.ErrorClientResponse
 	}
-	return imageData, nil
+	return imageData, bst_models.ErrorOK
 }
 
 // GetMD5FromImageData
@@ -230,9 +231,9 @@ func GetMD5FromImageData(imageData []byte) []byte {
 // FindCharacterFromMD5 will attempt to locate the Captcha MD5 in the existing
 // MD5 slices.
 // Returns the character name or unknown and an error if not found.
-func FindCharacterFromMD5(md5 string) (string, error) {
+func FindCharacterFromMD5(md5 string) (string, bst_models.Error) {
 	if val, ok := getChecksums()[string(md5)]; ok {
-		return val, nil
+		return val, bst_models.ErrorOK
 	}
-	return "", fmt.Errorf("failed to locate character for md5 %s", md5)
+	return "", bst_models.ErrorMd5CharacterMapping
 }

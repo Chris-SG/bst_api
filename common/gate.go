@@ -75,11 +75,7 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	user := query.Get("user")
 	if len(user) == 0 {
-		glog.Warningf("tried to get user cache for empty user")
-		status := utilities.WriteStatus("bad", "user_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bstServerModels.ErrorBadQuery)
 		return
 	}
 
@@ -89,10 +85,7 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 
 	profile, errs := apiDb.RetrieveProfile(user)
 	if utilities.PrintErrors("failed to retrieve profile:", errs) {
-		status := utilities.WriteStatus("bad", "cache_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bstServerModels.ErrorApiProfileDbRead)
 		return
 	}
 	if len(profile.User) == 0 {
@@ -100,19 +93,13 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 		profile = bst_models.BstProfile{ User: user, Public: false }
 		errs = apiDb.SetProfile(profile)
 		if utilities.PrintErrors("failed to set profile:", errs) {
-			status := utilities.WriteStatus("bad", "cache_err")
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusInternalServerError)
-			_, _ = rw.Write(bytes)
+			utilities.RespondWithError(rw, bstServerModels.ErrorApiProfileDbWrite)
 			return
 		}
 
 		profile, errs = apiDb.RetrieveProfile(user)
 		if utilities.PrintErrors("failed to retrieve profile:", errs) {
-			status := utilities.WriteStatus("bad", "cache_err")
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusInternalServerError)
-			_, _ = rw.Write(bytes)
+			utilities.RespondWithError(rw, bstServerModels.ErrorApiProfileDbRead)
 			return
 		}
 	}
@@ -137,31 +124,21 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 
 	user, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := utilities.WriteStatus("bad", "jwt_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bstServerModels.ErrorJwtProfile)
 		return
 	}
 
 	data := UpdateableData{}
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		glog.Warningf("unable to decode body: %s", err.Error())
-		status := utilities.WriteStatus("bad", "invalid_data")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bstServerModels.ErrorJsonDecode)
 		return
 	}
 
 	apiDb := db.GetApiDb()
 	profile, errs := apiDb.RetrieveProfile(user)
 	if utilities.PrintErrors("failed to retrieve profile:", errs) {
-		status := utilities.WriteStatus("bad", "bst_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bstServerModels.ErrorApiProfileDbRead)
 		return
 	}
 	if len(profile.User) == 0 {
@@ -176,10 +153,7 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 
 	errs = apiDb.SetProfile(profile)
 	if utilities.PrintErrors("failed to set profile:", errs) {
-		status := utilities.WriteStatus("bad", "bst_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bstServerModels.ErrorApiProfileDbWrite)
 		return
 	}
 

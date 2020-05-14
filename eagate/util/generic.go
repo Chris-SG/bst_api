@@ -2,7 +2,7 @@ package util
 
 import (
 	"bytes"
-	"fmt"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
 	"io/ioutil"
 	"net/http"
@@ -20,8 +20,8 @@ import (
 func IsMaintenanceMode(client EaClient) bool {
 	glog.Infof("checking maintenancemode for user %s\n", client.GetUsername())
 	doc, err := GetPageContentAsGoQuery(client.Client, "https://p.eagate.573.jp/game/")
-	if err != nil {
-		glog.Warningf("failed to get page content for maintenancemode: %s\n", err.Error())
+	if !err.Equals(bst_models.ErrorOK) {
+		glog.Warningf("failed to get page content for maintenancemode: %s\n", err.Message)
 		return true
 	}
 	html, _ := doc.Html()
@@ -100,7 +100,7 @@ func SetStructValues(structType reflect.Type, structValue reflect.Value, data ma
 
 // TableThTd will attempt to separate th/td fields of a table
 // into key:value pairs.
-func TableThTd(selection *goquery.Selection) (map[string]string, error) {
+func TableThTd(selection *goquery.Selection) (map[string]string, bst_models.Error) {
 	if selection.Is("table") {
 		results := make(map[string]string)
 		tableValues := selection.Find("th, td")
@@ -122,19 +122,19 @@ func TableThTd(selection *goquery.Selection) (map[string]string, error) {
 				td = ""
 			}
 		}
-		return results, nil
+		return results, bst_models.ErrorOK
 	}
 	glog.Warningln("attempted table selection on type that is not table")
-	return make(map[string]string), fmt.Errorf("query selection is not of type table")
+	return make(map[string]string), bst_models.ErrorGormSelector
 }
 
-func GetPageContentAsGoQuery(client *http.Client, resource string) (*goquery.Document, error) {
+func GetPageContentAsGoQuery(client *http.Client, resource string) (*goquery.Document, bst_models.Error) {
 	glog.Infof("retrieving resource %s\n", resource)
 	res, err := client.Get(resource)
 
 	if err != nil {
 		glog.Errorf("failed to get resource %s: %s\n", resource, err.Error())
-		return nil, err
+		return nil, bst_models.ErrorBadRequest
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
@@ -146,7 +146,12 @@ func GetPageContentAsGoQuery(client *http.Client, resource string) (*goquery.Doc
 		}
 	}
 
-	return goquery.NewDocumentFromReader(bytes.NewReader(body))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
+	if err != nil {
+		glog.Errorf("failed to create document from reader for %s", resource)
+		return doc, bst_models.ErrorGormDocument
+	}
+	return doc, bst_models.ErrorOK
 }
 
 func BuildEaURI(resource string) string {

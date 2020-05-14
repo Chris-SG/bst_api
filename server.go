@@ -2,13 +2,13 @@ package main
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"github.com/chris-sg/bst_api/common"
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/ddr"
 	"github.com/chris-sg/bst_api/drs"
 	"github.com/chris-sg/bst_api/utilities"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
@@ -89,10 +89,7 @@ func RunDbMigration(rw http.ResponseWriter, r *http.Request) {
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := utilities.WriteStatus("bad", "jwt_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorJwtProfile)
 		return
 	}
 	val = strings.ToLower(val)
@@ -101,18 +98,12 @@ func RunDbMigration(rw http.ResponseWriter, r *http.Request) {
 			"user %s tried to migrate db, but did not have required scopes %s",
 			val,
 			strings.Join(requiredScopes, ","))
-		status := utilities.WriteStatus("bad", "scope_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorScope)
 		return
 	}
 
 	db.GetMigrator().Create()
 
-	status := utilities.WriteStatus("ok", "migrated")
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusOK)
-	_, _ = rw.Write(bytes)
+	utilities.RespondWithError(rw, bst_models.ErrorOK)
 	return
 }

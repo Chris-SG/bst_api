@@ -19,12 +19,9 @@ import (
 // database. This may produce multiple relations in the case a user
 // has linked multiple accounts. Any stored cookies will be nullified.
 func LoginGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+	users, err := TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
@@ -36,8 +33,8 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 			Expired:  users[i].Expiration < time.Now().UnixNano()/1000,
 		}
 		if !eagateUser.Expired {
-			client, _, err := CreateClientForUser(users[i])
-			if err != nil || !client.LoginState() {
+			client, err := CreateClientForUser(users[i])
+			if !err.Equals(bst_models.ErrorOK) || !client.LoginState() {
 				fmt.Println(err)
 				eagateUser.Expired = true
 			}
@@ -45,12 +42,10 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 		eagateUsers = append(eagateUsers, eagateUser)
 	}
 
-	bytes, err := json.Marshal(eagateUsers)
-	if err != nil {
-		status := utilities.WriteStatus("bad", "marshal_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write(bytes)
+	bytes, e := json.Marshal(eagateUsers)
+	if e != nil {
+		glog.Warning(e)
+		utilities.RespondWithError(rw, bst_models.ErrorJsonEncode)
 		return
 	}
 
@@ -66,32 +61,23 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := utilities.WriteStatus("bad", "jwt_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorJwtProfile)
 		return
 	}
 	val = strings.ToLower(val)
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		glog.Errorf("%s\n", err.Error())
-		status := utilities.WriteStatus("bad", "bad_api_req")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+	body, e := ioutil.ReadAll(r.Body)
+	if e != nil {
+		glog.Errorf("%s\n", e.Error())
+		utilities.RespondWithError(rw, bst_models.ErrorBadBody)
 		return
 	}
 
 	loginRequest := bst_models.LoginRequest{}
-	err = json.Unmarshal(body, &loginRequest)
-	if err != nil {
-		glog.Warningf("failed to decode login request for %s: %s\n", loginRequest.Username, err.Error())
-		status := utilities.WriteStatus("bad", "unmarshal_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+	e = json.Unmarshal(body, &loginRequest)
+	if e != nil {
+		glog.Warningf("failed to decode login request for %s: %s\n", loginRequest.Username, e.Error())
+		utilities.RespondWithError(rw, bst_models.ErrorJsonDecode)
 		return
 	}
 
@@ -99,35 +85,23 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 	client := util.GenerateClient()
 
 	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, loginRequest.OneTimePassword, client)
-	if err != nil {
-		status := utilities.WriteStatus("bad", "bad_cookie")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	errs := db.GetUserDb().SetCookieForUser(loginRequest.Username, cookie)
-	if len(errs) > 0 {
-		status := utilities.WriteErrorStatus(errs)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+	if utilities.PrintErrors("could not set cookie for user", errs) {
+		utilities.RespondWithError(rw, bst_models.ErrorWriteCookie)
 		return
 	}
 	errs = db.GetUserDb().SetWebUserForEaUser(loginRequest.Username, val)
-	if len(errs) > 0 {
-		status := utilities.WriteErrorStatus(errs)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+	if utilities.PrintErrors("could not set web user for ea user", errs) {
+		utilities.RespondWithError(rw, bst_models.ErrorWriteWebUser)
 		return
 	}
 
-	status := utilities.WriteStatus("ok", "loaded cookie for user")
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusOK)
-	rw.Write(bytes)
+	utilities.RespondWithError(rw, bst_models.ErrorOK)
 	return
 }
 
@@ -136,62 +110,41 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 
 	val, ok := tokenMap["sub"].(string)
 	if !ok {
-		status := utilities.WriteStatus("bad", "jwt_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorJwtProfile)
 		return
 	}
 	val = strings.ToLower(val)
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		status := utilities.WriteStatus("bad", "bad_api_req")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorBadBody)
 		return
 	}
 
 	logoutRequest := bst_models.LogoutRequest{}
 	err = json.Unmarshal(body, &logoutRequest)
 	if err != nil {
-		status := utilities.WriteStatus("bad", "unmarshal_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorJsonDecode)
 		return
 	}
 
 	user, errs := db.GetUserDb().RetrieveUserByUserId(logoutRequest.Username)
 	if len(errs) > 0 {
-		status := utilities.WriteErrorStatus(errs)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorReadWebUser)
 		return
 	}
 
 	if user.WebUser == val {
 		errs := db.GetUserDb().SetWebUserForEaUser(user.Name, "")
 		if len(errs) > 0 {
-			status := utilities.WriteErrorStatus(errs)
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write(bytes)
+			utilities.RespondWithError(rw, bst_models.ErrorWriteWebUser)
 			return
 		}
 
-		status := utilities.WriteStatus("ok", "user unlinked")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusOK)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorOK)
 		return
 	}
 
-	status := utilities.WriteStatus("bad", "no_user")
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusUnauthorized)
-	rw.Write(bytes)
+	utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
 	return
 }

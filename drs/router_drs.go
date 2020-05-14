@@ -5,6 +5,7 @@ import (
 	"github.com/chris-sg/bst_api/common"
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/utilities"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"net/http"
@@ -33,65 +34,46 @@ func CreateDrsRouter() *mux.Router {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	for _, user := range users {
-		client, errMsg, err := common.CreateClientForUser(user)
-		if err != nil {
-			status := utilities.WriteStatus("bad", errMsg)
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusUnauthorized)
-			rw.Write(bytes)
+		client, err := common.CreateClientForUser(user)
+		if !err.Equals(bst_models.ErrorOK) {
+			utilities.RespondWithError(rw, err)
 			return
 		}
 
 		err = refreshDrsUser(client)
-		if err != nil {
-			status := utilities.WriteStatus("bad", err.Error())
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusInternalServerError)
-			rw.Write(bytes)
+		if !err.Equals(bst_models.ErrorOK) {
+			utilities.RespondWithError(rw, err)
 			return
 		}
 	}
 
-	status := utilities.WriteStatus("ok", "profile refreshed")
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusOK)
-	rw.Write(bytes)
+	utilities.RespondWithError(rw, bst_models.ErrorOK)
+	return
 }
 
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func DetailsGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
+
 	if len(users) == 0 {
-		status := utilities.WriteStatus("bad", "drs_nouser")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
 		return
 	}
 	details, err := retrieveDrsPlayerDetails(users[0].Name)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
@@ -104,36 +86,24 @@ func DetailsGet(rw http.ResponseWriter, r *http.Request) {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func SongStatsGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 	if len(users) == 0 {
-		status := utilities.WriteStatus("bad", "drs_nouser")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
 		return
 	}
 	details, err := retrieveDrsPlayerDetails(users[0].Name)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	stats, err := retrieveDrsSongStats(details.Code)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
@@ -146,36 +116,25 @@ func SongStatsGet(rw http.ResponseWriter, r *http.Request) {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func TableDataGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
+
 	if len(users) == 0 {
-		status := utilities.WriteStatus("bad", "drs_nouser")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
 		return
 	}
 	details, err := retrieveDrsPlayerDetails(users[0].Name)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	tableData, errs := db.GetDrsDb().RetrieveDataForTable(details.Code)
 	if utilities.PrintErrors("failed to retrieve user:", errs) {
-		status := utilities.WriteStatus("bad", "drs_rettbl_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDrsPlayerInfoDbRead)
 		return
 	}
 

@@ -1,10 +1,10 @@
 package ddr
 
 import (
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chris-sg/bst_api/eagate/util"
 	"github.com/chris-sg/bst_api/models/ddr_models"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
 	"regexp"
 	"strconv"
@@ -13,17 +13,18 @@ import (
 	"time"
 )
 
-func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.PlayerDetails, playcount ddr_models.Playcount, err error) {
+func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.PlayerDetails, playcount ddr_models.Playcount, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	document, err := playerInformationDocument(client)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 	playerDetails, err = playerInformationFromPlayerDocument(document)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 	playcount, err = playcountFromPlayerDocument(document)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 	eaGateUser := client.GetUsername()
@@ -32,19 +33,21 @@ func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.
 	return
 }
 
-func playerInformationFromPlayerDocument(document *goquery.Document) (playerDetails ddr_models.PlayerDetails, err error) {
+func playerInformationFromPlayerDocument(document *goquery.Document) (playerDetails ddr_models.PlayerDetails, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	status := document.Find("table#status").First()
 	if status == nil {
-		err = fmt.Errorf("cannot find status table")
+		err = bst_models.ErrorGormSelector
 		return
 	}
 	statusDetails, err := util.TableThTd(status)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 	playerDetails.Name = statusDetails["ダンサーネーム"]
-	code, err := strconv.ParseInt(statusDetails["DDR-CODE"], 10, 32)
-	if err != nil {
+	code, e := strconv.ParseInt(statusDetails["DDR-CODE"], 10, 32)
+	if e != nil {
+		err = bst_models.ErrorStringParse
 		return
 	}
 	playerDetails.Code = int(code)
@@ -56,81 +59,104 @@ func playerInformationFromPlayerDocument(document *goquery.Document) (playerDeta
 	return
 }
 
-func playcountFromPlayerDocument(document *goquery.Document) (playcount ddr_models.Playcount, err error) {
+func playcountFromPlayerDocument(document *goquery.Document) (playcount ddr_models.Playcount, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	status := document.Find("table#status").First()
 	if status == nil {
-		err = fmt.Errorf("cannot find status table")
+		glog.Warningf("failed to find document field")
+		err = bst_models.ErrorGormSelector
 		return
 	}
 	single := document.Find("div#single table.small_table").First()
 	if single == nil {
-		err = fmt.Errorf("cannot find single table")
+		glog.Warningf("failed to find document field")
+		err = bst_models.ErrorGormSelector
 		return
 	}
 	double := document.Find("div#double table.small_table").First()
 	if double == nil {
-		err = fmt.Errorf("cannot find double table")
+		glog.Warningf("failed to find document field")
+		err = bst_models.ErrorGormSelector
 		return
 	}
 
 	numericalStripper, _ := regexp.Compile("[^0-9]+")
 	timeFormat := "2006-01-02 15:04:05"
-	timeLocation, err := time.LoadLocation("Asia/Tokyo")
-	if err != nil {
+	timeLocation, e := time.LoadLocation("Asia/Tokyo")
+	if e != nil {
 		glog.Warningln("failed to load timezone location Asia/Tokyo")
+		err = bst_models.ErrorTimeLocLoad
 		return
 	}
 
 	statusDetails, err := util.TableThTd(status)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
+		glog.Warningf("failed to find document field")
 		return
 	}
 	singleDetails, err := util.TableThTd(single)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
+		glog.Warningf("failed to find document field")
 		return
 	}
 	doubleDetails, err := util.TableThTd(double)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
+		glog.Warningf("failed to find document field")
 		return
 	}
 
-	code, err := strconv.ParseInt(statusDetails["DDR-CODE"], 10, 32)
-	if err != nil {
+	code, e := strconv.ParseInt(statusDetails["DDR-CODE"], 10, 32)
+	if e != nil {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
 		return
 	}
 	playcount.PlayerCode = int(code)
 
-	playcount.Playcount, err = strconv.Atoi(numericalStripper.ReplaceAllString(statusDetails["総プレー回数"], ""))
-	if err != nil {
+	playcount.Playcount, e = strconv.Atoi(numericalStripper.ReplaceAllString(statusDetails["総プレー回数"], ""))
+	if e != nil {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
 		return
 	}
-	playcount.LastPlayDate, err = time.ParseInLocation(timeFormat, statusDetails["最終プレー日時"], timeLocation)
-	if err != nil {
-		return
-	}
-
-	playcount.SinglePlaycount, err = strconv.Atoi(numericalStripper.ReplaceAllString(singleDetails["プレー回数"], ""))
-	if err != nil {
-		return
-	}
-	playcount.SingleLastPlayDate, err = time.ParseInLocation(timeFormat, singleDetails["最終プレー日時"], timeLocation)
-	if err != nil {
+	playcount.LastPlayDate, e = time.ParseInLocation(timeFormat, statusDetails["最終プレー日時"], timeLocation)
+	if e != nil {
+		glog.Warningf("failed to parse time")
+		err = bst_models.ErrorTimeParse
 		return
 	}
 
-	playcount.DoublePlaycount, err = strconv.Atoi(numericalStripper.ReplaceAllString(doubleDetails["プレー回数"], ""))
-	if err != nil {
+	playcount.SinglePlaycount, e = strconv.Atoi(numericalStripper.ReplaceAllString(singleDetails["プレー回数"], ""))
+	if !err.Equals(bst_models.ErrorOK) {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
 		return
 	}
-	playcount.DoubleLastPlayDate, err = time.ParseInLocation(timeFormat, doubleDetails["最終プレー日時"], timeLocation)
-	if err != nil {
+	playcount.SingleLastPlayDate, e = time.ParseInLocation(timeFormat, singleDetails["最終プレー日時"], timeLocation)
+	if e != nil {
+		glog.Warningf("failed to parse time")
+		err = bst_models.ErrorTimeParse
+		return
+	}
+
+	playcount.DoublePlaycount, e = strconv.Atoi(numericalStripper.ReplaceAllString(doubleDetails["プレー回数"], ""))
+	if e != nil {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
+		return
+	}
+	playcount.DoubleLastPlayDate, e = time.ParseInLocation(timeFormat, doubleDetails["最終プレー日時"], timeLocation)
+	if e != nil {
+		glog.Warningf("failed to parse time")
+		err = bst_models.ErrorTimeParse
 		return
 	}
 
 	return
 }
 
-func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDifficulty, playerCode int) (songStatistics []ddr_models.SongStatistics, err error) {
+func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDifficulty, playerCode int) (songStatistics []ddr_models.SongStatistics, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	mtx := &sync.Mutex{}
 
 	wg := new(sync.WaitGroup)
@@ -142,13 +168,13 @@ func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDiffi
 		go func (diff ddr_models.SongDifficulty) {
 			defer wg.Done()
 			document, err := musicDetailDifficultyDocument(client, diff.SongId, ddr_models.StringToMode(diff.Mode), ddr_models.StringToDifficulty(diff.Difficulty))
-			if err != nil {
+			if !err.Equals(bst_models.ErrorOK) {
 				glog.Errorf("failed to load document for client %s: songid %s\n", client.GetUsername(), diff.SongId)
 				errCount++
 				return
 			}
 			statistics, err := chartStatisticsFromDocument(document, playerCode, diff)
-			if err != nil {
+			if !err.Equals(bst_models.ErrorOK) {
 				glog.Errorf("failed to load statistics for client %s: songid %s\n", client.GetUsername(), diff.SongId)
 				errCount++
 				return
@@ -167,7 +193,7 @@ func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDiffi
 
 	if errCount > 0 {
 		glog.Warningf("failed loading all statistic for %s:  %d of %d errors\n", client.GetUsername(), errCount, len(charts))
-		err = fmt.Errorf("failed to load %d of %d chart statistics", errCount, len(charts))
+		err = bst_models.ErrorDdrStats
 		return
 	}
 
@@ -175,40 +201,68 @@ func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDiffi
 	return
 }
 
-func chartStatisticsFromDocument(document *goquery.Document, playerCode int, difficulty ddr_models.SongDifficulty) (songStatistics ddr_models.SongStatistics, err error) {
+func chartStatisticsFromDocument(document *goquery.Document, playerCode int, difficulty ddr_models.SongDifficulty) (songStatistics ddr_models.SongStatistics, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	if strings.Contains(document.Find("div#popup_cnt").Text(), "NO PLAY") {
+		glog.Warningf("failed to find substring")
+		err = bst_models.ErrorStringSearch
 		return
 	}
 	if strings.Contains(document.Find("div#popup_cnt").Text(), "難易度を選択してください。") {
+		glog.Warningf("failed to find substring")
+		err = bst_models.ErrorStringSearch
 		return
 	}
 
 	statsTable := document.Find("table#music_detail_table").First()
 	if statsTable == nil {
-		err = fmt.Errorf("cannot find music_detail_table")
+		glog.Warningf("cannot find music_detail_table")
+		err = bst_models.ErrorGormSelector
 		return
 	}
 
 	timeFormat := "2006-01-02 15:04:05"
-	timeLocation, err := time.LoadLocation("Asia/Tokyo")
-	if err != nil {
+	timeLocation, e := time.LoadLocation("Asia/Tokyo")
+	if e != nil {
 		glog.Warningln("failed to load timezone location Asia/Tokyo")
+		err = bst_models.ErrorTimeLocLoad
 		return
 	}
 
 	details, err := util.TableThTd(statsTable)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
-	songStatistics.MaxCombo, err = strconv.Atoi(details["最大コンボ数"])
-	songStatistics.ClearCount, err = strconv.Atoi(details["クリア回数"])
-	songStatistics.PlayCount, err = strconv.Atoi(details["プレー回数"])
-	songStatistics.BestScore, err = strconv.Atoi(details["ハイスコア"])
+	songStatistics.MaxCombo, e = strconv.Atoi(details["最大コンボ数"])
+	if e != nil {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
+		return
+	}
+	songStatistics.ClearCount, e = strconv.Atoi(details["クリア回数"])
+	if e != nil {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
+		return
+	}
+	songStatistics.PlayCount, e = strconv.Atoi(details["プレー回数"])
+	if e != nil {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
+		return
+	}
+	songStatistics.BestScore, e = strconv.Atoi(details["ハイスコア"])
+	if e != nil {
+		glog.Warningf("failed to parse value")
+		err = bst_models.ErrorStringParse
+		return
+	}
 	songStatistics.Rank = details["ハイスコア時のダンスレベル"]
 	songStatistics.Lamp = details["フルコンボ種別"]
-	songStatistics.LastPlayed, err = time.ParseInLocation(timeFormat, details["最終プレー時間"], timeLocation)
-
-	if err != nil {
+	songStatistics.LastPlayed, e = time.ParseInLocation(timeFormat, details["最終プレー時間"], timeLocation)
+	if e != nil {
+		glog.Warningf("failed to parse time in location")
+		err = bst_models.ErrorTimeParse
 		return
 	}
 
@@ -220,9 +274,10 @@ func chartStatisticsFromDocument(document *goquery.Document, playerCode int, dif
 	return
 }
 
-func RecentScoresForClient(client util.EaClient, playerCode int) (scores []ddr_models.Score, err error) {
+func RecentScoresForClient(client util.EaClient, playerCode int) (scores []ddr_models.Score, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	document, err := recentScoresDocument(client)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 	scores, err = recentScoresFromDocument(document, playerCode)
@@ -230,10 +285,13 @@ func RecentScoresForClient(client util.EaClient, playerCode int) (scores []ddr_m
 }
 
 // TODO: error handling
-func recentScoresFromDocument(document *goquery.Document, playerCode int) (scores []ddr_models.Score, err error) {
+func recentScoresFromDocument(document *goquery.Document, playerCode int) (scores []ddr_models.Score, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	timeFormat := "2006-01-02 15:04:05"
-	timeLocation, err := time.LoadLocation("Asia/Tokyo")
-	if err != nil {
+	timeLocation, e := time.LoadLocation("Asia/Tokyo")
+	if e != nil {
+		glog.Warningln("failed to load timezone location Asia/Tokyo")
+		err = bst_models.ErrorTimeLocLoad
 		return
 	}
 
@@ -249,9 +307,10 @@ func recentScoresFromDocument(document *goquery.Document, playerCode int) (score
 		if !exists {
 			return
 		}
-		difficulty, err := strconv.Atoi(href[len(href)-1:])
-		if err != nil {
-			glog.Errorf("strconv failed: %s\n", err.Error())
+		difficulty, e := strconv.Atoi(href[len(href)-1:])
+		if e != nil {
+			glog.Warningf("failed to parse value")
+			err = bst_models.ErrorStringParse
 			return
 		}
 
@@ -265,8 +324,10 @@ func recentScoresFromDocument(document *goquery.Document, playerCode int) (score
 		score.Score, _ = strconv.Atoi(s.Find("td.score").First().Text())
 
 		timeSelection := s.Find("td.date").First()
-		t, err := time.ParseInLocation(timeFormat, timeSelection.Text(), timeLocation)
-		if err != nil {
+		t, e := time.ParseInLocation(timeFormat, timeSelection.Text(), timeLocation)
+		if e != nil {
+			glog.Warningf("failed to parse time in location")
+			err = bst_models.ErrorTimeParse
 			return
 		}
 		score.TimePlayed = t
@@ -286,28 +347,37 @@ func recentScoresFromDocument(document *goquery.Document, playerCode int) (score
 	return
 }
 
-func WorkoutDataForClient(client util.EaClient, playerCode int) (workoutData []ddr_models.WorkoutData, err error) {
+func WorkoutDataForClient(client util.EaClient, playerCode int) (workoutData []ddr_models.WorkoutData, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	document, err := workoutDocument(client)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 	workoutData, err = workoutDataFromDocument(document, playerCode)
 	return
 }
 
-func workoutDataFromDocument(document *goquery.Document, playerCode int) (workoutData []ddr_models.WorkoutData, err error) {
+func workoutDataFromDocument(document *goquery.Document, playerCode int) (workoutData []ddr_models.WorkoutData, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	format := "2006-01-02"
-	loc, err := time.LoadLocation("Asia/Tokyo")
+	loc, e := time.LoadLocation("Asia/Tokyo")
+	if e != nil {
+		glog.Warningln("failed to load timezone location Asia/Tokyo")
+		err = bst_models.ErrorTimeLocLoad
+		return
+	}
 
 	table := document.Find("table#work_out_left")
 	if table.Length() == 0 {
-		err = fmt.Errorf("could not find work_out_left")
+		glog.Warningf("failed to find field in document")
+		err = bst_models.ErrorGormSelector
 		return
 	}
 
 	tableBody := table.First().Find("tbody").First()
 	if tableBody == nil {
-		err = fmt.Errorf("could not find table body")
+		glog.Warningf("failed to find field in document")
+		err = bst_models.ErrorGormSelector
 		return
 	}
 
@@ -316,22 +386,22 @@ func workoutDataFromDocument(document *goquery.Document, playerCode int) (workou
 			wd := ddr_models.WorkoutData{}
 			s.Find("td").Each(func(i int, dataSelection *goquery.Selection) {
 				if i == 1 {
-					t, err := time.ParseInLocation(format, dataSelection.Text(), loc)
-					if err == nil {
+					t, e := time.ParseInLocation(format, dataSelection.Text(), loc)
+					if e == nil {
 						wd.Date = t
 					}
 				} else if i == 2 {
-					numerical, err := regexp.Compile("[^0-9]+")
-					if err != nil {
-						panic(err)
+					numerical, e := regexp.Compile("[^0-9]+")
+					if e == nil {
+						panic(e)
 					}
 					numericStr := numerical.ReplaceAllString(dataSelection.Text(), "")
 					wd.PlayCount, _ = strconv.Atoi(numericStr)
 				} else if i == 3 {
-					numerical, err := regexp.Compile("[^0-9.]+")
-					if err != nil {
-						glog.Errorf("regex failure! %s\n", err.Error())
-						panic(err)
+					numerical, e := regexp.Compile("[^0-9.]+")
+					if e != nil {
+						glog.Errorf("regex failure! %s\n", e.Error())
+						panic(e)
 					}
 					numericStr := numerical.ReplaceAllString(dataSelection.Text(), "")
 					kcalFloat, err := strconv.ParseFloat(numericStr, 32)

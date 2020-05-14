@@ -2,8 +2,8 @@ package ddr
 
 import (
 	"encoding/base64"
-	"fmt"
 	"github.com/chris-sg/bst_api/models/ddr_models"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
 	"io/ioutil"
 	"net/http"
@@ -16,11 +16,12 @@ import (
 	"github.com/chris-sg/bst_api/eagate/util"
 )
 
-func SongIdsForClient(client util.EaClient) (songIds []string, err error) {
+func SongIdsForClient(client util.EaClient) (songIds []string, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	mtx := &sync.Mutex{}
 
 	musicDataDoc, err := musicDataSingleDocument(client, 0)
-	if err != nil {
+	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
 	pageCount := pageCountFromMusicDataDocument(musicDataDoc)
@@ -35,9 +36,9 @@ func SongIdsForClient(client util.EaClient) (songIds []string, err error) {
 			defer wg.Done()
 
 			musicDataDoc, err := musicDataSingleDocument(client, page)
-			if err != nil {
+			if !err.Equals(bst_models.ErrorOK) {
 				errCount++
-				glog.Errorf("failed to load musicDataSingleDocument for user %s page %d: %s\n", client.GetUsername(), page, err.Error())
+				glog.Errorf("failed to load musicDataSingleDocument for user %s page %d: %s\n", client.GetUsername(), page, err.Message)
 				return
 			}
 
@@ -53,7 +54,7 @@ func SongIdsForClient(client util.EaClient) (songIds []string, err error) {
 	glog.Infof("loaded %d song ids on user %s\n", len(songIds), client.GetUsername())
 
 	if errCount != 0 {
-		err = fmt.Errorf("failed to load %d/%d pages", errCount, pageCount)
+		err = bst_models.ErrorDdrSongIds
 	}
 
 	return
@@ -77,7 +78,8 @@ func pageCountFromMusicDataDocument(document *goquery.Document) (pageCount int) 
 	return
 }
 
-func SongDataForClient(client util.EaClient, songIds []string) (songs []ddr_models.Song, err error) {
+func SongDataForClient(client util.EaClient, songIds []string) (songs []ddr_models.Song, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	mtx := &sync.Mutex{}
 
 	wg := new(sync.WaitGroup)
@@ -89,8 +91,8 @@ func SongDataForClient(client util.EaClient, songIds []string) (songs []ddr_mode
 		go func(songId string) {
 			defer wg.Done()
 			document, err := musicDetailDocument(client, songId)
-			if err != nil {
-				glog.Errorf("failed to get document for song id %s: %s", songId, err.Error())
+			if !err.Equals(bst_models.ErrorOK) {
+				glog.Errorf("failed to get document for song id %s: %s", songId, err.Message)
 				errCount++
 				return
 			}
@@ -107,7 +109,7 @@ func SongDataForClient(client util.EaClient, songIds []string) (songs []ddr_mode
 
 	if errCount > 0 {
 		glog.Warningf("failed %d/%d song ids for song data (user %s)\n", errCount, len(songIds), client.GetUsername())
-		err = fmt.Errorf("failed to load data for %d/%d songs", errCount, len(songIds))
+		err = bst_models.ErrorDdrSongData
 	}
 
 	return
@@ -140,7 +142,8 @@ func songDataFromDocument(document *goquery.Document, songId string) (song ddr_m
 	return
 }
 
-func SongDifficultiesForClient(client util.EaClient, songIds []string) (difficulties []ddr_models.SongDifficulty, err error) {
+func SongDifficultiesForClient(client util.EaClient, songIds []string) (difficulties []ddr_models.SongDifficulty, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	mtx := &sync.Mutex{}
 
 	wg := new(sync.WaitGroup)
@@ -152,8 +155,8 @@ func SongDifficultiesForClient(client util.EaClient, songIds []string) (difficul
 		go func(songId string) {
 			defer wg.Done()
 			document, err := musicDetailDocument(client, songId)
-			if err != nil {
-				glog.Errorf("failed to get document for song id %s: %s", songId, err.Error())
+			if !err.Equals(bst_models.ErrorOK) {
+				glog.Errorf("failed to get document for song id %s: %s", songId, err.Message)
 				errCount++
 				return
 			}
@@ -170,7 +173,7 @@ func SongDifficultiesForClient(client util.EaClient, songIds []string) (difficul
 
 	if errCount > 0 {
 		glog.Warningf("failed %d/%d song ids for song data (user %s)\n", errCount, len(songIds), client.GetUsername())
-		err = fmt.Errorf("failed to load data for %d/%d  songs", errCount, len(songIds))
+		err = bst_models.ErrorDdrSongDifficulties
 	}
 
 	return

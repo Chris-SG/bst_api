@@ -1,33 +1,22 @@
 package utilities
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/eagate/util"
 	"github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
+	"net/http"
 	"reflect"
 	"strings"
 )
 
-// WriteStatus will create a status struct.
-func WriteStatus(status string, message string) bst_models.Status {
-	return bst_models.Status{
-		Status:  status,
-		Message: message,
-	}
-}
-
-func WriteErrorStatus(errs []error) bst_models.ErrorStatus {
-
-	status := bst_models.ErrorStatus {
-		Status: "bad",
-		ErrorMessages: make([]string, 0),
-	}
-	for _, err := range errs {
-		status.ErrorMessages = append(status.ErrorMessages, err.Error())
-	}
-	return status
+func RespondWithError(rw http.ResponseWriter, err bst_models.Error) {
+	bytes, _ := json.Marshal(err)
+	rw.WriteHeader(err.CorrespondingHttpCode)
+	_, _ = rw.Write(bytes)
+	return
 }
 
 // ValidateOrdering will ensure columns in orderRequest are correct for the

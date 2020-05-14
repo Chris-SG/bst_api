@@ -4,11 +4,13 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chris-sg/bst_api/eagate/util"
 	"github.com/chris-sg/bst_api/models/ddr_models"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"strconv"
 	"strings"
 )
 
-func musicDataSingleDocument(client util.EaClient, pageNumber int) (document *goquery.Document, err error) {
+func musicDataSingleDocument(client util.EaClient, pageNumber int) (document *goquery.Document, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	const musicDataSingleResource = "/game/ddr/ddra20/p/playdata/music_data_single.html?offset={page}&filter=0&filtertype=0&sorttype=0"
 	musicDataURI := util.BuildEaURI(musicDataSingleResource)
 
@@ -17,7 +19,8 @@ func musicDataSingleDocument(client util.EaClient, pageNumber int) (document *go
 	return
 }
 
-func musicDetailDocument(client util.EaClient, songId string) (document *goquery.Document, err error) {
+func musicDetailDocument(client util.EaClient, songId string) (document *goquery.Document, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	const baseDetail = "/game/ddr/ddra20/p/playdata/music_detail.html?index="
 	musicDetailURI := util.BuildEaURI(baseDetail)
 
@@ -26,7 +29,8 @@ func musicDetailDocument(client util.EaClient, songId string) (document *goquery
 	return
 }
 
-func musicDetailDifficultyDocument(client util.EaClient, songId string, mode ddr_models.Mode, difficulty ddr_models.Difficulty) (document *goquery.Document, err error) {
+func musicDetailDifficultyDocument(client util.EaClient, songId string, mode ddr_models.Mode, difficulty ddr_models.Difficulty) (document *goquery.Document, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	const baseDetail = "/game/ddr/ddra20/p/playdata/music_detail.html?index={id}&diff={diff}"
 	musicDetailURI := util.BuildEaURI(baseDetail)
 
@@ -41,7 +45,8 @@ func musicDetailDifficultyDocument(client util.EaClient, songId string, mode ddr
 	return
 }
 
-func playerInformationDocument(client util.EaClient) (document *goquery.Document, err error) {
+func playerInformationDocument(client util.EaClient) (document *goquery.Document, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	const playerInformationResource = "/game/ddr/ddra20/p/playdata/index.html"
 	playerInformationUri := util.BuildEaURI(playerInformationResource)
 
@@ -49,7 +54,8 @@ func playerInformationDocument(client util.EaClient) (document *goquery.Document
 	return
 }
 
-func recentScoresDocument(client util.EaClient) (document *goquery.Document, err error) {
+func recentScoresDocument(client util.EaClient) (document *goquery.Document, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	const recentSongsResource = "/game/ddr/ddra20/p/playdata/music_recent.html"
 	recentSongsUri := util.BuildEaURI(recentSongsResource)
 
@@ -57,7 +63,8 @@ func recentScoresDocument(client util.EaClient) (document *goquery.Document, err
 	return
 }
 
-func workoutDocument(client util.EaClient) (document *goquery.Document, err error) {
+func workoutDocument(client util.EaClient) (document *goquery.Document, err bst_models.Error) {
+	err = bst_models.ErrorOK
 	const workoutResource = "/game/ddr/ddra20/p/playdata/workout.html"
 	workoutUri := util.BuildEaURI(workoutResource)
 

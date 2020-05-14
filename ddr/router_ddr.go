@@ -8,6 +8,7 @@ import (
 	"github.com/chris-sg/bst_api/eagate/ddr"
 	"github.com/chris-sg/bst_api/models/ddr_models"
 	"github.com/chris-sg/bst_api/utilities"
+	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"io/ioutil"
@@ -58,59 +59,42 @@ func CreateDdrRouter() *mux.Router {
 // difficulties in the database for the user. This is an expensive
 // operation and should be used sparingly.
 func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	for _, user := range users {
-		client, errMsg, err := common.CreateClientForUser(user)
-		if err != nil {
-			status := utilities.WriteStatus("bad", errMsg)
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusUnauthorized)
-			_, _ = rw.Write(bytes)
+		client, err := common.CreateClientForUser(user)
+		if !err.Equals(bst_models.ErrorOK) {
+			utilities.RespondWithError(rw, err)
 			return
 		}
 
-		errMsg, err = refreshDdrUser(client)
-		if err != nil {
-			status := utilities.WriteStatus("bad", errMsg)
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusInternalServerError)
-			_, _ = rw.Write(bytes)
+		err = refreshDdrUser(client)
+		if !err.Equals(bst_models.ErrorOK) {
+			utilities.RespondWithError(rw, err)
 			return
 		}
 	}
 
-	status := utilities.WriteStatus("ok", "profile refreshed")
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusOK)
-	_, _ = rw.Write(bytes)
+	utilities.RespondWithError(rw, err)
 	return
 }
 
 // ProfileGet will retrieve formatted profile details for
 // the current user.
 func ProfileGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
+
 	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_retpi_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
 	}
 	today := time.Now()
@@ -120,10 +104,7 @@ func ProfileGet(rw http.ResponseWriter, r *http.Request) {
 	startDate := endDate.AddDate(0, -1, 0)
 	wd, errs := db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, startDate, endDate)
 	if utilities.PrintErrors("failed to retrieve playcounts:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_retwd_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrStatsDbRead)
 		return
 	}
 
@@ -146,20 +127,15 @@ func ProfileGet(rw http.ResponseWriter, r *http.Request) {
 }
 
 func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
+
 	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_retpi_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
 	}
 	query := r.URL.Query()
@@ -168,46 +144,30 @@ func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
 
 	startDateString := query.Get("start")
 	if len(startDateString) == 0 {
-		status := utilities.WriteStatus("bad","missing start param")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorBadQuery)
 		return
 	}
 
 	endDateString := query.Get("end")
 	if len(startDateString) == 0 {
-		status := utilities.WriteStatus("bad","missing end param")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorBadQuery)
 		return
 	}
 
-	start, err := time.ParseInLocation("2006-01-02", startDateString, tz)
-	if err != nil {
-		status := utilities.WriteStatus("bad","start must be in format: YYYY-MM-DD")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
-		return
+	start, e := time.ParseInLocation("2006-01-02", startDateString, tz)
+	if e != nil {
+		utilities.RespondWithError(rw, bst_models.ErrorTimeParse)
 	}
 
-	end, err := time.ParseInLocation("2006-01-02", endDateString, tz)
-	if err != nil {
-		status := utilities.WriteStatus("bad","start must be in format: YYYY-MM-DD")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+	end, e := time.ParseInLocation("2006-01-02", endDateString, tz)
+	if e != nil {
+		utilities.RespondWithError(rw, bst_models.ErrorTimeParse)
 		return
 	}
 
 	workoutData, errs := db.GetDdrDb().RetrieveWorkoutDataByPlayerCodeInDateRange(playerDetails.Code, start, end)
 	if utilities.PrintErrors("could not retrieve workout data:", errs) {
-		status := utilities.WriteStatus("bad","ddr_retwd_err")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrStatsDbRead)
 		return
 	}
 
@@ -223,39 +183,27 @@ func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
 // difficulty details will be updated for the user. This should
 // be used in favour of ProfileRefreshPatch where possible.
 func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	for _, user := range users {
-		client, errMsg, err := common.CreateClientForUser(user)
-		if err != nil {
-			status := utilities.WriteStatus("bad", errMsg)
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusUnauthorized)
-			_, _ = rw.Write(bytes)
+		client, err := common.CreateClientForUser(user)
+		if !err.Equals(bst_models.ErrorOK) {
+			utilities.RespondWithError(rw, err)
 			return
 		}
 
-		errMsg, err = updatePlayerProfile(user, client)
-		if err != nil {
-			status := utilities.WriteStatus("bad", errMsg)
-			bytes, _ := json.Marshal(status)
-			rw.WriteHeader(http.StatusUnauthorized)
-			_, _ = rw.Write(bytes)
+		err = updatePlayerProfile(user, client)
+		if !err.Equals(bst_models.ErrorOK) {
+			utilities.RespondWithError(rw, err)
 			return
 		}
 	}
 
-	status := utilities.WriteStatus("ok", "profile updated")
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusOK)
-	_, _ = rw.Write(bytes)
+	utilities.RespondWithError(rw, bst_models.ErrorOK)
 	return
 }
 
@@ -265,10 +213,7 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 func SongsGet(rw http.ResponseWriter, r *http.Request) {
 	songIds, errs := db.GetDdrDb().RetrieveSongIds()
 	if utilities.PrintErrors("failed to retrieve song ids from db:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_songid_db_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrSongIdsDbRead)
 		return
 	}
 
@@ -278,19 +223,13 @@ func SongsGet(rw http.ResponseWriter, r *http.Request) {
 	songs, errs = db.GetDdrDb().RetrieveSongsById(songIds, query["ordering"])
 
 	if utilities.PrintErrors("failed to retrieve songs by id:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_retsong_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDataDbRead)
 		return
 	}
 
 	bytes, err := json.Marshal(songs)
 	if err != nil {
-		status := utilities.WriteStatus("bad", "ddr_retsong_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorJsonEncode)
 		return
 	}
 
@@ -305,169 +244,119 @@ func SongsGet(rw http.ResponseWriter, r *http.Request) {
 // TODO: if this fails after adding the songs to the database, new
 // difficulties will be missing with no current recovery method.
 func SongsPatch(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	client, errMsg, err := common.CreateClientForUser(users[0])
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	client, err := common.CreateClientForUser(users[0])
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	newSongs, errMsg, err := checkForNewSongs(client)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	newSongs, err := checkForNewSongs(client)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	songData, err := ddr.SongDataForClient(client, newSongs)
-	if err != nil {
-		status := utilities.WriteStatus("bad", "ddr_songdata_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
+
 	errs := db.GetDdrDb().AddSongs(songData)
 	if utilities.PrintErrors("failed to add songs to db:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_addsong_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDataDbWrite)
 		return
 	}
 
 	songDifficulties, err := ddr.SongDifficultiesForClient(client, newSongs)
-	if err != nil {
-		status := utilities.WriteStatus("bad", "ddr_retdiff_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
-		return
-	}
-	errs = db.GetDdrDb().AddDifficulties(songDifficulties)
-	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_adddiff_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	status := utilities.WriteStatus("ok", fmt.Sprintf("added %d new songs (%d new difficulties)", len(newSongs), len(songDifficulties)))
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusOK)
-	_, _ = rw.Write(bytes)
+	errs = db.GetDdrDb().AddDifficulties(songDifficulties)
+	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDifficultiesDbWrite)
+		return
+	}
+
+	utilities.RespondWithError(rw, bst_models.ErrorOK)
 	return
 }
 
 func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	client, errMsg, err := common.CreateClientForUser(users[0])
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	client, err := common.CreateClientForUser(users[0])
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	songIds, err := ddr.SongIdsForClient(client)
-	if err != nil {
-		status := utilities.WriteStatus("bad", "err_songid_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	songData, err := ddr.SongDataForClient(client, songIds)
-	if err != nil {
-		status := utilities.WriteStatus("bad", "err_songdata_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
+
 	errs := db.GetDdrDb().AddSongs(songData)
 	if utilities.PrintErrors("failed to add songs to db:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_addsong_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDataDbWrite)
 		return
 	}
 
 	songDifficulties, err := ddr.SongDifficultiesForClient(client, songIds)
-	if err != nil {
-		status := utilities.WriteStatus("bad", "ddr_diff_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
-		return
-	}
-	errs = db.GetDdrDb().AddDifficulties(songDifficulties)
-	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_adddiff_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	status := utilities.WriteStatus("ok", fmt.Sprintf("added %d new songs (%d new difficulties)", len(songIds), len(songDifficulties)))
-	bytes, _ := json.Marshal(status)
-	rw.WriteHeader(http.StatusOK)
-	_, _ = rw.Write(bytes)
+	errs = db.GetDdrDb().AddDifficulties(songDifficulties)
+	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDifficultiesDbWrite)
+		return
+	}
+
+	utilities.RespondWithError(rw, bst_models.ErrorOK)
 	return
 }
 
 // SongScoresGet will retrieve score details for the user defined
 // within the request JWT.
 func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
-		status := utilities.WriteStatus("bad", "no_user")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, e := ioutil.ReadAll(r.Body)
 	ids := make([]string, 0)
-	if err == nil {
+	if e == nil {
 		var jsonMap map[string]interface{}
-		err = json.Unmarshal(body, &jsonMap)
+		e = json.Unmarshal(body, &jsonMap)
 
 		if jsonMap["ids"] != nil {
 			interfaceIds := jsonMap["ids"].([]interface{})
@@ -481,10 +370,7 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 	scores, errs = db.GetDdrDb().RetrieveSongStatisticsByPlayerCode(ddrProfile.Code, ids)
 
 	if utilities.PrintErrors("failed to retrieve song statistics for player:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_retsongstat_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrStatsDbRead)
 		return
 	}
 
@@ -495,21 +381,15 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 }
 
 func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
-		status := utilities.WriteStatus("bad", "no_user")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
 	}
 
@@ -519,10 +399,7 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 	scores, errs = db.GetDdrDb().RetrieveSongScores(ddrProfile.Code, query.Get("id"), query.Get("mode"), query.Get("difficulty"), query["ordering"])
 
 	if utilities.PrintErrors("failed to retrieve scores details for user:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_retsongscore_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrStatsDbRead)
 		return
 	}
 
@@ -538,10 +415,7 @@ func SongJacketGet(rw http.ResponseWriter, r *http.Request) {
 	jacket, errs := db.GetDdrDb().RetrieveJacketForSongId(query.Get("id"))
 
 	if utilities.PrintErrors("failed to retrieve jacket:", errs) {
-		status := utilities.WriteStatus("bad", "ddr_retsongjack_fail")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDataDbRead)
 		return
 	}
 
@@ -554,28 +428,19 @@ func SongJacketGet(rw http.ResponseWriter, r *http.Request) {
 // SongScoresGet will retrieve score details for the user defined
 // within the request JWT.
 func SongsScoresExtendedGet(rw http.ResponseWriter, r *http.Request) {
-	users, errMsg, err := common.TryGetEagateUsers(r)
-	if err != nil {
-		status := utilities.WriteStatus("bad", errMsg)
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusUnauthorized)
-		_, _ = rw.Write(bytes)
+	users, err := common.TryGetEagateUsers(r)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
 		return
 	}
 
 	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
 	if utilities.PrintErrors("failed to retrieve player details:", errs) {
-		status := utilities.WriteStatus("bad", "no_user")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
 	}
 	if ddrProfile.Code == 0 {
-		status := utilities.WriteStatus("bad", "no_user")
-		bytes, _ := json.Marshal(status)
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write(bytes)
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
 	}
 
