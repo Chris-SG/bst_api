@@ -6,6 +6,7 @@ import (
 	"github.com/chris-sg/bst_api/common"
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/eagate/ddr"
+	"github.com/chris-sg/bst_api/eagate/user"
 	"github.com/chris-sg/bst_api/models/ddr_models"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
@@ -65,8 +66,8 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, user := range users {
-		client, err := common.CreateClientForUser(user)
+	for _, u := range users {
+		client, err := user.CreateClientForUser(u)
 		if !err.Equals(bst_models.ErrorOK) {
 			utilities.RespondWithError(rw, err)
 			return
@@ -189,14 +190,14 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, user := range users {
-		client, err := common.CreateClientForUser(user)
+	for _, u := range users {
+		client, err := user.CreateClientForUser(u)
 		if !err.Equals(bst_models.ErrorOK) {
 			utilities.RespondWithError(rw, err)
 			return
 		}
 
-		err = updatePlayerProfile(user, client)
+		err = updatePlayerProfile(u, client)
 		if !err.Equals(bst_models.ErrorOK) {
 			utilities.RespondWithError(rw, err)
 			return
@@ -250,7 +251,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := common.CreateClientForUser(users[0])
+	client, err := user.CreateClientForUser(users[0])
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
@@ -297,7 +298,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := common.CreateClientForUser(users[0])
+	client, err := user.CreateClientForUser(users[0])
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return

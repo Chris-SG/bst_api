@@ -17,6 +17,9 @@ type UserDbCommunication interface {
 	RetrieveUserByWebId(webUserId string) (user user_models.User, errs []error)
 	RetrieveUserCookieStringByUserId(userId string) (cookie string, errs []error)
 	SetWebUserForEaUser(userId string, webUserId string) (errs []error)
+	UpdateUser(user user_models.User) (errs []error)
+
+	RetrieveUsersForUpdate() (users []user_models.User, errs []error)
 }
 
 func CreateUserDbCommunicationPostgres(db *gorm.DB) UserDbCommunicationPostgres {
@@ -128,6 +131,24 @@ func (dbcomm UserDbCommunicationPostgres) SetWebUserForEaUser(userId string, web
 	eaGateUser.WebUser = webUserId
 	resultDb := dbcomm.db.Save(eaGateUser)
 
+	errors := resultDb.GetErrors()
+	if errors != nil && len(errors) != 0 {
+		errs = append(errs, errors...)
+	}
+	return
+}
+
+func (dbcomm UserDbCommunicationPostgres) RetrieveUsersForUpdate() (users []user_models.User, errs []error) {
+	resultDb := dbcomm.db.Model(&user_models.User{}).Where("login_cookie <> ?", "").Scan(&users)
+	errors := resultDb.GetErrors()
+	if errors != nil && len(errors) != 0 {
+		errs = append(errs, errors...)
+	}
+	return
+}
+
+func (dbcomm UserDbCommunicationPostgres) UpdateUser(user user_models.User) (errs []error) {
+	resultDb := dbcomm.db.Save(&user)
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
 		errs = append(errs, errors...)

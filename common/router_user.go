@@ -31,5 +31,8 @@ func CreateUserRouter() *mux.Router {
 	userRouter.Path("/logout").Handler(utilities.GetProtectionMiddleware().With(
 		negroni.Wrap(http.HandlerFunc(LogoutPost)))).Methods(http.MethodPost)
 
+	userRouter.Path("/forceupdate").Handler(utilities.GetProtectionMiddleware().With(
+		negroni.Wrap(http.HandlerFunc(ForceUpdatePost)))).Methods(http.MethodPost)
+
 	return userRouter
 }

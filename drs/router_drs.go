@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/chris-sg/bst_api/common"
 	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/eagate/user"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/gorilla/mux"
@@ -40,8 +41,8 @@ func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, user := range users {
-		client, err := common.CreateClientForUser(user)
+	for _, u := range users {
+		client, err := user.CreateClientForUser(u)
 		if !err.Equals(bst_models.ErrorOK) {
 			utilities.RespondWithError(rw, err)
 			return

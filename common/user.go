@@ -33,7 +33,7 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 			Expired:  users[i].Expiration < time.Now().UnixNano()/1000,
 		}
 		if !eagateUser.Expired {
-			client, err := CreateClientForUser(users[i])
+			client, err := user.CreateClientForUser(users[i])
 			if !err.Equals(bst_models.ErrorOK) || !client.LoginState() {
 				fmt.Println(err)
 				eagateUser.Expired = true
@@ -158,5 +158,30 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
+	return
+}
+
+func ForceUpdatePost(rw http.ResponseWriter, r *http.Request) {
+	requiredScopes := []string{"update:database"}
+	tokenMap := utilities.ProfileFromToken(r)
+
+	val, ok := tokenMap["sub"].(string)
+	if !ok {
+		utilities.RespondWithError(rw, bst_models.ErrorJwtProfile)
+		return
+	}
+	val = strings.ToLower(val)
+	if !utilities.UserHasScopes(val, requiredScopes) {
+		glog.Warningf(
+			"user %s tried to update users, but did not have required scopes %s",
+			val,
+			strings.Join(requiredScopes, ","))
+		utilities.RespondWithError(rw, bst_models.ErrorScope)
+		return
+	}
+
+	user.RunUpdatesOnAllEaUsers()
+
+	utilities.RespondWithError(rw, bst_models.ErrorOK)
 	return
 }
