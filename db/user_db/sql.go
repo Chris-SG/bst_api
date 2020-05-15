@@ -20,6 +20,7 @@ type UserDbCommunication interface {
 	UpdateUser(user user_models.User) (errs []error)
 
 	RetrieveUsersForUpdate() (users []user_models.User, errs []error)
+	RetrieveRandomHelper() (user user_models.User, errs []error)
 }
 
 func CreateUserDbCommunicationPostgres(db *gorm.DB) UserDbCommunicationPostgres {
@@ -149,6 +150,20 @@ func (dbcomm UserDbCommunicationPostgres) RetrieveUsersForUpdate() (users []user
 
 func (dbcomm UserDbCommunicationPostgres) UpdateUser(user user_models.User) (errs []error) {
 	resultDb := dbcomm.db.Save(&user)
+	errors := resultDb.GetErrors()
+	if errors != nil && len(errors) != 0 {
+		errs = append(errs, errors...)
+	}
+	return
+}
+
+func (dbcomm UserDbCommunicationPostgres) RetrieveRandomHelper() (user user_models.User, errs []error) {
+	resultDb := dbcomm.db.Model(&user_models.User{}).
+		Where("login_cookie <> ?", "").
+		Where("subscription in (?)", []string{"e-amusement ベーシックコース"}).
+		Order("rand()").
+		First(&user)
+
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
 		errs = append(errs, errors...)

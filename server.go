@@ -7,6 +7,7 @@ import (
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/ddr"
 	"github.com/chris-sg/bst_api/drs"
+	"github.com/chris-sg/bst_api/jobs"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
@@ -55,6 +56,7 @@ func main() {
 	}()
 
 	fmt.Println("api started")
+	jobs.StartJobs()
 	log.Fatal(srv.ListenAndServeTLS("", ""))
 }
 
