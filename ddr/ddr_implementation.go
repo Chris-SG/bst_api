@@ -189,7 +189,7 @@ func refreshDdrUser(client util.EaClient) (err bst_models.Error) {
 // recent scores and updating song statistics.
 // TODO: if the user has played more than 50 songs, this will not update
 // unknown song statistics. This can currently still be achieved manually.
-func updatePlayerProfile(user user_models.User, client util.EaClient) (err bst_models.Error) {
+func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_models.Error) {
 	err = bst_models.ErrorOK
 	glog.Infof("Updating player profile for %s\n", client.GetUsername())
 	if !client.LoginState() {

@@ -197,7 +197,7 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = updatePlayerProfile(u, client)
+		err = UpdatePlayerProfile(u, client)
 		if !err.Equals(bst_models.ErrorOK) {
 			utilities.RespondWithError(rw, err)
 			return

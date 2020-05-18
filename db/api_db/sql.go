@@ -13,6 +13,8 @@ type ApiDbCommunication interface {
 	SetProfile(profile bst_models.BstProfile) (errs []error)
 
 	RetrieveProfile(user string) (profile bst_models.BstProfile, errs []error)
+	RetrieveUpdateableProfiles() (profiles []bst_models.BstProfile, errs []error)
+
 }
 
 func CreateApiDbCommunicationPostgres(db *gorm.DB) ApiDbCommunicationPostgres {
@@ -50,6 +52,23 @@ func (dbcomm ApiDbCommunicationPostgres) RetrieveProfile(user string) (profile b
 
 	return
 }
+
+func (dbcomm ApiDbCommunicationPostgres) RetrieveUpdateableProfiles() (profiles []bst_models.BstProfile, errs []error) {
+	resultDb := dbcomm.db.Table("public.\"bstProfile\" p").
+		Joins("public.\"eaGateUser\" e on " +
+			"p.user_sub = e.web_user and" +
+			"e.login_cookie <> '' and" +
+			"e.subscription <> ''").
+		Scan(&profiles)
+
+	errors := resultDb.GetErrors()
+	if errors != nil && len(errors) != 0 {
+		errs = append(errs, errors...)
+	}
+	
+	return
+}
+
 
 // AddAutomaticJob will create a new job.
 func AddAutomaticJob(db *gorm.DB, job api_models.AutomaticJob) error {
