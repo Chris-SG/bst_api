@@ -55,7 +55,8 @@ func (dbcomm ApiDbCommunicationPostgres) RetrieveProfile(user string) (profile b
 
 func (dbcomm ApiDbCommunicationPostgres) RetrieveUpdateableProfiles() (profiles []bst_models.BstProfile, errs []error) {
 	resultDb := dbcomm.db.Table("public.\"bstProfile\" p").
-		Joins("public.\"eaGateUser\" e on " +
+		Select("p.*").
+		Joins("inner join public.\"eaGateUser\" e on " +
 			"p.user_sub = e.web_user and " +
 			"e.login_cookie <> '' and " +
 			"e.subscription <> ''").
