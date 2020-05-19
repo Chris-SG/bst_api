@@ -70,7 +70,7 @@ func getChecksums() map[string]string {
 
 // GetCookieFromEaGate will submit a request to login as the given
 // username with the provided password and optionally, otp.
-func GetCookieFromEaGate(username string, password string, otp string, client util.EaClient) (*http.Cookie, bst_models.Error) {
+func GetCookieFromEaGate(username string, password string, otp string, client util.EaClient) (bst_models.Error) {
 	glog.Infof("attempting to login user %s", username)
 	const eagateLoginAuthResource = "/gate/p/common/login/api/login_auth.html"
 
@@ -80,14 +80,14 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 	captchaData, err := LoadCaptchaData(client)
 	if !err.Equals(bst_models.ErrorOK) {
 		glog.Errorf("user %s failed loading captcha: %s", client.GetUsername(), err.Message)
-		return nil, err
+		return err
 	}
 
 	glog.Infof("solving captcha for user %s", client.GetUsername())
 	session, correct, err := SolveCaptcha(captchaData)
 	if !err.Equals(bst_models.ErrorOK) {
 		glog.Errorf("user %s failed solving captcha: %s", client.GetUsername(), err.Message)
-		return nil, err
+		return err
 	}
 
 	form := url.Values{}
@@ -100,25 +100,18 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 	}
 	form.Add("captcha", captchaResult)
 
-	res, e := client.Client.PostForm(eagateLoginAuthURI, form)
+	_, e := client.Client.PostForm(eagateLoginAuthURI, form)
 
 	if e != nil {
 		glog.Warningf("user %s failed login: %s", username, e.Error())
-		return nil, bst_models.ErrorClientRequest
+		return bst_models.ErrorClientRequest
 	}
 
 	if !client.LoginState() {
-		return nil, bst_models.ErrorLoginFailed
+		return bst_models.ErrorLoginFailed
 	}
 
-	cookies := res.Cookies()
-
-	if len(cookies) == 0 {
-		glog.Errorf("cookie was not generated for user %s", username)
-		return nil, bst_models.ErrorNoCookie
-	}
-
-	return cookies[0], bst_models.ErrorOK
+	return bst_models.ErrorOK
 }
 
 func LoadCaptchaData(client util.EaClient) (captchaData Captcha, err bst_models.Error) {

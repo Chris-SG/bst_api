@@ -67,17 +67,20 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, u := range users {
-		client, err := user.CreateClientForUser(u)
-		if !err.Equals(bst_models.ErrorOK) {
-			utilities.RespondWithError(rw, err)
-			return
-		}
+		func() {
+			client, err := user.CreateClientForUser(u)
+			defer client.UpdateCookie()
+			if !err.Equals(bst_models.ErrorOK) {
+				utilities.RespondWithError(rw, err)
+				return
+			}
 
-		err = refreshDdrUser(client)
-		if !err.Equals(bst_models.ErrorOK) {
-			utilities.RespondWithError(rw, err)
-			return
-		}
+			err = refreshDdrUser(client)
+			if !err.Equals(bst_models.ErrorOK) {
+				utilities.RespondWithError(rw, err)
+				return
+			}
+		}()
 	}
 
 	utilities.RespondWithError(rw, err)
@@ -191,15 +194,21 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, u := range users {
-		client, err := user.CreateClientForUser(u)
-		if !err.Equals(bst_models.ErrorOK) {
-			utilities.RespondWithError(rw, err)
-			return
-		}
+		if !func() bool {
+			client, err := user.CreateClientForUser(u)
+			defer client.UpdateCookie()
+			if !err.Equals(bst_models.ErrorOK) {
+				utilities.RespondWithError(rw, err)
+				return false
+			}
 
-		err = UpdatePlayerProfile(u, client)
-		if !err.Equals(bst_models.ErrorOK) {
-			utilities.RespondWithError(rw, err)
+			err = UpdatePlayerProfile(u, client)
+			if !err.Equals(bst_models.ErrorOK) {
+				utilities.RespondWithError(rw, err)
+				return false
+			}
+			return true
+		}() {
 			return
 		}
 	}
@@ -252,6 +261,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	client, err := user.CreateClientForUser(users[0])
+	defer client.UpdateCookie()
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
@@ -299,6 +309,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	client, err := user.CreateClientForUser(users[0])
+	defer client.UpdateCookie()
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return

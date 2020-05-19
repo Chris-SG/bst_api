@@ -33,11 +33,14 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 			Expired:  users[i].Expiration < time.Now().UnixNano()/1000,
 		}
 		if !eagateUser.Expired {
-			client, err := user.CreateClientForUser(users[i])
-			if !err.Equals(bst_models.ErrorOK) || !client.LoginState() {
-				fmt.Println(err)
-				eagateUser.Expired = true
-			}
+			func() {
+				client, err := user.CreateClientForUser(users[i])
+				defer client.UpdateCookie()
+				if !err.Equals(bst_models.ErrorOK) || !client.LoginState() {
+					fmt.Println(err)
+					eagateUser.Expired = true
+				}
+			}()
 		}
 		eagateUsers = append(eagateUsers, eagateUser)
 	}
@@ -83,8 +86,9 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 
 	glog.Infof("user %s attempting to login to eagate\n", loginRequest.Username)
 	client := util.GenerateClient()
+	defer client.UpdateCookie()
 
-	cookie, err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, loginRequest.OneTimePassword, client)
+	err := user.GetCookieFromEaGate(loginRequest.Username, loginRequest.Password, loginRequest.OneTimePassword, client)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
@@ -96,13 +100,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
-	errs := db.GetUserDb().SetCookieForUser(loginRequest.Username, cookie)
-	if utilities.PrintErrors("could not set cookie for user", errs) {
-		utilities.RespondWithError(rw, bst_models.ErrorWriteCookie)
-		return
-	}
-	errs = db.GetUserDb().SetSubscriptionForUser(loginRequest.Username, sub)
+	errs := db.GetUserDb().SetSubscriptionForUser(loginRequest.Username, sub)
 	if utilities.PrintErrors("could not set ea subscription for user", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorWriteWebUser)
 		return

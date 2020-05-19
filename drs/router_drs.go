@@ -42,15 +42,21 @@ func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, u := range users {
-		client, err := user.CreateClientForUser(u)
-		if !err.Equals(bst_models.ErrorOK) {
-			utilities.RespondWithError(rw, err)
-			return
-		}
+		if !func() bool {
+			client, err := user.CreateClientForUser(u)
+			defer client.UpdateCookie()
+			if !err.Equals(bst_models.ErrorOK) {
+				utilities.RespondWithError(rw, err)
+				return false
+			}
 
-		err = refreshDrsUser(client)
-		if !err.Equals(bst_models.ErrorOK) {
-			utilities.RespondWithError(rw, err)
+			err = refreshDrsUser(client)
+			if !err.Equals(bst_models.ErrorOK) {
+				utilities.RespondWithError(rw, err)
+				return false
+			}
+			return true
+		}() {
 			return
 		}
 	}

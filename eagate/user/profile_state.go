@@ -58,43 +58,46 @@ func RunUpdatesOnAllEaUsers() {
 	}
 
 	for _, user := range users {
-		client, err := CreateClientForUser(user)
-		if err.Equals(bst_models.ErrorBadCookie) || err.Equals(bst_models.ErrorNoCookie) {
-			user.Cookie = ""
-			user.Expiration = 0
+		func() {
+			client, err := CreateClientForUser(user)
+			defer client.UpdateCookie()
+			if err.Equals(bst_models.ErrorBadCookie) || err.Equals(bst_models.ErrorNoCookie) {
+				user.Cookie = ""
+				user.Expiration = 0
+				errs = db.GetUserDb().UpdateUser(user)
+				if len(errs) > 0 {
+					glog.Errorf("failed to save user %s", user.WebUser)
+					glog.Error(errs)
+				}
+				return
+			}
+			if !err.Equals(bst_models.ErrorOK) {
+				glog.Warningf("client upgrade for %s failed: %s", user, err.Message)
+				return
+			}
+			if !client.LoginState() {
+				user.Cookie = ""
+				user.Expiration = 0
+				errs = db.GetUserDb().UpdateUser(user)
+				if len(errs) > 0 {
+					glog.Errorf("failed to save user %s", user.WebUser)
+					glog.Error(errs)
+				}
+				return
+			}
+			user.Cookie = client.GetEaCookie().String()
+			user.Expiration = client.GetEaCookie().Expires.UnixNano() / 1000
+			subState, err := ProfileEaSubscriptionState(client)
+			if !err.Equals(bst_models.ErrorOK) {
+				glog.Warningf("client upgrade for %s failed: %s", user, err.Message)
+				return
+			}
+			user.EaSubscription = subState
 			errs = db.GetUserDb().UpdateUser(user)
 			if len(errs) > 0 {
 				glog.Errorf("failed to save user %s", user.WebUser)
 				glog.Error(errs)
 			}
-			continue
-		}
-		if !err.Equals(bst_models.ErrorOK) {
-			glog.Warningf("client upgrade for %s failed: %s", user, err.Message)
-			continue
-		}
-		if !client.LoginState() {
-			user.Cookie = ""
-			user.Expiration = 0
-			errs = db.GetUserDb().UpdateUser(user)
-			if len(errs) > 0 {
-				glog.Errorf("failed to save user %s", user.WebUser)
-				glog.Error(errs)
-			}
-			continue
-		}
-		user.Cookie = client.GetEaCookie().String()
-		user.Expiration = client.GetEaCookie().Expires.UnixNano() / 1000
-		subState, err := ProfileEaSubscriptionState(client)
-		if !err.Equals(bst_models.ErrorOK) {
-			glog.Warningf("client upgrade for %s failed: %s", user, err.Message)
-			continue
-		}
-		user.EaSubscription = subState
-		errs = db.GetUserDb().UpdateUser(user)
-		if len(errs) > 0 {
-			glog.Errorf("failed to save user %s", user.WebUser)
-			glog.Error(errs)
-		}
+		}()
 	}
 }

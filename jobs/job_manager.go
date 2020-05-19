@@ -32,27 +32,30 @@ func RunJobs() {
 		ddrUpdateCount := 0
 		ddrFailedCount := 0
 		for _, profile := range profilesToUpdate {
-			if !profile.DdrAutoUpdate {
-				continue
-			}
-			u, errs := db.GetUserDb().RetrieveUserByWebId(profile.User)
-			if utilities.PrintErrors("failed to retrieve user", errs) {
-				ddrFailedCount++
-				continue
-			}
-			client, err := user.CreateClientForUser(u)
-			if !err.Equals(bst_models.ErrorOK) {
-				ddrFailedCount++
-				glog.Warning(err)
-				continue
-			}
-			err = ddr.UpdatePlayerProfile(u, client)
-			if !err.Equals(bst_models.ErrorOK) {
-				ddrFailedCount++
-				glog.Warning(err)
-				continue
-			}
-			ddrUpdateCount++
+			func() {
+				if !profile.DdrAutoUpdate {
+					return
+				}
+				u, errs := db.GetUserDb().RetrieveUserByWebId(profile.User)
+				if utilities.PrintErrors("failed to retrieve user", errs) {
+					ddrFailedCount++
+					return
+				}
+				client, err := user.CreateClientForUser(u)
+				defer client.UpdateCookie()
+				if !err.Equals(bst_models.ErrorOK) {
+					ddrFailedCount++
+					glog.Warning(err)
+					return
+				}
+				err = ddr.UpdatePlayerProfile(u, client)
+				if !err.Equals(bst_models.ErrorOK) {
+					ddrFailedCount++
+					glog.Warning(err)
+					return
+				}
+				ddrUpdateCount++
+			}()
 		}
 		glog.Infof("successfully updated %d/%d ddr profiles (%d failed)", ddrUpdateCount, len(profilesToUpdate), ddrFailedCount)
 	}

@@ -3,8 +3,6 @@ package utilities
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chris-sg/bst_api/db"
-	"github.com/chris-sg/bst_api/eagate/util"
 	"github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
 	"net/http"
@@ -93,20 +91,6 @@ func ValidateFiltering(i interface{}, filterRequest []string) (filtering string)
 	}
 
 	filtering = strings.Join(toJoin, " AND ")
-	return
-}
-
-func UpdateCookie(client util.EaClient) {
-	oldCookie, errs := db.GetUserDb().RetrieveUserCookieStringByUserId(client.GetUsername())
-	if PrintErrors("failed to retrieve cookie for user:", errs) {
-		return
-	}
-	if len(oldCookie) == 0 || oldCookie != client.GetEaCookie().String() {
-		errs := db.GetUserDb().SetCookieForUser(client.GetUsername(), client.GetEaCookie())
-		if PrintErrors("failed to set cookie for user:", errs) {
-			return
-		}
-	}
 	return
 }
 

@@ -46,7 +46,6 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err bst_models.E
 	}
 	glog.Infof("%d new songs found on eagate\n", len(siteIds))
 	newSongs = siteIds
-	utilities.UpdateCookie(client)
 	return
 }
 
@@ -80,7 +79,6 @@ func updateNewSongs(client util.EaClient, songIds []string) bst_models.Error {
 	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
 		return bst_models.ErrorDdrSongDifficultiesDbWrite
 	}
-	utilities.UpdateCookie(client)
 	return bst_models.ErrorOK
 }
 
@@ -342,7 +340,6 @@ func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_m
 	}
 
 	glog.Infof("Profile update complete for user %s\n", client.GetUsername())
-	utilities.UpdateCookie(client)
 
 	return
 }

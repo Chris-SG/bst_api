@@ -3,6 +3,8 @@ package util
 import (
 	"bytes"
 	"context"
+	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/utilities"
 	"github.com/golang/glog"
 	"golang.org/x/sync/semaphore"
 	"io/ioutil"
@@ -54,6 +56,20 @@ func (crl ClientRateLimiter) RoundTrip(req *http.Request) (*http.Response, error
 	crl.WeightedSemaphore.Acquire(context.Background(), 1)
 	defer crl.WeightedSemaphore.Release(1)
 	return crl.Proxy.RoundTrip(req)
+}
+
+func (client *EaClient) UpdateCookie() {
+	oldCookie, errs := db.GetUserDb().RetrieveUserCookieStringByUserId(client.GetUsername())
+	if utilities.PrintErrors("failed to retrieve cookie for user:", errs) {
+		return
+	}
+	if len(oldCookie) == 0 || oldCookie != client.GetEaCookie().String() {
+		errs := db.GetUserDb().SetCookieForUser(client.GetUsername(), client.GetEaCookie())
+		if utilities.PrintErrors("failed to set cookie for user:", errs) {
+			return
+		}
+	}
+	return
 }
 
 func (client *EaClient) SetUsername(un string) {
