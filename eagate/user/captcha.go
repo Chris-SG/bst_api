@@ -120,7 +120,7 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 		return bst_models.ErrorClientRequest
 	}
 
-	if eaResp.FailCode == 200 {
+	if eaResp.FailCode != 0 {
 		return bst_models.ErrorIncorrectDetails
 	}
 
