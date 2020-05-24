@@ -69,6 +69,7 @@ func (client *EaClient) UpdateCookie() {
 			return
 		}
 	}
+	glog.Infof("updated cookie for %s", client.username)
 	return
 }
 

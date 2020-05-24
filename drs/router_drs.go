@@ -7,6 +7,7 @@ import (
 	"github.com/chris-sg/bst_api/eagate/user"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"net/http"
@@ -46,12 +47,14 @@ func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
 			client, err := user.CreateClientForUser(u)
 			defer client.UpdateCookie()
 			if !err.Equals(bst_models.ErrorOK) {
+				glog.Errorf("failed to create client: %s", err.Message)
 				utilities.RespondWithError(rw, err)
 				return false
 			}
 
 			err = refreshDrsUser(client)
 			if !err.Equals(bst_models.ErrorOK) {
+				glog.Errorf("failed to refresh user: %s", err.Message)
 				utilities.RespondWithError(rw, err)
 				return false
 			}
