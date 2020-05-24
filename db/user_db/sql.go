@@ -58,10 +58,7 @@ func (dbcomm UserDbCommunicationPostgres) SetCookieForUser(userId string, cookie
 func (dbcomm UserDbCommunicationPostgres) SetSubscriptionForUser(userId string, sub string) (errs []error) {
 	glog.Infof("SetCookieForUser for user id %s\n", userId)
 	userId = strings.ToLower(userId)
-	eaGateUser, errs := dbcomm.RetrieveUserByUserId(userId)
-	if len(errs) > 0 {
-		return
-	}
+	eaGateUser, _ := dbcomm.RetrieveUserByUserId(userId)
 	if eaGateUser.Name == "" {
 		eaGateUser = user_models.User{}
 	}
