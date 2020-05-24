@@ -2,7 +2,6 @@ package drs
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/chris-sg/bst_api/eagate/util"
 	"github.com/chris-sg/bst_api/models/drs_models"
 	bst_models "github.com/chris-sg/bst_server_models"
@@ -55,7 +54,7 @@ func LoadDancerInfo(client util.EaClient) (dancerInfo drs_models.DancerInfo, err
 
 	e = json.Unmarshal(body, &dancerInfo)
 	if e != nil {
-		fmt.Errorf("failed to decode json: %s", e.Error())
+		glog.Errorf("failed to decode json: %s", e.Error())
 		err = bst_models.ErrorJsonDecode
 	}
 	return
@@ -103,7 +102,7 @@ func LoadMusicData(client util.EaClient) (musicData drs_models.MusicData, err bs
 
 	e = json.Unmarshal(body, &musicData)
 	if e != nil {
-		fmt.Errorf("failed to decode json: %s", e.Error())
+		glog.Errorf("failed to decode json: %s", e.Error())
 		err = bst_models.ErrorJsonDecode
 	}
 	return
@@ -151,7 +150,7 @@ func LoadPlayHist(client util.EaClient) (playHist drs_models.PlayHist, err bst_m
 
 	e = json.Unmarshal(body, &playHist)
 	if e != nil {
-		fmt.Errorf("failed to decode json: %s", e.Error())
+		glog.Errorf("failed to decode json: %s", e.Error())
 		err = bst_models.ErrorJsonDecode
 	}
 	return
