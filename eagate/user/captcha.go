@@ -107,7 +107,7 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 	}
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(body)
+	glog.Info(string(body))
 
 	if !client.LoginState() {
 		return bst_models.ErrorLoginFailed
