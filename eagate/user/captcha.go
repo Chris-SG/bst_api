@@ -100,14 +100,29 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 	}
 	form.Add("captcha", captchaResult)
 
-	resp, e := client.Client.PostForm(eagateLoginAuthURI, form)
+	r, e := client.Client.PostForm(eagateLoginAuthURI, form)
 	if e != nil {
 		glog.Warningf("user %s failed login: %s", username, e.Error())
 		return bst_models.ErrorClientRequest
 	}
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := ioutil.ReadAll(r.Body)
 	glog.Info(string(body))
+
+	type EaResp struct {
+		FailCode int `json:"fail_code"`
+		Href string `json:"href"`
+	}
+	eaResp := EaResp{}
+	e = json.Unmarshal(body, &eaResp)
+	if e != nil {
+		glog.Warningf("user %s failed login: %s", username, e.Error())
+		return bst_models.ErrorClientRequest
+	}
+
+	if eaResp.FailCode == 200 {
+		return bst_models.ErrorIncorrectDetails
+	}
 
 	if !client.LoginState() {
 		return bst_models.ErrorLoginFailed
