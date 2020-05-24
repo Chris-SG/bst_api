@@ -12,7 +12,7 @@ type dancerInfoData struct {
 }
 
 type dancerInfoEaSite struct {
-	Result string `json:"result"`
+	Result int `json:"result"`
 	Profile dancerInfoProfile `json:"profile"`
 	Statistics dancerInfoPlayStatistics `json:"statics_play"`
 	Coins dancerInfoDanceCoin `json:"normal_dance_coin"`
