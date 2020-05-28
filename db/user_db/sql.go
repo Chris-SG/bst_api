@@ -46,7 +46,7 @@ func (dbcomm UserDbCommunicationPostgres) SetCookieForUser(userId string, cookie
 	eaGateUser.Cookie = cookie.String()
 	eaGateUser.Expiration = cookie.Expires.UnixNano() / 1000
 
-	resultDb := dbcomm.db.Save(eaGateUser)
+	resultDb := dbcomm.db.Save(&eaGateUser)
 
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
@@ -66,7 +66,7 @@ func (dbcomm UserDbCommunicationPostgres) SetSubscriptionForUser(userId string, 
 	eaGateUser.Name = strings.ToLower(eaGateUser.Name)
 	eaGateUser.EaSubscription = sub
 
-	resultDb := dbcomm.db.Save(eaGateUser)
+	resultDb := dbcomm.db.Save(&eaGateUser)
 
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
@@ -127,7 +127,7 @@ func (dbcomm UserDbCommunicationPostgres) SetWebUserForEaUser(userId string, web
 	}
 
 	eaGateUser.WebUser = webUserId
-	resultDb := dbcomm.db.Save(eaGateUser)
+	resultDb := dbcomm.db.Save(&eaGateUser)
 
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
