@@ -1,13 +1,11 @@
 package user_db
 
 import (
-	"fmt"
 	"github.com/chris-sg/bst_api/models/user_models"
 	"github.com/golang/glog"
 	"github.com/jinzhu/gorm"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type UserDbCommunication interface {
@@ -108,11 +106,6 @@ func (dbcomm UserDbCommunicationPostgres) RetrieveUserCookieStringByUserId(userI
 		return
 	}
 
-	timeNow := time.Now().UnixNano() / 1000
-	if len(eaGateUser.Cookie) == 0 || eaGateUser.Expiration < timeNow {
-		errs = append(errs, fmt.Errorf("cookie for user id %s was not found or expired", userId))
-		return
-	}
 	cookie = eaGateUser.Cookie
 	glog.Infof("RetrieveUserCookieById: retrieved cookie for user id %s\n", userId)
 	return
