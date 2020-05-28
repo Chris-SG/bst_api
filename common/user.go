@@ -19,7 +19,7 @@ import (
 // database. This may produce multiple relations in the case a user
 // has linked multiple accounts. Any stored cookies will be nullified.
 func LoginGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := TryGetEagateUsers(r)
+	usernames, err := RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
@@ -27,14 +27,22 @@ func LoginGet(rw http.ResponseWriter, r *http.Request) {
 
 	eagateUsers := make([]bst_models.EagateUser, 0)
 
-	for i := range users {
+	for _, username := range usernames {
+		userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(username)
+		if !exists {
+			glog.Warningf("failed to retrieve db entry for %s", username)
+			continue
+		}
+		if utilities.PrintErrors("error retrieving user from db: ", errs) {
+			continue
+		}
 		eagateUser := bst_models.EagateUser{
-			Username: users[i].Name,
-			Expired:  users[i].Expiration < time.Now().UnixNano()/1000,
+			Username: userModel.Name,
+			Expired:  userModel.Expiration < time.Now().UnixNano()/1000,
 		}
 		if !eagateUser.Expired {
 			func() {
-				client, err := user.CreateClientForUser(users[i])
+				client, err := user.CreateClientForUser(userModel)
 				defer client.UpdateCookie()
 				if !err.Equals(bst_models.ErrorOK) || !client.LoginState() {
 					fmt.Println(err)
@@ -138,10 +146,13 @@ func LogoutPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, errs := db.GetUserDb().RetrieveUserByUserId(logoutRequest.Username)
+	user, exists, errs := db.GetUserDb().RetrieveUserByUserId(logoutRequest.Username)
 	if len(errs) > 0 {
 		utilities.RespondWithError(rw, bst_models.ErrorReadWebUser)
 		return
+	}
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorOK)
 	}
 
 	if user.WebUser == val {

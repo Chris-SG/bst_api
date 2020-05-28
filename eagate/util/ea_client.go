@@ -59,11 +59,14 @@ func (crl ClientRateLimiter) RoundTrip(req *http.Request) (*http.Response, error
 }
 
 func (client *EaClient) UpdateCookie() {
-	oldCookie, errs := db.GetUserDb().RetrieveUserCookieStringByUserId(client.GetUsername())
+	userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(client.GetUsername())
 	if utilities.PrintErrors("failed to retrieve cookie for user:", errs) {
 		return
 	}
-	if len(oldCookie) == 0 || oldCookie != client.GetEaCookie().String() {
+	if !exists {
+		return
+	}
+	if len(userModel.Cookie) == 0 || userModel.Cookie != client.GetEaCookie().String() {
 		errs := db.GetUserDb().SetCookieForUser(client.GetUsername(), client.GetEaCookie())
 		if utilities.PrintErrors("failed to set cookie for user:", errs) {
 			return

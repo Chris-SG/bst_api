@@ -2,7 +2,6 @@ package common
 
 import (
 	"github.com/chris-sg/bst_api/db"
-	"github.com/chris-sg/bst_api/models/user_models"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
 	"net/http"
@@ -11,7 +10,7 @@ import (
 
 // tryGetEagateUsers will attempt to load any eagate users linked to
 // the auth0 account provided in the request.
-func TryGetEagateUsers(r *http.Request) (models []user_models.User, err bst_models.Error) {
+func RetrieveEaGateUsernamesForRequest(r *http.Request) (usernames []string, err bst_models.Error) {
 	err = bst_models.ErrorOK
 	tokenMap := utilities.ProfileFromToken(r)
 
@@ -22,16 +21,14 @@ func TryGetEagateUsers(r *http.Request) (models []user_models.User, err bst_mode
 	}
 	val = strings.ToLower(val)
 
-	model, errs := db.GetUserDb().RetrieveUserByWebId(val)
+	usernames, errs := db.GetUserDb().RetrieveUsernamesByWebId(val)
 	if utilities.PrintErrors("failed to retrieve user:", errs) {
 		err = bst_models.ErrorNoEaUser
 		return
 	}
 
-	if len(model.Name) == 0 {
+	if len(usernames) == 0 {
 		err = bst_models.ErrorNoEaUser
-		return
 	}
-	models = append(models, model)
 	return
 }

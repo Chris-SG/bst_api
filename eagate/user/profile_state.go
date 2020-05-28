@@ -16,16 +16,20 @@ func CreateClientForUser(userModel user_models.User) (client util.EaClient, err 
 	err = bst_models.ErrorOK
 	client = util.GenerateClient()
 	client.SetUsername(userModel.Name)
-	cookie, errs := db.GetUserDb().RetrieveUserCookieStringByUserId(userModel.Name)
+	user, exists, errs := db.GetUserDb().RetrieveUserByUserId(userModel.Name)
+	if !exists {
+		err = bst_models.ErrorNoEaUser
+		return
+	}
 	if utilities.PrintErrors("failed to retrieve cookie:", errs) {
 		err = bst_models.ErrorNoCookie
 		return
 	}
-	if len(cookie) == 0 {
+	if len(user.Cookie) == 0 {
 		err = bst_models.ErrorNoCookie
 		return
 	}
-	client.SetEaCookie(util.CookieFromRawCookie(cookie))
+	client.SetEaCookie(util.CookieFromRawCookie(user.Cookie))
 	if !client.LoginState() {
 		err = bst_models.ErrorBadCookie
 	}

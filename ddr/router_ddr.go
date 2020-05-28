@@ -60,27 +60,38 @@ func CreateDdrRouter() *mux.Router {
 // difficulties in the database for the user. This is an expensive
 // operation and should be used sparingly.
 func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	for _, u := range users {
-		func() {
-			client, err := user.CreateClientForUser(u)
+	errCount := 0
+	for _, username := range usernames {
+		if !func() bool {
+			userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(username)
+			if !exists {
+				return false
+			}
+			if utilities.PrintErrors("failed to retrieve user: ", errs) {
+				return false
+			}
+			client, err := user.CreateClientForUser(userModel)
 			defer client.UpdateCookie()
 			if !err.Equals(bst_models.ErrorOK) {
 				utilities.RespondWithError(rw, err)
-				return
+				return false
 			}
 
 			err = refreshDdrUser(client)
 			if !err.Equals(bst_models.ErrorOK) {
 				utilities.RespondWithError(rw, err)
-				return
+				return false
 			}
-		}()
+			return true
+		}() {
+			errCount++
+		}
 	}
 
 	utilities.RespondWithError(rw, err)
@@ -90,13 +101,13 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 // ProfileGet will retrieve formatted profile details for
 // the current user.
 func ProfileGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -131,13 +142,13 @@ func ProfileGet(rw http.ResponseWriter, r *http.Request) {
 }
 
 func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -187,30 +198,40 @@ func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
 // difficulty details will be updated for the user. This should
 // be used in favour of ProfileRefreshPatch where possible.
 func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	for _, u := range users {
+	errCount := 0
+	for _, username := range usernames {
 		if !func() bool {
-			client, err := user.CreateClientForUser(u)
+			userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(username)
+			if !exists {
+				return false
+			}
+			if utilities.PrintErrors("failed to retrieve user: ", errs) {
+				return false
+			}
+			client, err := user.CreateClientForUser(userModel)
 			defer client.UpdateCookie()
 			if !err.Equals(bst_models.ErrorOK) {
-				utilities.RespondWithError(rw, err)
 				return false
 			}
 
-			err = UpdatePlayerProfile(u, client)
+			err = UpdatePlayerProfile(userModel, client)
 			if !err.Equals(bst_models.ErrorOK) {
-				utilities.RespondWithError(rw, err)
 				return false
 			}
 			return true
 		}() {
-			return
+			errCount++
 		}
+	}
+
+	if errCount > 0 {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfo)
 	}
 
 	utilities.RespondWithError(rw, bst_models.ErrorOK)
@@ -254,13 +275,18 @@ func SongsGet(rw http.ResponseWriter, r *http.Request) {
 // TODO: if this fails after adding the songs to the database, new
 // difficulties will be missing with no current recovery method.
 func SongsPatch(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	client, err := user.CreateClientForUser(users[0])
+	userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(usernames[0])
+	if utilities.PrintErrors("failed to retrieve user from db:", errs) || !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
+		return
+	}
+	client, err := user.CreateClientForUser(userModel)
 	defer client.UpdateCookie()
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
@@ -279,7 +305,7 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errs := db.GetDdrDb().AddSongs(songData)
+	errs = db.GetDdrDb().AddSongs(songData)
 	if utilities.PrintErrors("failed to add songs to db:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDataDbWrite)
 		return
@@ -302,13 +328,18 @@ func SongsPatch(rw http.ResponseWriter, r *http.Request) {
 }
 
 func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	client, err := user.CreateClientForUser(users[0])
+	userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(usernames[0])
+	if utilities.PrintErrors("failed to retrieve user from db:", errs) || !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
+		return
+	}
+	client, err := user.CreateClientForUser(userModel)
 	defer client.UpdateCookie()
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
@@ -327,7 +358,7 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errs := db.GetDdrDb().AddSongs(songData)
+	errs = db.GetDdrDb().AddSongs(songData)
 	if utilities.PrintErrors("failed to add songs to db:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrSongDataDbWrite)
 		return
@@ -352,13 +383,13 @@ func SongsReloadPatch(rw http.ResponseWriter, r *http.Request) {
 // SongScoresGet will retrieve score details for the user defined
 // within the request JWT.
 func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -393,13 +424,13 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 }
 
 func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -440,13 +471,13 @@ func SongJacketGet(rw http.ResponseWriter, r *http.Request) {
 // SongScoresGet will retrieve score details for the user defined
 // within the request JWT.
 func SongsScoresExtendedGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(users[0].Name)
+	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
 	if utilities.PrintErrors("failed to retrieve player details:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return

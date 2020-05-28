@@ -36,8 +36,12 @@ func RunJobs() {
 				if !profile.DdrAutoUpdate {
 					return
 				}
-				u, errs := db.GetUserDb().RetrieveUserByWebId(profile.User)
-				if utilities.PrintErrors("failed to retrieve user", errs) {
+				usernames, errs := db.GetUserDb().RetrieveUsernamesByWebId(profile.User)
+				if len(usernames) == 0 {
+					return
+				}
+				u, exists, errs := db.GetUserDb().RetrieveUserByUserId(usernames[0])
+				if utilities.PrintErrors("failed to retrieve user", errs) || !exists {
 					ddrFailedCount++
 					return
 				}

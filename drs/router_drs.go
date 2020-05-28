@@ -36,15 +36,24 @@ func CreateDrsRouter() *mux.Router {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	for _, u := range users {
+	errCount := 0
+	for _, username := range usernames {
 		if !func() bool {
-			client, err := user.CreateClientForUser(u)
+			userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(username)
+			if !exists {
+				glog.Warningf("user %s does not exist in db", username)
+				return false
+			}
+			if utilities.PrintErrors("failed to retrieve user from db: ", errs) {
+				return false
+			}
+			client, err := user.CreateClientForUser(userModel)
 			defer client.UpdateCookie()
 			if !err.Equals(bst_models.ErrorOK) {
 				glog.Errorf("failed to create client: %s", err.Message)
@@ -60,8 +69,11 @@ func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
 			}
 			return true
 		}() {
-			return
+			errCount++
 		}
+	}
+	if errCount > 0 {
+		utilities.RespondWithError(rw, bst_models.ErrorDrsPlayerInfo)
 	}
 
 	utilities.RespondWithError(rw, bst_models.ErrorOK)
@@ -71,17 +83,17 @@ func ProfilePatch(rw http.ResponseWriter, r *http.Request) {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func DetailsGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	if len(users) == 0 {
+	if len(usernames) == 0 {
 		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
 		return
 	}
-	details, err := retrieveDrsPlayerDetails(users[0].Name)
+	details, err := retrieveDrsPlayerDetails(usernames[0])
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
@@ -96,16 +108,16 @@ func DetailsGet(rw http.ResponseWriter, r *http.Request) {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func SongStatsGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
-	if len(users) == 0 {
+	if len(usernames) == 0 {
 		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
 		return
 	}
-	details, err := retrieveDrsPlayerDetails(users[0].Name)
+	details, err := retrieveDrsPlayerDetails(usernames[0])
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
@@ -126,17 +138,17 @@ func SongStatsGet(rw http.ResponseWriter, r *http.Request) {
 // DrsUpdateUser will load all data provided by the Dance
 // Rush API.
 func TableDataGet(rw http.ResponseWriter, r *http.Request) {
-	users, err := common.TryGetEagateUsers(r)
+	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
 	}
 
-	if len(users) == 0 {
+	if len(usernames) == 0 {
 		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
 		return
 	}
-	details, err := retrieveDrsPlayerDetails(users[0].Name)
+	details, err := retrieveDrsPlayerDetails(usernames[0])
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return

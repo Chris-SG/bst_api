@@ -11,9 +11,8 @@ import (
 type UserDbCommunication interface {
 	SetCookieForUser(userId string, cookie *http.Cookie) (errs []error)
 	SetSubscriptionForUser(userId string, sub string) (errs []error)
-	RetrieveUserByUserId(userId string) (user user_models.User, errs []error)
-	RetrieveUserByWebId(webUserId string) (user user_models.User, errs []error)
-	RetrieveUserCookieStringByUserId(userId string) (cookie string, errs []error)
+	RetrieveUserByUserId(userId string) (user user_models.User, userExists bool, errs []error)
+	RetrieveUsernamesByWebId(webUserId string) (users []string, errs []error)
 	SetWebUserForEaUser(userId string, webUserId string) (errs []error)
 	UpdateUser(user user_models.User) (errs []error)
 
@@ -33,11 +32,11 @@ type UserDbCommunicationPostgres struct {
 func (dbcomm UserDbCommunicationPostgres) SetCookieForUser(userId string, cookie *http.Cookie) (errs []error) {
 	glog.Infof("SetCookieForUser for user id %s\n", userId)
 	userId = strings.ToLower(userId)
-	eaGateUser, errs := dbcomm.RetrieveUserByUserId(userId)
+	eaGateUser, exists, errs := dbcomm.RetrieveUserByUserId(userId)
 	if len(errs) > 0 {
 		return
 	}
-	if eaGateUser.Name == "" {
+	if !exists || eaGateUser.Name == "" {
 		eaGateUser = user_models.User{}
 	}
 	eaGateUser.Name = strings.ToLower(eaGateUser.Name)
@@ -56,8 +55,11 @@ func (dbcomm UserDbCommunicationPostgres) SetCookieForUser(userId string, cookie
 func (dbcomm UserDbCommunicationPostgres) SetSubscriptionForUser(userId string, sub string) (errs []error) {
 	glog.Infof("SetCookieForUser for user id %s\n", userId)
 	userId = strings.ToLower(userId)
-	eaGateUser, _ := dbcomm.RetrieveUserByUserId(userId)
-	if eaGateUser.Name == "" {
+	eaGateUser, exists, errs := dbcomm.RetrieveUserByUserId(userId)
+	if len(errs) > 0 {
+		return
+	}
+	if !exists || eaGateUser.Name == "" {
 		eaGateUser = user_models.User{}
 		eaGateUser.Name = userId
 	}
@@ -74,45 +76,38 @@ func (dbcomm UserDbCommunicationPostgres) SetSubscriptionForUser(userId string, 
 	return
 }
 
-func (dbcomm UserDbCommunicationPostgres) RetrieveUserByUserId(userId string) (user user_models.User, errs []error) {
+func (dbcomm UserDbCommunicationPostgres) RetrieveUserByUserId(userId string) (user user_models.User, userExists bool, errs []error) {
 	glog.Infof("RetrieveUserByUserId for user id %s\n", userId)
 	userId = strings.ToLower(userId)
 	resultDb := dbcomm.db.Model(&user_models.User{}).Where("account_name = ?", userId).First(&user)
+	if resultDb.RecordNotFound() {
+		userExists = false
+		return
+	}
+	userExists = true
+	errors := resultDb.GetErrors()
+	if errors != nil && len(errors) != 0 {
+		errs = append(errs, errors...)
+	}
+	return
+}
+
+func (dbcomm UserDbCommunicationPostgres) RetrieveUsernamesByWebId(webUserId string) (users []string, errs []error) {
+	webUserId = strings.ToLower(webUserId)
+	resultDb := dbcomm.db.Model(&user_models.User{}).Where("web_user = ?", webUserId)
 	if resultDb.RecordNotFound() {
 		return
 	}
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
 		errs = append(errs, errors...)
-	}
-	return
-}
-
-func (dbcomm UserDbCommunicationPostgres) RetrieveUserByWebId(webUserId string) (user user_models.User, errs []error) {
-	glog.Infof("RetrieveUserByWebId for web id %s\n", webUserId)
-	webUserId = strings.ToLower(webUserId)
-	resultDb := dbcomm.db.Model(&user_models.User{}).Where("web_user = ?", webUserId).First(&user)
-
-	errors := resultDb.GetErrors()
-	if errors != nil && len(errors) != 0 {
-		errs = append(errs, errors...)
-	}
-	return
-}
-
-func (dbcomm UserDbCommunicationPostgres) RetrieveUserCookieStringByUserId(userId string) (cookie string, errs []error) {
-	glog.Infof("RetrieveUserCookieStringByUserId for user id %s\n", userId)
-	userId = strings.ToLower(userId)
-	eaGateUser, errs := dbcomm.RetrieveUserByUserId(userId)
-	if len(errs) > 0 {
 		return
 	}
-	if len(eaGateUser.Name) == 0 {
-		return
+	userModels := make([]user_models.User, 0)
+	resultDb.Scan(&userModels)
+	for _, userModel := range userModels {
+		users = append(users, userModel.Name)
 	}
-
-	cookie = eaGateUser.Cookie
-	glog.Infof("RetrieveUserCookieById: retrieved cookie for user id %s\n", userId)
 	return
 }
 
@@ -120,11 +115,11 @@ func (dbcomm UserDbCommunicationPostgres) SetWebUserForEaUser(userId string, web
 	glog.Infof("SetWebUserForUser: user id %s, web id %s\n", userId, webUserId)
 	userId = strings.ToLower(userId)
 	webUserId = strings.ToLower(webUserId)
-	eaGateUser, errs := dbcomm.RetrieveUserByUserId(userId)
+	eaGateUser, exists, errs := dbcomm.RetrieveUserByUserId(userId)
 	if len(errs) > 0 {
 		return
 	}
-	if len(eaGateUser.Name) == 0 {
+	if !exists || len(eaGateUser.Name) == 0 {
 		eaGateUser.Name = strings.ToLower(userId)
 	}
 
