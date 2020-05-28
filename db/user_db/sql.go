@@ -61,6 +61,7 @@ func (dbcomm UserDbCommunicationPostgres) SetSubscriptionForUser(userId string, 
 	eaGateUser, _ := dbcomm.RetrieveUserByUserId(userId)
 	if eaGateUser.Name == "" {
 		eaGateUser = user_models.User{}
+		eaGateUser.Name = userId
 	}
 
 	eaGateUser.Name = strings.ToLower(eaGateUser.Name)
