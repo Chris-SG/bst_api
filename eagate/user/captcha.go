@@ -128,6 +128,8 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 		return bst_models.ErrorLoginFailed
 	}
 
+	client.SetEaCookie(client.GetEaCookie())
+
 	return bst_models.ErrorOK
 }
 
