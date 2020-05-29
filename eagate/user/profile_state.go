@@ -15,7 +15,7 @@ import (
 func CreateClientForUser(userModel user_models.User) (client util.EaClient, err bst_models.Error) {
 	err = bst_models.ErrorOK
 	client = util.GenerateClient()
-	client.SetUsername(userModel.Name)
+	client.SetUserModel(userModel)
 	user, exists, errs := db.GetUserDb().RetrieveUserByUserId(userModel.Name)
 	if !exists {
 		err = bst_models.ErrorNoEaUser

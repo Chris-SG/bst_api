@@ -76,17 +76,17 @@ func GetCookieFromEaGate(username string, password string, otp string, client ut
 
 	eagateLoginAuthURI := util.BuildEaURI(eagateLoginAuthResource)
 
-	glog.Infof("loading captcha data for user %s", client.GetUsername())
+	glog.Infof("loading captcha data for user %s", client.GetUserModel().Name)
 	captchaData, err := LoadCaptchaData(client)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("user %s failed loading captcha: %s", client.GetUsername(), err.Message)
+		glog.Errorf("user %s failed loading captcha: %s", client.GetUserModel().Name, err.Message)
 		return err
 	}
 
-	glog.Infof("solving captcha for user %s", client.GetUsername())
+	glog.Infof("solving captcha for user %s", client.GetUserModel().Name)
 	session, correct, err := SolveCaptcha(captchaData)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("user %s failed solving captcha: %s", client.GetUsername(), err.Message)
+		glog.Errorf("user %s failed solving captcha: %s", client.GetUserModel().Name, err.Message)
 		return err
 	}
 

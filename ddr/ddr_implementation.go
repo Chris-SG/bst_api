@@ -16,10 +16,10 @@ import (
 // eagate will be returned.
 func checkForNewSongs(client util.EaClient) (newSongs []string, err bst_models.Error) {
 	err = bst_models.ErrorOK
-	glog.Infof("Checking for new songs as user %s\n", client.GetUsername())
+	glog.Infof("Checking for new songs as user %s\n", client.GetUserModel().Name)
 	if !client.LoginState() {
 		err = bst_models.ErrorBadCookie
-		glog.Errorf("Client %s not logged into eagate\n", client.GetUsername())
+		glog.Errorf("Client %s not logged into eagate\n", client.GetUserModel().Name)
 		return
 	}
 	siteIds, err := ddr.SongIdsForClient(client)
@@ -34,7 +34,7 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err bst_models.E
 		return
 	}
 
-	glog.Infof("Comparing %d eagate songs against %d db songs for user %s\n", len(siteIds), len(dbIds), client.GetUsername())
+	glog.Infof("Comparing %d eagate songs against %d db songs for user %s\n", len(siteIds), len(dbIds), client.GetUserModel().Name)
 	for i := len(siteIds)-1; i >= 0; i-- {
 		for j := range dbIds {
 			if dbIds[j] == siteIds[i] {
@@ -53,15 +53,15 @@ func checkForNewSongs(client util.EaClient) (newSongs []string, err bst_models.E
 // provided songIds slice. This intends to be used after checkForNewSongs
 // to update the database.
 func updateNewSongs(client util.EaClient, songIds []string) bst_models.Error {
-	glog.Infof("Updating %d new songs from user %s\n", len(songIds), client.GetUsername())
+	glog.Infof("Updating %d new songs from user %s\n", len(songIds), client.GetUserModel().Name)
 	if !client.LoginState() {
-		glog.Errorf("Client %s not logged into eagate\n", client.GetUsername())
+		glog.Errorf("Client %s not logged into eagate\n", client.GetUserModel().Name)
 		return bst_models.ErrorBadCookie
 	}
 
 	songData, err := ddr.SongDataForClient(client, songIds)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to get song data from client %s\n", client.GetUsername())
+		glog.Errorf("Failed to get song data from client %s\n", client.GetUserModel().Name)
 		return err
 	}
 	glog.Infof("Update new songs got %d song data points\n", len(songData))
@@ -71,7 +71,7 @@ func updateNewSongs(client util.EaClient, songIds []string) bst_models.Error {
 	}
 	difficulties, err := ddr.SongDifficultiesForClient(client, songIds)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to get song difficulties from client %s\n", client.GetUsername())
+		glog.Errorf("Failed to get song difficulties from client %s\n", client.GetUserModel().Name)
 		return err
 	}
 	glog.Infof("Update new songs got %d song difficulty points\n", len(difficulties))
@@ -84,16 +84,16 @@ func updateNewSongs(client util.EaClient, songIds []string) bst_models.Error {
 
 func refreshDdrUser(client util.EaClient) (err bst_models.Error) {
 	err = bst_models.ErrorOK
-	glog.Infof("Refreshing user %s\n", client.GetUsername())
+	glog.Infof("Refreshing user %s\n", client.GetUserModel().Name)
 	if !client.LoginState() {
 		err = bst_models.ErrorBadCookie
-		glog.Errorf("Client %s not logged into eagate\n", client.GetUsername())
+		glog.Errorf("Client %s not logged into eagate\n", client.GetUserModel().Name)
 		return
 	}
 
 	pi, pc, err := ddr.PlayerInformationForClient(client)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load player information for client %s: %s\n", client.GetUsername(), err.Message)
+		glog.Errorf("Failed to load player information for client %s: %s\n", client.GetUserModel().Name, err.Message)
 		return
 	}
 
@@ -113,25 +113,25 @@ func refreshDdrUser(client util.EaClient) (err bst_models.Error) {
 		return
 	}
 	if len(newSongs) > 0 {
-		glog.Infof("Updating %d new songs for client %s\n", len(newSongs), client.GetUsername())
+		glog.Infof("Updating %d new songs for client %s\n", len(newSongs), client.GetUserModel().Name)
 		err = updateNewSongs(client, newSongs)
 		if !err.Equals(bst_models.ErrorOK) {
-			glog.Errorf("Failed to update new songs for client %s: %s\n", client.GetUsername(), err.Message)
+			glog.Errorf("Failed to update new songs for client %s: %s\n", client.GetUserModel().Name, err.Message)
 			return
 		}
 	}
 
 	songIds, err := ddr.SongIdsForClient(client)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load song ids for client %s: %s\n", client.GetUsername(), err.Message)
+		glog.Errorf("Failed to load song ids for client %s: %s\n", client.GetUserModel().Name, err.Message)
 		return
 	}
 	difficulties, err := ddr.SongDifficultiesForClient(client, songIds)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load song difficulties for client %s: %s\n", client.GetUsername(), err.Message)
+		glog.Errorf("Failed to load song difficulties for client %s: %s\n", client.GetUserModel().Name, err.Message)
 		return
 	}
-	glog.Infof("Adding song difficulties to db client %s (%d difficulties)\n", client.GetUsername(), len(difficulties))
+	glog.Infof("Adding song difficulties to db client %s (%d difficulties)\n", client.GetUserModel().Name, len(difficulties))
 	errs = db.GetDdrDb().AddDifficulties(difficulties)
 	if utilities.PrintErrors("failed to add difficulties to db:", errs) {
 		err = bst_models.ErrorDdrSongDifficultiesDbWrite
@@ -146,10 +146,10 @@ func refreshDdrUser(client util.EaClient) (err bst_models.Error) {
 
 	songStats, err := ddr.SongStatisticsForClient(client, difficulties, pi.Code)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load song statistics for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Message)
+		glog.Errorf("Failed to load song statistics for client %s, code %d: %s\n", client.GetUserModel().Name, pi.Code, err.Message)
 		return
 	}
-	glog.Infof("Adding song statistics to db client %s (%d statistics)", client.GetUsername(), len(songStats))
+	glog.Infof("Adding song statistics to db client %s (%d statistics)", client.GetUserModel().Name, len(songStats))
 	db.GetDdrDb().AddSongStatistics(songStats)
 	if utilities.PrintErrors("failed to add song statistics to db:", errs) {
 		err = bst_models.ErrorDdrStatsDbWrite
@@ -158,10 +158,10 @@ func refreshDdrUser(client util.EaClient) (err bst_models.Error) {
 
 	recentScores, err := ddr.RecentScoresForClient(client, pi.Code)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load recent scores for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Message)
+		glog.Errorf("Failed to load recent scores for client %s, code %d: %s\n", client.GetUserModel().Name, pi.Code, err.Message)
 		return
 	}
-	glog.Infof("Adding song scores to db client %s (%d scores)", client.GetUsername(), len(recentScores))
+	glog.Infof("Adding song scores to db client %s (%d scores)", client.GetUserModel().Name, len(recentScores))
 	errs = db.GetDdrDb().AddScores(recentScores)
 	if utilities.PrintErrors("failed to add scores to db:", errs) {
 		err = bst_models.ErrorDdrStatsDbWrite
@@ -170,10 +170,10 @@ func refreshDdrUser(client util.EaClient) (err bst_models.Error) {
 
 	workoutData, err := ddr.WorkoutDataForClient(client, pi.Code)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load workout data for client %s, code %d: %s\n", client.GetUsername(), pi.Code, err.Message)
+		glog.Errorf("Failed to load workout data for client %s, code %d: %s\n", client.GetUserModel().Name, pi.Code, err.Message)
 		return
 	}
-	glog.Infof("Adding workout data to db client %s (%d datapoints)", client.GetUsername(), len(workoutData))
+	glog.Infof("Adding workout data to db client %s (%d datapoints)", client.GetUserModel().Name, len(workoutData))
 	errs = db.GetDdrDb().AddWorkoutData(workoutData)
 	if utilities.PrintErrors("failed to add workout data to db:", errs) {
 		err = bst_models.ErrorDdrStatsDbWrite
@@ -189,15 +189,15 @@ func refreshDdrUser(client util.EaClient) (err bst_models.Error) {
 // unknown song statistics. This can currently still be achieved manually.
 func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_models.Error) {
 	err = bst_models.ErrorOK
-	glog.Infof("Updating player profile for %s\n", client.GetUsername())
+	glog.Infof("Updating player profile for %s\n", client.GetUserModel().Name)
 	if !client.LoginState() {
 		err = bst_models.ErrorBadCookie
-		glog.Errorf("Client %s not logged into eagate\n", client.GetUsername())
+		glog.Errorf("Client %s not logged into eagate\n", client.GetUserModel().Name)
 		return
 	}
 	newPi, playcount, err := ddr.PlayerInformationForClient(client)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load player info for user %s: %s\n", client.GetUsername(), err.Message)
+		glog.Errorf("Failed to load player info for user %s: %s\n", client.GetUserModel().Name, err.Message)
 		return
 	}
 	newPi.EaGateUser = &user.Name
@@ -229,7 +229,7 @@ func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_m
 
 	recentScores, err := ddr.RecentScoresForClient(client, newPi.Code)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load recent scores for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Message)
+		glog.Errorf("Failed to load recent scores for user %s code %d: %s\n", client.GetUserModel().Name, newPi.Code, err.Message)
 		return
 	}
 	if recentScores == nil {
@@ -240,7 +240,7 @@ func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_m
 
 	workoutData, err := ddr.WorkoutDataForClient(client, newPi.Code)
 	if !err.Equals(bst_models.ErrorOK) {
-		glog.Errorf("Failed to load workout data for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Message)
+		glog.Errorf("Failed to load workout data for user %s code %d: %s\n", client.GetUserModel().Name, newPi.Code, err.Message)
 		return
 	}
 
@@ -278,7 +278,7 @@ func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_m
 	if len(recentSongIds) > 0 {
 		err = updateNewSongs(client, recentSongIds)
 		if !err.Equals(bst_models.ErrorOK) {
-			glog.Errorf("Failed to update new songs for client %s\n", client.GetUsername())
+			glog.Errorf("Failed to update new songs for client %s\n", client.GetUserModel().Name)
 			return
 		}
 	}
@@ -314,7 +314,7 @@ func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_m
 		statistics, err2 := ddr.SongStatisticsForClient(client, songsToUpdate, newPi.Code)
 		err = err2
 		if !err.Equals(bst_models.ErrorOK) {
-			glog.Errorf("Failed to update song statistics for user %s code %d: %s\n", client.GetUsername(), newPi.Code, err.Message)
+			glog.Errorf("Failed to update song statistics for user %s code %d: %s\n", client.GetUserModel().Name, newPi.Code, err.Message)
 			return
 		}
 		errs = db.GetDdrDb().AddSongStatistics(statistics)
@@ -322,7 +322,7 @@ func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_m
 			err = bst_models.ErrorDdrStatsDbWrite
 			return
 		}
-		glog.Infof("Updated song statistics for user %s\n", client.GetUsername())
+		glog.Infof("Updated song statistics for user %s\n", client.GetUserModel().Name)
 	}
 
 	if workoutData != nil {
@@ -339,7 +339,7 @@ func UpdatePlayerProfile(user user_models.User, client util.EaClient) (err bst_m
 		return
 	}
 
-	glog.Infof("Profile update complete for user %s\n", client.GetUsername())
+	glog.Infof("Profile update complete for user %s\n", client.GetUserModel().Name)
 
 	return
 }

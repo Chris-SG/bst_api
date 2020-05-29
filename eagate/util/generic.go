@@ -18,7 +18,7 @@ import (
 )
 
 func IsMaintenanceMode(client EaClient) bool {
-	glog.Infof("checking maintenancemode for user %s\n", client.GetUsername())
+	glog.Infof("checking maintenancemode for user %s\n", client.GetUserModel().Name)
 	doc, err := GetPageContentAsGoQuery(client.Client, "https://p.eagate.573.jp/game/")
 	if !err.Equals(bst_models.ErrorOK) {
 		glog.Warningf("failed to get page content for maintenancemode: %s\n", err.Message)

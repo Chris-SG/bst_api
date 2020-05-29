@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/chris-sg/bst_api/db"
+	"github.com/chris-sg/bst_api/models/user_models"
 	"github.com/chris-sg/bst_api/utilities"
 	"github.com/golang/glog"
 	"golang.org/x/sync/semaphore"
@@ -16,7 +17,7 @@ import (
 
 type EaClient struct {
 	Client *http.Client
-	username string
+	userModel user_models.User
 	ActiveCookie string
 }
 
@@ -44,7 +45,7 @@ func GenerateClient() EaClient {
 			s,
 		},
 	}
-	return EaClient{client, "", ""}
+	return EaClient{client, user_models.User{}, ""}
 }
 
 type ClientRateLimiter struct {
@@ -59,30 +60,23 @@ func (crl ClientRateLimiter) RoundTrip(req *http.Request) (*http.Response, error
 }
 
 func (client *EaClient) UpdateCookie() {
-	userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(client.GetUsername())
-	if utilities.PrintErrors("failed to retrieve cookie for user:", errs) {
-		return
-	}
-	if !exists {
-		return
-	}
-	if len(userModel.Cookie) == 0 || userModel.Cookie != client.GetEaCookie().String() {
-		errs := db.GetUserDb().SetCookieForUser(client.GetUsername(), client.GetEaCookie())
+	if len(client.userModel.Cookie) == 0 || client.userModel.Cookie != client.GetEaCookie().String() {
+		errs := db.GetUserDb().SetCookieForUser(client.userModel.Name, client.GetEaCookie())
 		if utilities.PrintErrors("failed to set cookie for user:", errs) {
 			return
 		}
 	}
-	glog.Infof("updated cookie for %s", client.username)
+	glog.Infof("updated cookie for %s", client.userModel.Name)
 	return
 }
 
-func (client *EaClient) SetUsername(un string) {
-	client.username = strings.ToLower(un)
-	glog.Infof("client username changed to %s\n", client.username)
+func (client *EaClient) SetUserModel(user user_models.User) {
+	client.userModel = user
+	glog.Infof("client username changed to %s\n", client.userModel.Name)
 }
 
-func (client *EaClient) GetUsername() string {
-	return client.username
+func (client *EaClient) GetUserModel() user_models.User {
+	return client.userModel
 }
 
 func (client *EaClient) SetEaCookie(cookie *http.Cookie) {
@@ -93,7 +87,7 @@ func (client *EaClient) SetEaCookie(cookie *http.Cookie) {
 
 	client.Client.Jar.SetCookies(eagate, cookies)
 	client.ActiveCookie = cookie.String()
-	glog.Infof("eacookie changed for username %s\n", client.username)
+	glog.Infof("eacookie changed for username %s\n", client.userModel.Name)
 }
 
 
@@ -109,16 +103,16 @@ func (client *EaClient) GetEaCookie() *http.Cookie {
 func (client *EaClient) LoginState() bool {
 	res, err := client.Client.Get("https://p.eagate.573.jp/gate/p/mypage/index.html")
 	if err != nil || res.StatusCode != 200 {
-		glog.Warningf("loginstate for %s is false, status %d\n", client.username, res.StatusCode)
+		glog.Warningf("loginstate for %s is false, status %d\n", client.userModel.Name, res.StatusCode)
 		return false
 	}
 
 	currCookie := client.GetEaCookie()
 	if currCookie != nil && currCookie.String() != client.ActiveCookie {
-		glog.Infof("cookie for user %s changed\n", client.username)
+		glog.Infof("cookie for user %s changed\n", client.userModel.Name)
 		client.SetEaCookie(currCookie)
 	}
-	glog.Infof("cookie set for user %s\n", client.username)
+	glog.Infof("cookie set for user %s\n", client.userModel.Name)
 	return true
 }
 

@@ -38,7 +38,7 @@ func SongIdsForClient(client util.EaClient) (songIds []string, err bst_models.Er
 			musicDataDoc, err := musicDataSingleDocument(client, page)
 			if !err.Equals(bst_models.ErrorOK) {
 				errCount++
-				glog.Errorf("failed to load musicDataSingleDocument for user %s page %d: %s\n", client.GetUsername(), page, err.Message)
+				glog.Errorf("failed to load musicDataSingleDocument for user %s page %d: %s\n", client.GetUserModel().Name, page, err.Message)
 				return
 			}
 
@@ -51,7 +51,7 @@ func SongIdsForClient(client util.EaClient) (songIds []string, err bst_models.Er
 	}
 
 	wg.Wait()
-	glog.Infof("loaded %d song ids on user %s\n", len(songIds), client.GetUsername())
+	glog.Infof("loaded %d song ids on user %s\n", len(songIds), client.GetUserModel().Name)
 
 	if errCount != 0 {
 		err = bst_models.ErrorDdrSongIds
@@ -105,10 +105,10 @@ func SongDataForClient(client util.EaClient, songIds []string) (songs []ddr_mode
 	}
 
 	wg.Wait()
-	glog.Infof("loaded %d song data on user %s\n", len(songs), client.GetUsername())
+	glog.Infof("loaded %d song data on user %s\n", len(songs), client.GetUserModel().Name)
 
 	if errCount > 0 {
-		glog.Warningf("failed %d/%d song ids for song data (user %s)\n", errCount, len(songIds), client.GetUsername())
+		glog.Warningf("failed %d/%d song ids for song data (user %s)\n", errCount, len(songIds), client.GetUserModel().Name)
 		err = bst_models.ErrorDdrSongData
 	}
 
@@ -169,10 +169,10 @@ func SongDifficultiesForClient(client util.EaClient, songIds []string) (difficul
 	}
 
 	wg.Wait()
-	glog.Infof("loaded %d song difficulties for %d songs on user %s\n", len(difficulties), len(songIds), client.GetUsername())
+	glog.Infof("loaded %d song difficulties for %d songs on user %s\n", len(difficulties), len(songIds), client.GetUserModel().Name)
 
 	if errCount > 0 {
-		glog.Warningf("failed %d/%d song ids for song data (user %s)\n", errCount, len(songIds), client.GetUsername())
+		glog.Warningf("failed %d/%d song ids for song data (user %s)\n", errCount, len(songIds), client.GetUserModel().Name)
 		err = bst_models.ErrorDdrSongDifficulties
 	}
 

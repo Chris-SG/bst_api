@@ -12,7 +12,7 @@ import (
 
 func refreshDrsUser(client util.EaClient) (err bst_models.Error) {
 	err = bst_models.ErrorOK
-	glog.Infof("Refreshing user %s\n", client.GetUsername())
+	glog.Infof("Refreshing user %s\n", client.GetUserModel().Name)
 	if !client.LoginState() {
 		err = bst_models.ErrorBadCookie
 		return
@@ -33,7 +33,7 @@ func refreshDrsUser(client util.EaClient) (err bst_models.Error) {
 
 
 	playerDetails, profileSnapshot, songs, difficulties, playerSongStats, playerScores := drs.Transform(dancerInfo, musicData, playHist)
-	user := client.GetUsername()
+	user := client.GetUserModel().Name
 	if len(user) > 0 {
 		playerDetails.EaGateUser = &user
 	}

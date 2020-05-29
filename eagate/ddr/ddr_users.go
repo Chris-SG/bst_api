@@ -27,7 +27,7 @@ func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.
 	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
-	eaGateUser := client.GetUsername()
+	eaGateUser := client.GetUserModel().Name
 	playerDetails.EaGateUser = &eaGateUser
 
 	return
@@ -169,13 +169,13 @@ func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDiffi
 			defer wg.Done()
 			document, err := musicDetailDifficultyDocument(client, diff.SongId, ddr_models.StringToMode(diff.Mode), ddr_models.StringToDifficulty(diff.Difficulty))
 			if !err.Equals(bst_models.ErrorOK) {
-				glog.Errorf("failed to load document for client %s: songid %s\n", client.GetUsername(), diff.SongId)
+				glog.Errorf("failed to load document for client %s: songid %s\n", client.GetUserModel().Name, diff.SongId)
 				errCount++
 				return
 			}
 			statistics, err := chartStatisticsFromDocument(document, playerCode, diff)
 			if !err.Equals(bst_models.ErrorOK) {
-				glog.Errorf("failed to load statistics for client %s: songid %s\n", client.GetUsername(), diff.SongId)
+				glog.Errorf("failed to load statistics for client %s: songid %s\n", client.GetUserModel().Name, diff.SongId)
 				errCount++
 				return
 			}
@@ -192,12 +192,12 @@ func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDiffi
 	wg.Wait()
 
 	if errCount > 0 {
-		glog.Warningf("failed loading all statistic for %s:  %d of %d errors\n", client.GetUsername(), errCount, len(charts))
+		glog.Warningf("failed loading all statistic for %s:  %d of %d errors\n", client.GetUserModel().Name, errCount, len(charts))
 		err = bst_models.ErrorDdrStats
 		return
 	}
 
-	glog.Infof("got %d statistics for user %s\n", len(songStatistics), client.GetUsername())
+	glog.Infof("got %d statistics for user %s\n", len(songStatistics), client.GetUserModel().Name)
 	return
 }
 
