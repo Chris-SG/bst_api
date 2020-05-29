@@ -100,6 +100,11 @@ func (client *EaClient) GetEaCookie() *http.Cookie {
 	return currCookie[0]
 }
 
+func (client *EaClient) GetEaCookieExpirationTime() int64 {
+	c := client.GetEaCookie()
+	return c.Expires.UnixNano() / 1000
+}
+
 func (client *EaClient) LoginState() bool {
 	res, err := client.Client.Get("https://p.eagate.573.jp/gate/p/mypage/index.html")
 	if err != nil || res.StatusCode != 200 {

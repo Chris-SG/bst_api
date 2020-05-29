@@ -6,6 +6,7 @@ import (
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/eagate/user"
 	"github.com/chris-sg/bst_api/eagate/util"
+	"github.com/chris-sg/bst_api/models/user_models"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
 	"github.com/golang/glog"
@@ -108,13 +109,17 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errs := db.GetUserDb().SetSubscriptionForUser(loginRequest.Username, sub)
-	if utilities.PrintErrors("could not set ea subscription for user", errs) {
-		utilities.RespondWithError(rw, bst_models.ErrorWriteWebUser)
-		return
+	userModel := user_models.User{
+		Name:           loginRequest.Username,
+		NickName:       "",
+		Cookie:         client.ActiveCookie,
+		Expiration:     client.GetEaCookieExpirationTime(),
+		EaSubscription: sub,
+		WebUser:        val,
 	}
-	errs = db.GetUserDb().SetWebUserForEaUser(loginRequest.Username, val)
-	if utilities.PrintErrors("could not set web user for ea user", errs) {
+
+	errs := db.GetUserDb().UpdateUser(userModel)
+	if utilities.PrintErrors("could not update user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorWriteWebUser)
 		return
 	}
