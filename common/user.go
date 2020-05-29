@@ -117,6 +117,7 @@ func LoginPost(rw http.ResponseWriter, r *http.Request) {
 		EaSubscription: sub,
 		WebUser:        val,
 	}
+	client.SetUserModel(userModel)
 
 	errs := db.GetUserDb().UpdateUser(userModel)
 	if utilities.PrintErrors("could not update user:", errs) {
