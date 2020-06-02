@@ -21,6 +21,9 @@ func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.
 	}
 	playerDetails, err = playerInformationFromPlayerDocument(document)
 	if !err.Equals(bst_models.ErrorOK) {
+		if document.Find("div#dancer_name div.name_str").Length() > 0 {
+			err = bst_models.ErrorDdrNotPlayed
+		}
 		return
 	}
 	playcount, err = playcountFromPlayerDocument(document)
