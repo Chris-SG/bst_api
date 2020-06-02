@@ -32,6 +32,8 @@ github.com/chris-sg/bst_server_models v0.0.0-20200514141358-6c034f04ba7d h1:0CHP
 github.com/chris-sg/bst_server_models v0.0.0-20200514141358-6c034f04ba7d/go.mod h1:QAm0zB8hwap1niFFJWwSf7AJz/0Bh1q5RCDvTXP/p4o=
 github.com/chris-sg/bst_server_models v0.0.0-20200524125702-280ac052148c h1:w7QlYc3Wx6IxttiMcLn+z7YIoVnHij57FiAFndlCZ5Y=
 github.com/chris-sg/bst_server_models v0.0.0-20200524125702-280ac052148c/go.mod h1:QAm0zB8hwap1niFFJWwSf7AJz/0Bh1q5RCDvTXP/p4o=
+github.com/chris-sg/bst_server_models v0.0.0-20200601235104-272f64b7cf84 h1:tLCNhEjzj96sDqRoUYKDTfN2hf5ctQ5zw8eiCT/qvEc=
+github.com/chris-sg/bst_server_models v0.0.0-20200601235104-272f64b7cf84/go.mod h1:QAm0zB8hwap1niFFJWwSf7AJz/0Bh1q5RCDvTXP/p4o=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6ROGeiHFAP8WJdI2RoxALQYgdllERc3N5N2DM=
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=

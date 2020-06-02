@@ -26,7 +26,7 @@ type DdrDbCommunication interface {
 	RetrieveValidDifficultiesById(songIds []string) (difficulties []ddr_models.SongDifficulty, errs []error)
 
 	AddPlayerDetails(details ddr_models.PlayerDetails) (errs []error)
-	RetrievePlayerDetailsByEaGateUser(eaGateUser string) (details ddr_models.PlayerDetails, errs []error)
+	RetrievePlayerDetailsByEaGateUser(eaGateUser string) (details ddr_models.PlayerDetails, exists bool, errs []error)
 	RetrievePlayerDetailsByPlayerCode(code int) (details ddr_models.PlayerDetails, errs []error)
 
 	AddPlaycounts(playcountDetails []ddr_models.Playcount) (errs []error)
@@ -279,10 +279,15 @@ func (dbcomm DdrDbCommunicationPostgres) AddPlayerDetails(details ddr_models.Pla
 	return
 }
 
-func (dbcomm DdrDbCommunicationPostgres) RetrievePlayerDetailsByEaGateUser(eaGateUser string) (details ddr_models.PlayerDetails, errs []error) {
+func (dbcomm DdrDbCommunicationPostgres) RetrievePlayerDetailsByEaGateUser(eaGateUser string) (details ddr_models.PlayerDetails, exists bool, errs []error) {
 	glog.Infof("RetrieveDdrPlayerDetailsByEaGateUser for eaUser %s\n", eaGateUser)
 	eaGateUser = strings.ToLower(eaGateUser)
 	resultDb := dbcomm.db.Model(&ddr_models.PlayerDetails{}).Where("eagate_user = ?", eaGateUser).First(&details)
+	if resultDb.RecordNotFound() {
+		exists = false
+		return
+	}
+	exists = true
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
 		errs = append(errs, errors...)

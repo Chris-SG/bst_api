@@ -66,32 +66,26 @@ func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errCount := 0
-	for _, username := range usernames {
-		if !func() bool {
-			userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(username)
-			if !exists {
-				return false
-			}
-			if utilities.PrintErrors("failed to retrieve user: ", errs) {
-				return false
-			}
-			client, err := user.CreateClientForUser(userModel)
-			defer client.UpdateCookie()
-			if !err.Equals(bst_models.ErrorOK) {
-				utilities.RespondWithError(rw, err)
-				return false
-			}
+	userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(usernames[0])
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
+		return
+	}
+	if utilities.PrintErrors("failed to retrieve user: ", errs) {
+		utilities.RespondWithError(rw, bst_models.ErrorUnknownUser)
+		return
+	}
+	client, err := user.CreateClientForUser(userModel)
+	defer client.UpdateCookie()
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
+		return
+	}
 
-			err = refreshDdrUser(client)
-			if !err.Equals(bst_models.ErrorOK) {
-				utilities.RespondWithError(rw, err)
-				return false
-			}
-			return true
-		}() {
-			errCount++
-		}
+	err = refreshDdrUser(client)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
+		return
 	}
 
 	utilities.RespondWithError(rw, err)
@@ -107,7 +101,11 @@ func ProfileGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	playerDetails, exists, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerNotFound)
+		return
+	}
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -148,7 +146,11 @@ func ProfileWorkoutDataGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playerDetails, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	playerDetails, exists, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerNotFound)
+		return
+	}
 	if utilities.PrintErrors("failed to retrieve player details by eagate user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -204,34 +206,26 @@ func ProfileUpdatePatch(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errCount := 0
-	for _, username := range usernames {
-		if !func() bool {
-			userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(username)
-			if !exists {
-				return false
-			}
-			if utilities.PrintErrors("failed to retrieve user: ", errs) {
-				return false
-			}
-			client, err := user.CreateClientForUser(userModel)
-			defer client.UpdateCookie()
-			if !err.Equals(bst_models.ErrorOK) {
-				return false
-			}
-
-			err = UpdatePlayerProfile(userModel, client)
-			if !err.Equals(bst_models.ErrorOK) {
-				return false
-			}
-			return true
-		}() {
-			errCount++
-		}
+	userModel, exists, errs := db.GetUserDb().RetrieveUserByUserId(usernames[0])
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorNoEaUser)
+		return
+	}
+	if utilities.PrintErrors("failed to retrieve user: ", errs) {
+		utilities.RespondWithError(rw, bst_models.ErrorUnknownUser)
+		return
+	}
+	client, err := user.CreateClientForUser(userModel)
+	defer client.UpdateCookie()
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
+		return
 	}
 
-	if errCount > 0 {
-		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfo)
+	err = UpdatePlayerProfile(userModel, client)
+	if !err.Equals(bst_models.ErrorOK) {
+		utilities.RespondWithError(rw, err)
+		return
 	}
 
 	utilities.RespondWithError(rw, bst_models.ErrorOK)
@@ -389,7 +383,11 @@ func SongsScoresGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	ddrProfile, exists, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerNotFound)
+		return
+	}
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -430,7 +428,11 @@ func SongScoresGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	ddrProfile, exists, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerNotFound)
+		return
+	}
 	if utilities.PrintErrors("failed to retrieve player details for user:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
@@ -477,7 +479,11 @@ func SongsScoresExtendedGet(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ddrProfile, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	ddrProfile, exists, errs := db.GetDdrDb().RetrievePlayerDetailsByEaGateUser(usernames[0])
+	if !exists {
+		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerNotFound)
+		return
+	}
 	if utilities.PrintErrors("failed to retrieve player details:", errs) {
 		utilities.RespondWithError(rw, bst_models.ErrorDdrPlayerInfoDbRead)
 		return
