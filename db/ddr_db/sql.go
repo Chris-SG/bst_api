@@ -282,13 +282,12 @@ func (dbcomm DdrDbCommunicationPostgres) AddPlayerDetails(details ddr_models.Pla
 func (dbcomm DdrDbCommunicationPostgres) RetrievePlayerDetailsByEaGateUser(eaGateUser string) (details ddr_models.PlayerDetails, exists bool, errs []error) {
 	glog.Infof("RetrieveDdrPlayerDetailsByEaGateUser for eaUser %s\n", eaGateUser)
 	eaGateUser = strings.ToLower(eaGateUser)
-	resultDb := dbcomm.db.Model(&ddr_models.PlayerDetails{}).Where("eagate_user = ?", eaGateUser)
-	if resultDb.RecordNotFound() {
+	resultDb := dbcomm.db.Model(&ddr_models.PlayerDetails{}).Where("eagate_user = ?", eaGateUser).First(&details)
+	if gorm.IsRecordNotFoundError(resultDb.Error) {
 		exists = false
 		return
 	}
 	exists = true
-	resultDb = resultDb.First(&details)
 	errors := resultDb.GetErrors()
 	if errors != nil && len(errors) != 0 {
 		errs = append(errs, errors...)
