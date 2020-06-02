@@ -22,15 +22,6 @@ func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.
 		return
 	}
 
-	nameSelection := document.Find("div#dancer_name div.name_str")
-	glog.Info(nameSelection)
-	glog.Info(nameSelection.Text())
-	if nameSelection != nil && strings.Contains(nameSelection.Text(), "---") {
-		glog.Warningf("user %s has not played ddr", client.GetUserModel().Name)
-		err = bst_models.ErrorDdrNotPlayed
-		return
-	}
-
 	playerDetails, err = playerInformationFromPlayerDocument(document)
 	if !err.Equals(bst_models.ErrorOK) {
 		glog.Errorf("could not extract player information from player document for %s", client.GetUserModel().Name)

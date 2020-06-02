@@ -15,7 +15,7 @@ func musicDataSingleDocument(client util.EaClient, pageNumber int) (document *go
 	musicDataURI := util.BuildEaURI(musicDataSingleResource)
 
 	currentPageURI := strings.Replace(musicDataURI, "{page}", strconv.Itoa(pageNumber), -1)
-	document, err = util.GetPageContentAsGoQuery(client.Client, currentPageURI)
+	document, _, err = util.GetPageContentAsGoQuery(client.Client, currentPageURI)
 	return
 }
 
@@ -25,7 +25,7 @@ func musicDetailDocument(client util.EaClient, songId string) (document *goquery
 	musicDetailURI := util.BuildEaURI(baseDetail)
 
 	musicDetailURI += songId
-	document, err = util.GetPageContentAsGoQuery(client.Client, musicDetailURI)
+	document, _, err = util.GetPageContentAsGoQuery(client.Client, musicDetailURI)
 	return
 }
 
@@ -41,7 +41,7 @@ func musicDetailDifficultyDocument(client util.EaClient, songId string, mode ddr
 
 	musicDetailURI = strings.Replace(musicDetailURI, "{id}", songId, -1)
 	musicDetailURI = strings.Replace(musicDetailURI, "{diff}", strconv.Itoa(difficultyId), -1)
-	document, err = util.GetPageContentAsGoQuery(client.Client, musicDetailURI)
+	document, _, err = util.GetPageContentAsGoQuery(client.Client, musicDetailURI)
 	return
 }
 
@@ -50,7 +50,10 @@ func playerInformationDocument(client util.EaClient) (document *goquery.Document
 	const playerInformationResource = "/game/ddr/ddra20/p/playdata/index.html"
 	playerInformationUri := util.BuildEaURI(playerInformationResource)
 
-	document, err = util.GetPageContentAsGoQuery(client.Client, playerInformationUri)
+	document, statusCode, err := util.GetPageContentAsGoQuery(client.Client, playerInformationUri)
+	if statusCode != 200 {
+		err = bst_models.ErrorDdrNotPlayed
+	}
 	return
 }
 
@@ -59,7 +62,7 @@ func recentScoresDocument(client util.EaClient) (document *goquery.Document, err
 	const recentSongsResource = "/game/ddr/ddra20/p/playdata/music_recent.html"
 	recentSongsUri := util.BuildEaURI(recentSongsResource)
 
-	document, err = util.GetPageContentAsGoQuery(client.Client, recentSongsUri)
+	document, _, err = util.GetPageContentAsGoQuery(client.Client, recentSongsUri)
 	return
 }
 
@@ -68,6 +71,6 @@ func workoutDocument(client util.EaClient) (document *goquery.Document, err bst_
 	const workoutResource = "/game/ddr/ddra20/p/playdata/workout.html"
 	workoutUri := util.BuildEaURI(workoutResource)
 
-	document, err = util.GetPageContentAsGoQuery(client.Client, workoutUri)
+	document, _, err = util.GetPageContentAsGoQuery(client.Client, workoutUri)
 	return
 }

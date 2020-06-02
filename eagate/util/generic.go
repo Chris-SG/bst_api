@@ -19,7 +19,7 @@ import (
 
 func IsMaintenanceMode(client EaClient) bool {
 	glog.Infof("checking maintenancemode for user %s\n", client.GetUserModel().Name)
-	doc, err := GetPageContentAsGoQuery(client.Client, "https://p.eagate.573.jp/game/")
+	doc, _, err := GetPageContentAsGoQuery(client.Client, "https://p.eagate.573.jp/game/")
 	if !err.Equals(bst_models.ErrorOK) {
 		glog.Warningf("failed to get page content for maintenancemode: %s\n", err.Message)
 		return true
@@ -128,13 +128,13 @@ func TableThTd(selection *goquery.Selection) (map[string]string, bst_models.Erro
 	return make(map[string]string), bst_models.ErrorGormSelector
 }
 
-func GetPageContentAsGoQuery(client *http.Client, resource string) (*goquery.Document, bst_models.Error) {
+func GetPageContentAsGoQuery(client *http.Client, resource string) (*goquery.Document, int, bst_models.Error) {
 	glog.Infof("retrieving resource %s\n", resource)
 	res, err := client.Get(resource)
 
 	if err != nil {
 		glog.Errorf("failed to get resource %s: %s\n", resource, err.Error())
-		return nil, bst_models.ErrorBadRequest
+		return nil, res.StatusCode, bst_models.ErrorBadRequest
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
@@ -149,9 +149,9 @@ func GetPageContentAsGoQuery(client *http.Client, resource string) (*goquery.Doc
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
 	if err != nil {
 		glog.Errorf("failed to create document from reader for %s", resource)
-		return doc, bst_models.ErrorGormDocument
+		return doc, res.StatusCode, bst_models.ErrorGormDocument
 	}
-	return doc, bst_models.ErrorOK
+	return doc, res.StatusCode, bst_models.ErrorOK
 }
 
 func BuildEaURI(resource string) string {

@@ -41,7 +41,7 @@ func ProfileEaSubscriptionState(client util.EaClient) (subscriptionType string, 
 	const paybookResource = "/payment/mybook/paybook.html"
 	PaybookUri := util.BuildEaURI(paybookResource)
 
-	document, err := util.GetPageContentAsGoQuery(client.Client, PaybookUri)
+	document, _, err := util.GetPageContentAsGoQuery(client.Client, PaybookUri)
 	eaSubSelection := document.Find("div#id_paybook_all .cl_course_name").First()
 
 	if eaSubSelection == nil {
