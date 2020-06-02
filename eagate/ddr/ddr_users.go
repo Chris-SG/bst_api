@@ -19,15 +19,19 @@ func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.
 	if !err.Equals(bst_models.ErrorOK) {
 		return
 	}
-	playerDetails, err = playerInformationFromPlayerDocument(document)
-	if !err.Equals(bst_models.ErrorOK) {
-		nameSelection := document.Find("div#dancer_name div.name_str").First()
-		if nameSelection != nil && nameSelection.Text() == "---" {
-			glog.Warningf("user %s has not played ddr", client.GetUserModel().Name)
-			err = bst_models.ErrorDdrNotPlayed
-		}
+
+	nameSelection := document.Find("div#dancer_name div.name_str").First()
+	if nameSelection != nil && nameSelection.Text() == "---" {
+		glog.Warningf("user %s has not played ddr", client.GetUserModel().Name)
+		err = bst_models.ErrorDdrNotPlayed
 		return
 	}
+
+	playerDetails, err = playerInformationFromPlayerDocument(document)
+	if !err.Equals(bst_models.ErrorOK) {
+		return
+	}
+
 	playcount, err = playcountFromPlayerDocument(document)
 	if !err.Equals(bst_models.ErrorOK) {
 		return
