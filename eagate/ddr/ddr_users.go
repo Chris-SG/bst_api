@@ -21,7 +21,9 @@ func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.
 	}
 	playerDetails, err = playerInformationFromPlayerDocument(document)
 	if !err.Equals(bst_models.ErrorOK) {
-		if document.Find("div#dancer_name div.name_str").Length() > 0 {
+		nameSelection := document.Find("div#dancer_name div.name_str").First()
+		if nameSelection != nil && nameSelection.Text() == "---" {
+			glog.Warningf("user %s has not played ddr", client.GetUserModel().Name)
 			err = bst_models.ErrorDdrNotPlayed
 		}
 		return
