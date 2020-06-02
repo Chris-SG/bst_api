@@ -15,13 +15,17 @@ import (
 
 func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.PlayerDetails, playcount ddr_models.Playcount, err bst_models.Error) {
 	err = bst_models.ErrorOK
+	glog.Infof("retrieving player info for %s", client.GetUserModel().Name)
 	document, err := playerInformationDocument(client)
 	if !err.Equals(bst_models.ErrorOK) {
+		glog.Errorf("failed to get playerInformationDocument for %s", client.GetUserModel().Name)
 		return
 	}
 
-	nameSelection := document.Find("div#dancer_name div.name_str").First()
-	if nameSelection != nil && nameSelection.Text() == "---" {
+	nameSelection := document.Find("div#dancer_name div.name_str")
+	glog.Info(nameSelection)
+	glog.Info(nameSelection.Text())
+	if nameSelection != nil && strings.Contains(nameSelection.Text(), "---") {
 		glog.Warningf("user %s has not played ddr", client.GetUserModel().Name)
 		err = bst_models.ErrorDdrNotPlayed
 		return
@@ -29,11 +33,13 @@ func PlayerInformationForClient(client util.EaClient) (playerDetails ddr_models.
 
 	playerDetails, err = playerInformationFromPlayerDocument(document)
 	if !err.Equals(bst_models.ErrorOK) {
+		glog.Errorf("could not extract player information from player document for %s", client.GetUserModel().Name)
 		return
 	}
 
 	playcount, err = playcountFromPlayerDocument(document)
 	if !err.Equals(bst_models.ErrorOK) {
+		glog.Errorf("could not extract playcount from player document for %s", client.GetUserModel().Name)
 		return
 	}
 	eaGateUser := client.GetUserModel().Name
