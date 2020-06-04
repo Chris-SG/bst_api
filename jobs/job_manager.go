@@ -17,7 +17,7 @@ func StartJobs() {
 
 func RunJobs() {
 	counter := 0
-	for range time.Tick(time.Minute) {
+	for range time.Tick(time.Hour) {
 		counter++
 		glog.Infof("Updating ea states %d", counter)
 
