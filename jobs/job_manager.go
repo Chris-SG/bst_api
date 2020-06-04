@@ -35,9 +35,6 @@ func RunJobs() {
 		jankenFailedCount := 0
 		for _, profile := range profilesToUpdate {
 			func() {
-				if !profile.DdrAutoUpdate {
-					return
-				}
 				usernames, errs := db.GetUserDb().RetrieveUsernamesByWebId(profile.User)
 				if len(usernames) == 0 {
 					return
@@ -54,12 +51,14 @@ func RunJobs() {
 					glog.Warning(err)
 					return
 				}
-				err = ddr.UpdatePlayerProfile(u, client)
-				if !err.Equals(bst_models.ErrorOK) {
-					ddrFailedCount++
-					glog.Warning(err)
+				if profile.DdrAutoUpdate {
+					err = ddr.UpdatePlayerProfile(u, client)
+					if !err.Equals(bst_models.ErrorOK) {
+						ddrFailedCount++
+						glog.Warning(err)
+					}
+					ddrUpdateCount++
 				}
-				ddrUpdateCount++
 
 				playCount, err := janken.PlayJanken(client)
 				if !err.Equals(bst_models.ErrorOK) {
