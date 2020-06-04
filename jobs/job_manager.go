@@ -3,6 +3,7 @@ package jobs
 import (
 	"github.com/chris-sg/bst_api/db"
 	"github.com/chris-sg/bst_api/ddr"
+	"github.com/chris-sg/bst_api/eagate/janken"
 	"github.com/chris-sg/bst_api/eagate/user"
 	"github.com/chris-sg/bst_api/utilities"
 	bst_models "github.com/chris-sg/bst_server_models"
@@ -31,6 +32,7 @@ func RunJobs() {
 		// Run ddr updates
 		ddrUpdateCount := 0
 		ddrFailedCount := 0
+		jankenFailedCount := 0
 		for _, profile := range profilesToUpdate {
 			func() {
 				if !profile.DdrAutoUpdate {
@@ -56,9 +58,15 @@ func RunJobs() {
 				if !err.Equals(bst_models.ErrorOK) {
 					ddrFailedCount++
 					glog.Warning(err)
-					return
 				}
 				ddrUpdateCount++
+
+				playCount, err := janken.PlayJanken(client)
+				if !err.Equals(bst_models.ErrorOK) {
+					jankenFailedCount++
+					glog.Warning(err)
+				}
+				glog.Infof("%s played janken %d times", client.GetUserModel().Name, playCount)
 			}()
 		}
 		glog.Infof("successfully updated %d/%d ddr profiles (%d failed)", ddrUpdateCount, len(profilesToUpdate), ddrFailedCount)
