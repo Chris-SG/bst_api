@@ -107,6 +107,9 @@ func Cache(rw http.ResponseWriter, r *http.Request) {
 	data.Public = profile.Public
 	data.Nickname = profile.Nickname
 	data.Id = profile.UserId
+	data.EventParticipation = profile.EventParticipation
+	data.DdrAutoUpdate = profile.DdrAutoUpdate
+	data.DrsAutoUpdate = profile.DrsAutoUpdate
 
 	bytes, _ := json.Marshal(data)
 	rw.WriteHeader(http.StatusOK)
