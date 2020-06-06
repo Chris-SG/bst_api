@@ -121,6 +121,9 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 	type UpdateableData struct {
 		Nickname string `json:"nickname"`
 		Public *bool `json:"public;omit_empty"`
+		EventParticipation *bool `json:"event_participation;omit_empty"`
+		DdrAutoUpdate *bool `json:"ddr_update;omit_empty"`
+		DrsAutoUpdate *bool `json:"drs_update;omit_empty"`
 	}
 
 	tokenMap := utilities.ProfileFromToken(r)
@@ -153,6 +156,15 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 	if data.Public != nil {
 		profile.Public = *data.Public
 	}
+	if data.EventParticipation != nil {
+		profile.EventParticipation = *data.EventParticipation
+	}
+	if data.DdrAutoUpdate != nil {
+		profile.DdrAutoUpdate = *data.DdrAutoUpdate
+	}
+	if data.DrsAutoUpdate != nil {
+		profile.DrsAutoUpdate = *data.DrsAutoUpdate
+	}
 
 	errs = apiDb.SetProfile(profile)
 	if utilities.PrintErrors("failed to set profile:", errs) {
@@ -160,10 +172,15 @@ func PutBstUser(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	profile, _ = apiDb.RetrieveProfile(user)
 	userCache := bstServerModels.UserCache{
 		Id:       profile.UserId,
 		Nickname: profile.Nickname,
 		Public:   profile.Public,
+		Subscription:       "",
+		EventParticipation: profile.EventParticipation,
+		DdrAutoUpdate:      profile.DdrAutoUpdate,
+		DrsAutoUpdate:      profile.DrsAutoUpdate,
 	}
 
 	bytes, _ := json.Marshal(userCache)
