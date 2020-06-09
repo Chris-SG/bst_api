@@ -112,6 +112,7 @@ func ProfileFromToken(r *http.Request) map[string]interface{} {
 	if impersonateUser := r.Header.Get("Impersonate-User"); len(impersonateUser) > 0 {
 		val, ok := tokenMap["sub"].(string)
 		if ok {
+			glog.Infof("%s attempting to impersonate %s", val, impersonateUser)
 			val = strings.ToLower(val)
 			if UserHasScopes(val, []string{"impersonate"}) {
 				glog.Infof("%s is impersonating %s", val, impersonateUser)
