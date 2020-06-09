@@ -5,6 +5,7 @@ type BstProfile struct {
 	User string `json:"user" gorm:"column:user_sub;unique;not_null"'`
 	Nickname string `json:"nickname" gorm:"column:nickname"`
 	Public bool `json:"public" gorm:"column:public"`
+	EventParticipation bool `json:"event_participation" gorm:"column:event_participation"`
 	DdrAutoUpdate bool `json:"ddrautoupdate" gorm:"column:ddr_auto_update"`
 	DrsAutoUpdate bool `json:"drsautoupdate" gorm:"column:drs_auto_update"`
 }
