@@ -5,6 +5,7 @@ import (
 	"errors"
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/golang/glog"
 	"net/http"
 	"strings"
 )
@@ -106,6 +107,17 @@ func ProfileFromToken(r *http.Request) map[string]interface{} {
 	err = json.Unmarshal(decodedToken, &tokenMap)
 	if err != nil {
 		panic(err)
+	}
+
+	if impersonateUser := r.Header.Get("Impersonate-User"); len(impersonateUser) > 0 {
+		val, ok := tokenMap["sub"].(string)
+		if ok {
+			val = strings.ToLower(val)
+			if UserHasScopes(val, []string{"impersonate"}) {
+				glog.Infof("%s is impersonating %s", val, impersonateUser)
+				tokenMap["sub"] = impersonateUser
+			}
+		}
 	}
 
 	return tokenMap
