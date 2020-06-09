@@ -210,13 +210,9 @@ func SongStatisticsForClient(client util.EaClient, charts []ddr_models.SongDiffi
 func chartStatisticsFromDocument(document *goquery.Document, playerCode int, difficulty ddr_models.SongDifficulty) (songStatistics ddr_models.SongStatistics, err bst_models.Error) {
 	err = bst_models.ErrorOK
 	if strings.Contains(document.Find("div#popup_cnt").Text(), "NO PLAY") {
-		glog.Warningf("failed to find substring")
-		err = bst_models.ErrorStringSearch
 		return
 	}
 	if strings.Contains(document.Find("div#popup_cnt").Text(), "難易度を選択してください。") {
-		glog.Warningf("failed to find substring")
-		err = bst_models.ErrorStringSearch
 		return
 	}
 
