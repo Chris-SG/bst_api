@@ -16,6 +16,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -23,6 +24,8 @@ import (
 func main() {
 	utilities.LoadConfig()
 	utilities.PrepareMiddleware()
+
+	os.Setenv("GODEBUG", "http2debug=2")
 
 	if utilities.DbMigration {
 		db.GetMigrator().Create()
