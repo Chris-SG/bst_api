@@ -46,6 +46,7 @@ func main() {
 		WriteTimeout: 90 * time.Second,
 		TLSConfig: &tls.Config{
 			GetCertificate: certManager.GetCertificate,
+			ServerName: utilities.ServeHost,
 		},
 	}
 
