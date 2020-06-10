@@ -45,7 +45,8 @@ func main() {
 	srv := &http.Server{
 		Handler:           r,
 		Addr:		":" + utilities.ServePort,
-		ReadHeaderTimeout: 10 * time.Second,
+		ReadHeaderTimeout: 60 * time.Second,
+		ReadTimeout: 60 * time.Second,
 		WriteTimeout: 90 * time.Second,
 		TLSConfig: &tls.Config{
 			GetCertificate: certManager.GetCertificate,
