@@ -61,6 +61,7 @@ func CreateDdrRouter() *mux.Router {
 // operation and should be used sparingly.
 func ProfileRefreshPatch(rw http.ResponseWriter, r *http.Request) {
 	usernames, err := common.RetrieveEaGateUsernamesForRequest(r)
+	r.Body.Close()
 	if !err.Equals(bst_models.ErrorOK) {
 		utilities.RespondWithError(rw, err)
 		return
