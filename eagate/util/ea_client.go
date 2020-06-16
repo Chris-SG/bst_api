@@ -107,7 +107,12 @@ func (client *EaClient) GetEaCookieExpirationTime() int64 {
 
 func (client *EaClient) LoginState() bool {
 	res, err := client.Client.Get("https://p.eagate.573.jp/gate/p/mypage/index.html")
-	if err != nil || res.StatusCode != 200 {
+	if err != nil {
+		glog.Warningf("loginstate had error: %s", err.Error())
+		return false
+	}
+	if  res.StatusCode == http.StatusUnauthorized ||
+		(res.StatusCode == http.StatusFound && strings.Contains(res.Header.Get("Location"), "login.html")) {
 		glog.Warningf("loginstate for %s is false, status %d\n", client.userModel.Name, res.StatusCode)
 		return false
 	}

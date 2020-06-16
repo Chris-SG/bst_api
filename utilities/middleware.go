@@ -15,6 +15,7 @@ func PrepareMiddleware() {
 
 	if commonMiddleware == nil {
 		commonMiddleware = negroni.New(
+			negroni.HandlerFunc(startAction),
 			negroni.HandlerFunc(logger.ServeHTTP),
 			negroni.HandlerFunc(setContentType))
 	}
@@ -51,5 +52,14 @@ func setForbidden(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc
 // endpoints will return json data.
 func setContentType(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	next(rw, r)
+}
+
+func startAction(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	//ctx := r.Context()
+	//action := api_models.Action{
+	//	Id:    uuid.New(),
+	//	State: "started",
+	//}
 	next(rw, r)
 }

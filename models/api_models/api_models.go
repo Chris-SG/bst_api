@@ -17,3 +17,8 @@ type AutomaticJob struct {
 func (AutomaticJob) ColumnName() string {
 	return "automaticJobs"
 }
+
+type Action struct {
+	Id [16]byte `json:"id" gorm:"column:id;primary_key"`
+	State string `json:"state" gorm:"column:state"`
+}
