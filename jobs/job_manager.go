@@ -66,6 +66,8 @@ func RunJobs() {
 					glog.Warning(err)
 				}
 				glog.Infof("%s played janken %d times", client.GetUserModel().Name, playCount)
+
+				janken.PlayWbr(client)
 			}()
 		}
 		glog.Infof("successfully updated %d/%d ddr profiles (%d failed)", ddrUpdateCount, len(profilesToUpdate), ddrFailedCount)
